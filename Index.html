@@ -131,7 +131,8 @@
 
   /* ── KPI cards (الصف الأول — جسر بالقيمة) ── */
   .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
-  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; border-inline-start: 4px solid var(--border); }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; border-inline-start: 4px solid var(--border); cursor: pointer; transition: box-shadow .15s, transform .1s; }
+  .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.09); transform: translateY(-1px); }
   .kpi-card[data-state="good"]    { border-inline-start-color: var(--green); }
   .kpi-card[data-state="warning"] { border-inline-start-color: var(--amber); }
   .kpi-card[data-state="bad"]     { border-inline-start-color: var(--red); }
@@ -139,13 +140,16 @@
   .kpi-label { font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px; }
   .kpi-label-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
   .kpi-label-row .kpi-label { margin-bottom: 0; }
+  .kpi-click-hint { font-size: 10.5px; color: var(--accent); opacity: 0; transition: opacity .15s; }
+  .kpi-card:hover .kpi-click-hint { opacity: 1; }
   .kpi-value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); direction: ltr; text-align: right; }
   .kpi-delta { font-size: 12px; margin-top: 4px; }
   .kpi-delta.up   { color: var(--green); }
   .kpi-delta.down { color: var(--red); }
   .kpi-pct { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
   .kpi-breakdown { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); display: flex; gap: 10px; flex-wrap: wrap; }
-  .kpi-breakdown-item { flex: 1; min-width: 70px; text-align: center; }
+  .kpi-breakdown-item { flex: 1; min-width: 70px; text-align: center; border-radius: 8px; padding: 4px 2px; transition: background .12s; cursor: pointer; }
+  .kpi-breakdown-item:hover { background: var(--accent-light); }
   .kpi-breakdown-item + .kpi-breakdown-item { border-inline-start: 1px solid var(--border); }
   .kpi-breakdown-label { font-size: 10.5px; color: var(--text-secondary); margin-bottom: 3px; }
   .kpi-breakdown-value { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; direction: ltr; }
@@ -239,12 +243,35 @@
   .about-ep { display: flex; gap: 10px; align-items: baseline; font-size: 13px; }
   .about-ep code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
   .about-code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre; direction: ltr; text-align: left; line-height: 1.65; color: var(--text-primary); margin: 0; }
+
+  /* ── Drilldown Modal (v1.0.1) ── */
+  .drill-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .drill-overlay.open { display: flex; }
+  .drill-modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 920px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.2); overflow: hidden; }
+  .drill-hdr { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 10px; }
+  .drill-title { font-size: 14.5px; font-weight: 700; }
+  .drill-subtitle { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; font-weight: 400; }
+  .drill-summary-row { display: flex; gap: 18px; padding: 10px 18px; background: var(--surface-2); border-bottom: 1px solid var(--border); flex-shrink: 0; font-size: 12px; flex-wrap: wrap; }
+  .drill-summary-item b { font-family: var(--font-mono); }
+  .drill-body { overflow-y: auto; flex: 1; }
+  .drill-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .drill-table thead th {
+    position: sticky; top: 0; background: var(--surface-2); text-align: right; padding: 9px 12px;
+    font-size: 11px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border-strong); white-space: nowrap;
+  }
+  .drill-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .drill-table tbody tr:hover { background: var(--accent-light); }
+  .drill-table .col-value, .col-qty { font-family: var(--font-mono); direction: ltr; text-align: left; }
+  .drill-order-link { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; color: var(--accent); text-decoration: none; font-weight: 600; }
+  .drill-order-link:hover { text-decoration: underline; }
+  .drill-badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; display: inline-block; }
+  .drill-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
 </style>
 </head>
 <body>
 
 <!-- ══════════════════════════════════════════════════════
-     §SHELL — header + settings modal + changelog modal + about modal + toast
+     §SHELL — header + settings modal + changelog modal + about modal + drilldown modal + toast
      ══════════════════════════════════════════════════════ -->
 <main>
   <div class="app-header">
@@ -262,7 +289,7 @@
         <span class="freshness-text">جاري التحميل…</span>
       </div>
       <button class="hbtn" onclick="openAbout()">ℹ️ عن الأداة</button>
-      <button class="hbtn ver-btn" onclick="openChangelog()">v1.0.0 📋</button>
+      <button class="hbtn ver-btn" onclick="openChangelog()">v1.0.1 📋</button>
       <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
     </div>
   </div>
@@ -339,6 +366,14 @@
     <div class="changelog-modal-hdr">📋 سجل التحديثات<button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="changelog-body">
       <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge">v1.0.1</span><span class="cl-ver-date">03-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>Drill-down: الضغط على أي مربع رئيسي أو أي فرع تحته بيفتح جدول تفصيلي (رقم الأوردر كهايبرلينك لشوبيفاي أدمن، التاريخ، SKU، القيمة، حالة القطعة، حالة الأوردر)</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>الجدول بيتفتح فوراً من الـ cache المحمّل بالفعل (state.rows) — بدون أي نداء Worker إضافي</span></li>
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span>الـ Worker بقى يرجّع rows[] جنب boxes — CACHE_VERSION اترفع لـ v2 (breaking cache shape)</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge">v1.0.0</span><span class="cl-ver-date">02-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>إطلاق أول نسخة — الشاشة الرئيسية بس، مبنية على sales-dashboard-overview-data-contract-v2.md بالكامل (نموذج القطعة Q/C/P، مش نموذج الأوردر)</span></li>
@@ -365,16 +400,19 @@
           <p>المدير العام وفريق التحليل.</p>
           <div class="about-label">النموذج (Data Contract v2.0.0)</div>
           <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي القيمة = قيد التنفيذ + الفاقد + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
+          <div class="about-label">Drill-down (v1.0.1)</div>
+          <p>كل مربع (رئيسي أو فرعي) قابل للضغط — بيفتح جدول بكل جزء كمية بنى عليه الرقم: رقم الأوردر (هايبرلينك لشوبيفاي أدمن)، التاريخ، SKU، القيمة، حالة القطعة، وحالة الأوردر (S1). البيانات جاهزة مسبقاً من نفس نداء get_data — الضغط مبيعملش أي fetch إضافي.</p>
           <div class="about-label">كيف تعمل</div>
           <div class="about-steps">
             <div class="about-step"><span class="about-num">1</span><span>اختار فترة — preset من "⚡ فترة سريعة" أو تعديل يدوي على "من/إلى تاريخ" — بيتحمل من الكاش (KV) لو موجود.</span></div>
             <div class="about-step"><span class="about-num">2</span><span>الـ Worker بيجيب كل الأوردرات (مرحلة 1، first: 250)، وبعدين بيانات المرتجعات للأوردرات المرشّحة بس (مرحلة 2، دفعات 10) — المرشّح = Σ(Q)≠Σ(C) أو فيه S2.</span></div>
             <div class="about-step"><span class="about-num">3</span><span>زرار "تحديث" بيجبر Fetch جديد من Shopify. تغيير الفترة بيقرا من الكاش لو نطاق مغلق (قبل النهاردة) أو TTL 15 دقيقة لو نطاق مفتوح.</span></div>
             <div class="about-step"><span class="about-num">4</span><span>لو أي أوردر فيه أكتر من 25 سطر، أو أي صفحة فشلت، الطلب كله بيفشل برسالة واضحة — مفيش أرقام ناقصة بصمت.</span></div>
+            <div class="about-step"><span class="about-num">5</span><span>الضغط على أي مربع أو فرع بيفتح جدول التفاصيل من نفس البيانات المحمّلة (rows[]) — بدون أي تحميل إضافي.</span></div>
           </div>
           <div class="about-label">الـ Endpoints الرئيسية</div>
           <div class="about-endpoints">
-            <div class="about-ep"><code>get_data</code><span>المربعات الأربعة للفترة (POST — dateFrom/dateTo/forceRefresh)</span></div>
+            <div class="about-ep"><code>get_data</code><span>المربعات الأربعة + صفوف التفصيل (rows) للفترة (POST — dateFrom/dateTo/forceRefresh)</span></div>
             <div class="about-ep"><code>get_meta</code><span>عمر بيانات الفترة من غير Shopify fetch (GET)</span></div>
             <div class="about-ep"><code>clear_cache</code><span>مسح كاش الفترة أو كل الكاش — للصيانة (مش متاح من الـ UI حالياً)</span></div>
           </div>
@@ -389,7 +427,9 @@ Feature                         │ File    │ §Section    │ fn/action
 ──────────────────────────────────────────────────────────────
 4 مربعات الرئيسية + الهوية      │ HTML    │ §TOOL-JS    │ renderBoxes
 فلتر التاريخ (شكل موحّد)        │ HTML    │ §DATERANGE  │ applyRangePreset / onRangeDateChange
+Drill-down modal (جدول تفصيلي)  │ HTML    │ §DRILL      │ openDrilldown / renderDrillTable
 تجميع القطعة (Q/C/P → مربعات)  │ Worker  │ §AGGREGATE  │ computeBoxes
+صفوف التفصيل لكل bucket         │ Worker  │ §AGGREGATE  │ pushRow
 تسوية دورات الإرجاع/الاستبدال   │ Worker  │ §AGGREGATE  │ computeBoxes (settledByLineId)
 ملغي/RTO short-circuit          │ Worker  │ §AGGREGATE  │ isCancelledOrRTO
 مرحلة 1 — كل الأوردرات          │ Worker  │ §SHOPIFY    │ fetchStage1
@@ -403,11 +443,15 @@ LS_URL    = 'perfdash_worker_url'
 LS_SECRET = 'perfdash_worker_secret'
 activeRangePreset = '' | 'today' | 'yesterday' | 'last3' | 'last7' | 'last30' | 'last90'
                   | 'thisMonth' | 'lastMonth' | 'thisQuarter' | 'thisYear' | 'lastYear'
+state.rows = [{ orderId, orderName, createdAt, sku, qty, value, bucket, s1 }, ...]
+BUCKET_LABELS = خريطة bucket → التسمية العربية المعروضة في عمود "حالة القطعة"
+SHOPIFY_ADMIN_ORDER_URL(id) = https://admin.shopify.com/store/6c7e1a-53/orders/{id}
 
 NOTES
-- الأداة دي بتكاش المربعات النهائية بس (مش الأوردرات الخام) — لأن مفيش تابات تانية
-  محتاجة raw data دلوقتي. لو اتضافت تابات تانية لاحقاً (Data Contract منفصل)، ده
-  قد يحتاج مراجعة لاستراتيجية الكاش.
+- الأداة دي بتكاش المربعات النهائية + صفوف التفصيل مع بعض (v1.0.1) — لسه مفيش
+  تابات تانية محتاجة raw data على مستوى تاني غير ده.
+- CACHE_VERSION اترفع من v1 لـ v2 في هذا التحديث (shape جديد فيه rows[]) — أول
+  تحميل لأي فترة اتكاشت قبل التحديث هيتحسب من جديد من شوبيفاي تلقائياً.
 - الصف التاني (معدلات بالعدد زي نسبة RTO) متعمّد إنه مش موجود هنا — Data Contract v2
   §10 بيقول ده Data Contract مستقل لسه ما اتعملش.
 - الـ Worker بيقارن الفترة الحالية بالسابقة تلقائياً (نداءين get_data منفصلين) عشان
@@ -424,6 +468,37 @@ NOTES
   </div>
 </div>
 
+<!-- Drilldown Modal (v1.0.1) -->
+<div class="drill-overlay" id="drillOverlay" onclick="closeDrillOnBackdrop(event)">
+  <div class="drill-modal">
+    <div class="drill-hdr">
+      <div>
+        <div class="drill-title" id="drillTitle">تفاصيل</div>
+        <div class="drill-subtitle" id="drillSubtitle"></div>
+      </div>
+      <button class="modal-close-x" onclick="closeDrill()">✕</button>
+    </div>
+    <div class="drill-summary-row" id="drillSummaryRow"></div>
+    <div class="drill-body">
+      <table class="drill-table">
+        <thead>
+          <tr>
+            <th>رقم الأوردر</th>
+            <th>التاريخ</th>
+            <th>SKU</th>
+            <th>الكمية</th>
+            <th>القيمة</th>
+            <th>حالة القطعة</th>
+            <th>حالة الأوردر</th>
+          </tr>
+        </thead>
+        <tbody id="drillTbody"></tbody>
+      </table>
+      <div class="drill-empty hidden" id="drillEmpty">مفيش صفوف ضمن الفلتر ده في الفترة المختارة.</div>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════════════════
 // §CONFIG
@@ -431,6 +506,7 @@ NOTES
 const LS_URL    = 'perfdash_worker_url';
 const LS_SECRET = 'perfdash_worker_secret';
 const CURRENCY_SUFFIX = 'ج.م';
+const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
 
 function getConfig() {
   return {
@@ -544,6 +620,13 @@ function getPreviousRange(range) {
   const prevFrom = addDays(prevTo, -(len - 1));
   return { from: prevFrom, to: prevTo };
 }
+// عرض تاريخ الأوردر بصيغة قصيرة en-US (اليوم/الشهر مبنيين على createdAt القادم من شوبيفاي — UTC، غير محوّل لتوقيت القاهرة عمداً هنا لأنه للعرض السريع بس في الجدول)
+function fmtDrillDate(iso) {
+  if (!iso) return '—';
+  const d = toCairo(iso);
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`;
+}
 
 // ══════════════════════════════════════════════════════
 // §STATE
@@ -553,6 +636,7 @@ const state = {
   range: null,
   boxes: null,
   prevBoxes: null,
+  rows: [],
   ordersScanned: 0,
   candidatesFetched: 0,
   meta: { lastUpdated: null, source: null },
@@ -710,6 +794,7 @@ async function loadAll({ forceRefresh }) {
 
     state.boxes             = curRes.boxes;
     state.prevBoxes          = prevRes.boxes;
+    state.rows               = curRes.rows || [];
     state.ordersScanned     = curRes.ordersScanned || 0;
     state.candidatesFetched = curRes.candidatesFetched || 0;
     state.meta              = { lastUpdated: curRes.lastUpdated, source: curRes.source };
@@ -771,22 +856,25 @@ function delta(curVal, prevVal, direction = 'higher_better') {
 const infoIcon = html => `<span class="kpi-info">ⓘ<span class="kpi-tooltip">${html}</span></span>`;
 
 // ─── §TOOL-JS::renderBoxes — الـ 4 مربعات + بطاقة تحقق الهوية ───
+// كل كارت وكل فرع تحته قابل للضغط (v1.0.1) — data-buckets يحدد أي rows تتفلتر،
+// و stopPropagation على الفروع عشان الضغط على فرع مايفتحش drilldown الكارت الأب كمان.
 function renderBoxes() {
   const b = state.boxes, pb = state.prevBoxes || {};
   const pctOfTotal = amt => b.totalValue ? (amt / b.totalValue) * 100 : 0;
   const pctLine = amt => `<div class="kpi-pct">${fmtPct(pctOfTotal(amt))} من إجمالي القيمة</div>`;
 
   document.getElementById('overviewKpis').innerHTML = `
-    <div class="kpi-card" data-state="neutral">
+    <div class="kpi-card" data-state="neutral" onclick="openDrilldown([], 'إجمالي القيمة', 'كل الحركة في الفترة المختارة')">
       <div class="kpi-label-row">
         <span class="kpi-label">إجمالي القيمة</span>
         ${infoIcon('مجموع Σ(Q×P) لكل سطر في كل أوردر بالفترة — القاعدة (100%) اللي بتتحسب عليها نسب باقي المربعات. Q = الكمية الأصلية، P = discountedUnitPriceSet.')}
       </div>
       <div class="kpi-value">${fmtMoney(b.totalValue)}</div>
       ${delta(b.totalValue, pb.totalValue)}
+      <div class="kpi-click-hint">اضغط لعرض كل الحركة بالتفصيل ↗</div>
     </div>
 
-    <div class="kpi-card">
+    <div class="kpi-card" onclick="openDrilldown(['IN_PROGRESS_NORMAL','IN_PROGRESS_REPLACEMENT'], 'قيد التنفيذ', 'كل القطع اللي لسه ما اتسلّمتش')">
       <div class="kpi-label-row">
         <span class="kpi-label">قيد التنفيذ</span>
         ${infoIcon('قيمة الأسطر الباقية (C×P) في الأوردرات اللي لسه ما اتسلّمتش (S1 ≠ Delivered)، زائد قيمة البدائل من دورات استبدال لسه مفتوحة (غير مُسوّاة).')}
@@ -795,12 +883,12 @@ function renderBoxes() {
       ${delta(b.inProgress, pb.inProgress, 'lower_better')}
       ${pctLine(b.inProgress)}
       <div class="kpi-breakdown">
-        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">عادي</div><div class="kpi-breakdown-value">${fmtMoney(b.inProgress - b.inProgressReplacement)}</div></div>
-        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">بديل قيد التسليم</div><div class="kpi-breakdown-value">${fmtMoney(b.inProgressReplacement)}</div></div>
+        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['IN_PROGRESS_NORMAL'], 'قيد التنفيذ — عادي', '')"><div class="kpi-breakdown-label">عادي</div><div class="kpi-breakdown-value">${fmtMoney(b.inProgress - b.inProgressReplacement)}</div></div>
+        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['IN_PROGRESS_REPLACEMENT'], 'قيد التنفيذ — بديل قيد التسليم', '')"><div class="kpi-breakdown-label">بديل قيد التسليم</div><div class="kpi-breakdown-value">${fmtMoney(b.inProgressReplacement)}</div></div>
       </div>
     </div>
 
-    <div class="kpi-card" data-state="${b.lost > 0 ? 'warning' : 'good'}">
+    <div class="kpi-card" data-state="${b.lost > 0 ? 'warning' : 'good'}" onclick="openDrilldown(['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], 'الفاقد', 'كل القطع اللي راحت من غير رجوع فلوسها')">
       <div class="kpi-label-row">
         <span class="kpi-label">الفاقد</span>
         ${infoIcon('ملغي (كل قيمة الأوردر) + RTO (كل قيمة الأوردر) + محذوف قبل الشحن (جزء من سطر اتشال قبل الطباعة) + مرتجع نهائي (رجع من غير بديل) + مرتجع استبدال (رجع مع بديل — تسوية = return.status=CLOSED و S2 ضمن In-Return/Returned).')}
@@ -809,15 +897,15 @@ function renderBoxes() {
       ${delta(b.lost, pb.lost, 'lower_better')}
       ${pctLine(b.lost)}
       <div class="kpi-breakdown">
-        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">ملغي</div><div class="kpi-breakdown-value">${fmtMoney(b.lostCancelled)}</div></div>
-        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">RTO</div><div class="kpi-breakdown-value">${fmtMoney(b.lostRTO)}</div></div>
-        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">محذوف قبل الشحن</div><div class="kpi-breakdown-value">${fmtMoney(b.lostRemoved)}</div></div>
-        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">مرتجع نهائي</div><div class="kpi-breakdown-value">${fmtMoney(b.lostFinalReturn)}</div></div>
-        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">مرتجع استبدال</div><div class="kpi-breakdown-value">${fmtMoney(b.lostExchangeReturn)}</div></div>
+        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['CANCELLED'], 'الفاقد — ملغي', '')"><div class="kpi-breakdown-label">ملغي</div><div class="kpi-breakdown-value">${fmtMoney(b.lostCancelled)}</div></div>
+        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['RTO'], 'الفاقد — RTO', '')"><div class="kpi-breakdown-label">RTO</div><div class="kpi-breakdown-value">${fmtMoney(b.lostRTO)}</div></div>
+        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['REMOVED'], 'الفاقد — محذوف قبل الشحن', '')"><div class="kpi-breakdown-label">محذوف قبل الشحن</div><div class="kpi-breakdown-value">${fmtMoney(b.lostRemoved)}</div></div>
+        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['FINAL_RETURN'], 'الفاقد — مرتجع نهائي', '')"><div class="kpi-breakdown-label">مرتجع نهائي</div><div class="kpi-breakdown-value">${fmtMoney(b.lostFinalReturn)}</div></div>
+        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['EXCHANGE_RETURN'], 'الفاقد — مرتجع استبدال', '')"><div class="kpi-breakdown-label">مرتجع استبدال</div><div class="kpi-breakdown-value">${fmtMoney(b.lostExchangeReturn)}</div></div>
       </div>
     </div>
 
-    <div class="kpi-card" data-state="good">
+    <div class="kpi-card" data-state="good" onclick="openDrilldown(['NET_SALES_NORMAL','NET_SALES_REPLACEMENT'], 'صافي المبيعات', 'كل القطع اللي اتسلّمت فعلياً للعميل')">
       <div class="kpi-label-row">
         <span class="kpi-label">صافي المبيعات</span>
         ${infoIcon('قيمة الأسطر الباقية (C×P) في الأوردرات المُسلَّمة (S1 = Delivered)، زائد قيمة البدائل من دورات استبدال مُسوّاة فعلياً.')}
@@ -826,8 +914,8 @@ function renderBoxes() {
       ${delta(b.netSales, pb.netSales)}
       ${pctLine(b.netSales)}
       <div class="kpi-breakdown">
-        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">مُسلَّم</div><div class="kpi-breakdown-value">${fmtMoney(b.netSales - b.netSalesReplacement)}</div></div>
-        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">بديل</div><div class="kpi-breakdown-value">${fmtMoney(b.netSalesReplacement)}</div></div>
+        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['NET_SALES_NORMAL'], 'صافي المبيعات — مُسلَّم', '')"><div class="kpi-breakdown-label">مُسلَّم</div><div class="kpi-breakdown-value">${fmtMoney(b.netSales - b.netSalesReplacement)}</div></div>
+        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['NET_SALES_REPLACEMENT'], 'صافي المبيعات — بديل', '')"><div class="kpi-breakdown-label">بديل</div><div class="kpi-breakdown-value">${fmtMoney(b.netSalesReplacement)}</div></div>
       </div>
     </div>
   `;
@@ -845,6 +933,87 @@ function renderIdentityCheck(b) {
   card.innerHTML = ok
     ? `✅ الهوية الحسابية متوازنة: <span class="mono">${fmtMoney(b.totalValue)} = ${fmtMoney(b.inProgress)} + ${fmtMoney(b.lost)} + ${fmtMoney(b.netSales)}</span>`
     : `⚠️ في اختلاف ${fmtMoney(diff)} بين إجمالي القيمة ومجموع المربعات — ده باج محتاج مراجعة في الكود، مش في الموديل. <span class="mono">${fmtMoney(b.totalValue)} ≠ ${fmtMoney(sum)}</span>`;
+}
+
+// ══════════════════════════════════════════════════════
+// §DRILL — Drill-down modal (v1.0.1)
+// ══════════════════════════════════════════════════════
+
+// خريطة موحّدة لازم تتطابق مع BUCKET في الـ Worker حرفياً — أي bucket جديد هناك
+// لازم يتضاف هنا وإلا هيظهر بدون تسمية عربية (fallback = الكود الخام).
+const BUCKET_LABELS = {
+  RTO:                     { label: 'RTO',                    colour: 'var(--red)' },
+  CANCELLED:               { label: 'ملغي',                   colour: 'var(--red)' },
+  REMOVED:                 { label: 'محذوف قبل الشحن',        colour: 'var(--amber)' },
+  FINAL_RETURN:            { label: 'مرتجع نهائي',            colour: 'var(--red)' },
+  EXCHANGE_RETURN:         { label: 'مرتجع استبدال',          colour: 'var(--amber)' },
+  NET_SALES_NORMAL:        { label: 'مُسلَّم',                 colour: 'var(--green)' },
+  NET_SALES_REPLACEMENT:   { label: 'بديل (مُسلَّم)',          colour: 'var(--green)' },
+  IN_PROGRESS_NORMAL:      { label: 'عادي (قيد التنفيذ)',      colour: 'var(--accent)' },
+  IN_PROGRESS_REPLACEMENT: { label: 'بديل قيد التسليم',        colour: 'var(--accent)' },
+};
+
+function bucketBadge(bucketKey) {
+  const meta = BUCKET_LABELS[bucketKey] || { label: bucketKey || '—', colour: 'var(--text-muted)' };
+  return `<span class="drill-badge" style="background:color-mix(in srgb, ${meta.colour} 14%, transparent); color:${meta.colour};">${meta.label}</span>`;
+}
+
+function shopifyOrderUrl(orderId) {
+  return `https://admin.shopify.com/store/${SHOPIFY_STORE_HANDLE}/orders/${orderId}`;
+}
+
+// §DRILL::openDrilldown — buckets=[] معناها كل الصفوف من غير فلترة (كارت إجمالي القيمة)
+function openDrilldown(buckets, title, subtitle) {
+  const rows = (buckets && buckets.length)
+    ? state.rows.filter(r => buckets.includes(r.bucket))
+    : state.rows;
+
+  document.getElementById('drillTitle').textContent = title;
+  document.getElementById('drillSubtitle').textContent = subtitle || `${state.range.from} → ${state.range.to}`;
+  renderDrillSummary(rows);
+  renderDrillTable(rows);
+  document.getElementById('drillOverlay').classList.add('open');
+}
+function closeDrill() { document.getElementById('drillOverlay').classList.remove('open'); }
+function closeDrillOnBackdrop(e) { if (e.target === e.currentTarget) closeDrill(); }
+
+function renderDrillSummary(rows) {
+  const totalValue = rows.reduce((s, r) => s + (r.value || 0), 0);
+  const totalQty   = rows.reduce((s, r) => s + (r.qty || 0), 0);
+  const orderCount = new Set(rows.map(r => r.orderId)).size;
+  document.getElementById('drillSummaryRow').innerHTML = `
+    <span class="drill-summary-item">عدد الصفوف: <b>${fmtInt(rows.length)}</b></span>
+    <span class="drill-summary-item">عدد الأوردرات: <b>${fmtInt(orderCount)}</b></span>
+    <span class="drill-summary-item">إجمالي الكمية: <b>${fmtInt(totalQty)}</b></span>
+    <span class="drill-summary-item">إجمالي القيمة: <b>${fmtMoney(totalValue)}</b></span>
+  `;
+}
+
+function renderDrillTable(rows) {
+  const tbody = document.getElementById('drillTbody');
+  const empty = document.getElementById('drillEmpty');
+
+  if (!rows.length) {
+    tbody.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+
+  // الأحدث أولاً
+  const sorted = [...rows].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
+  tbody.innerHTML = sorted.map(r => `
+    <tr>
+      <td><a class="drill-order-link" href="${shopifyOrderUrl(r.orderId)}" target="_blank" rel="noopener">${r.orderName || ('#' + r.orderId)}</a></td>
+      <td>${fmtDrillDate(r.createdAt)}</td>
+      <td class="mono">${r.sku || '—'}</td>
+      <td class="col-qty">${fmtInt(r.qty)}</td>
+      <td class="col-value">${fmtMoney(r.value)}</td>
+      <td>${bucketBadge(r.bucket)}</td>
+      <td>${r.s1 || '—'}</td>
+    </tr>
+  `).join('');
 }
 
 // ══════════════════════════════════════════════════════
