@@ -6,6 +6,7 @@
 <title>لوحة الأداء — EcomModa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 
 <!-- ══════════════════════════════════════════════════════
      §STYLES
@@ -151,19 +152,22 @@
   .kpi-delta.down { color: var(--red); }
   .kpi-pct { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
 
-  /* ── نسبة مئوية بصرية (bar + رقم) — للمربعات الرئيسية والفرعية ── */
-  .pct-line { display: flex; align-items: center; gap: 7px; margin-top: 7px; }
-  .pct-bar { flex: 1; height: 7px; border-radius: 5px; background: var(--border); overflow: hidden; }
-  .pct-bar-fill { height: 100%; border-radius: 5px; background: var(--accent); transition: width .35s ease; }
-  .pct-bar-fill.clr-red    { background: var(--red); }
-  .pct-bar-fill.clr-green  { background: var(--green); }
-  .pct-bar-fill.clr-amber  { background: var(--amber); }
-  .pct-bar-fill.clr-purple { background: var(--purple); }
-  .pct-text { font-family: var(--font-mono); font-size: 11.5px; font-weight: 800; color: var(--text-secondary); white-space: nowrap; direction: ltr; }
-  .pct-text.clr-red    { color: var(--red); }
-  .pct-text.clr-green  { color: var(--green); }
-  .pct-text.clr-amber  { color: var(--amber); }
-  .pct-text.clr-purple { color: var(--purple); }
+  /* ── Pie / Donut chart card (للمربعات الأساسية) ── */
+  .chart-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; box-shadow: var(--shadow); grid-column: span 2; display: flex; flex-direction: column; min-height: 260px; }
+  @media (max-width: 640px) { .chart-card { grid-column: span 1; } }
+  .chart-card-hdr { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 800; margin-bottom: 4px; }
+  .chart-card-hdr .kpi-icon { font-size: 15px; }
+  .chart-card-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
+  .chart-card-body { display: flex; align-items: center; gap: 16px; flex: 1; flex-wrap: wrap; }
+  .chart-canvas-wrap { position: relative; width: 190px; height: 190px; flex-shrink: 0; margin: 0 auto; }
+  .chart-legend { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 7px; }
+  .chart-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; padding: 3px 5px; border-radius: 6px; transition: background .12s; }
+  .chart-legend-item:hover { background: var(--surface-2); }
+  .chart-legend-item.drill-active { background: var(--accent-light); }
+  .chart-legend-dot { width: 11px; height: 11px; border-radius: 3px; flex-shrink: 0; }
+  .chart-legend-label { flex: 1; font-weight: 700; color: var(--text-primary); }
+  .chart-legend-val { font-family: var(--font-mono); font-size: 11.5px; font-weight: 800; direction: ltr; color: var(--text-secondary); }
+  .chart-legend-pct { font-family: var(--font-mono); font-size: 11px; font-weight: 700; direction: ltr; color: var(--text-muted); min-width: 44px; text-align: left; }
 
   /* breakdown — grid عشان المربعات الفرعية تتقسم على سطور مرتبة */
   .kpi-breakdown { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 5px; }
@@ -361,7 +365,7 @@
         <span class="freshness-text">جاري التحميل…</span>
       </div>
       <button class="hbtn" onclick="openAbout()">ℹ️ عن الأداة</button>
-      <button class="hbtn ver-btn" onclick="openChangelog()">v1.2.0 📋</button>
+      <button class="hbtn ver-btn" onclick="openChangelog()">v1.3.0 📋</button>
       <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
     </div>
   </div>
@@ -437,6 +441,13 @@
   <div class="changelog-modal">
     <div class="changelog-modal-hdr">📋 سجل التحديثات<button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="changelog-body">
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge">v1.3.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span><b>شيل النسب المئوية من المربعات الأساسية</b> (تحت التأكيد · مؤكد تحت التجهيز · مؤكد خرج للشحن · الخسائر · صافي المبيعات). النسب في المربعات الفرعية بقيت زي ما هي.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>Donut chart</b> (Chart.js) في المساحة الفاضية — بيوزّع "إجمالي المبيعات" على المربعات الأساسية الخمسة بنفس ألوانها. الليجند والشرائح قابلين للضغط ويفتحوا نفس تفاصيل المربع في الجدول تحت.</span></li>
+        </ul>
+      </div>
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge">v1.2.0</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
@@ -566,7 +577,8 @@
 ──────────────────────────────────────────────────────────────
 Feature                          │ File   │ §Section   │ fn/action
 ──────────────────────────────────────────────────────────────
-6 مربعات رئيسية + فرعية + الهوية │ HTML   │ §TOOL-JS   │ renderBoxes / sub / pctLineHTML
+6 مربعات رئيسية + فرعية + الهوية │ HTML   │ §TOOL-JS   │ renderBoxes / sub
+دونات توزيع إجمالي المبيعات      │ HTML   │ §TOOL-JS   │ renderMainPie (Chart.js)
 فلتر التاريخ (شكل موحّد)         │ HTML   │ §DATERANGE │ applyRangePreset
 قسم التفاصيل (inline collapsible)│ HTML   │ §DETAILS   │ showDetails / renderDetails / renderDetailsTableWrap
 بحث في جدول التفاصيل             │ HTML   │ §DETAILS   │ onDetailsSearch / searchFilteredRows
@@ -608,6 +620,12 @@ NOTES
   حقل جديد اتطلب من الـ Worker.
 - نسبة كل مربع فرعي بتتحسب بالنسبة لإجمالي المربع الرئيسي اللي هو جواه
   (parentTotal في sub())، مش بالنسبة لإجمالي المبيعات الكامل.
+- الدونات (renderMainPie) بيوزّع إجمالي المبيعات على الـ 5 مربعات الأساسية
+  (تحت التأكيد · مؤكد تحت التجهيز · مؤكد خرج للشحن · الخسائر · صافي المبيعات) —
+  مجموع الشرائح = إجمالي المبيعات (نفس الهوية الحسابية). الليجند والشرائح
+  بيفتحوا نفس تفاصيل المربع. Chart.js 4.4.1 من CDN.
+- المربعات الأساسية مبقاش فيها نسبة مئوية (اتشالت في v1.3.0 لصالح الدونات) —
+  النسب لسه موجودة في المربعات الفرعية بس.
 - البحث في جدول التفاصيل client-side بس (على الصفوف المحمّلة فعلاً) وبيغطي:
   رقم الأوردر · SKU · حالة القطعة · S1 · S2 — مفيش بيانات عميل/تليفون في
   الصف حالياً (خارج الـ Data Contract الحالي).
@@ -1005,16 +1023,6 @@ function delta(curVal, prevVal, direction = 'higher_better') {
 
 const infoIcon = html => `<span class="kpi-info">ⓘ<span class="kpi-tooltip">${html}</span></span>`;
 
-// ─── §TOOL-JS::pctLineHTML — شريط نسبة مئوية بصري للمربع الرئيسي ───
-function pctLineHTML(amt, total, label, colorClass = '') {
-  const pct = total ? (amt / total) * 100 : 0;
-  return `<div class="pct-line">
-    <div class="pct-bar"><div class="pct-bar-fill ${colorClass}" style="width:${Math.min(pct,100).toFixed(1)}%"></div></div>
-    <span class="pct-text ${colorClass}">${fmtPct(pct)}</span>
-  </div>
-  <div class="kpi-pct">${label}</div>`;
-}
-
 // sub — عنصر مربع فرعي قابل للضغط، بنسبة مئوية من إجمالي المربع الرئيسي اللي هو جواه
 function sub({ key, label, icon = '', value, buckets, parentTotal = 0, colorClass = '', isWarn = false }) {
   const active = state.detailsKey === key ? ' drill-active' : '';
@@ -1057,7 +1065,6 @@ function renderBoxes() {
       </div>
       <div class="kpi-value">${fmtMoney(b.ipPendingConfirm)}</div>
       ${delta(b.ipPendingConfirm, pb.ipPendingConfirm, 'lower_better')}
-      ${pctLineHTML(b.ipPendingConfirm, b.totalValue, 'من إجمالي المبيعات', 'clr-purple')}
     </div>
 
     <div class="kpi-card${cardActive('IP_PREP')}" data-state="neutral" onclick="showDetails(['IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP','IP_UNCLASSIFIED'], 'مؤكد (تحت التجهيز)', 'IP_PREP')">
@@ -1067,7 +1074,6 @@ function renderBoxes() {
       </div>
       <div class="kpi-value">${fmtMoney(confirmedPrepTotal)}</div>
       ${delta(confirmedPrepTotal, prevConfirmedPrepTotal, 'lower_better')}
-      ${pctLineHTML(confirmedPrepTotal, b.totalValue, 'من إجمالي المبيعات')}
       <div class="kpi-breakdown">
         ${sub({ key:'IP2', label:'مؤكد / تحت التجهيز',    icon:'🧾', value:b.ipConfirmedPrep, buckets:['IP_CONFIRMED_PREP'], parentTotal:confirmedPrepTotal })}
         ${sub({ key:'IP3', label:'استبدال / تحت التجهيز', icon:'🔁', value:b.ipExchangePrep,  buckets:['IP_EXCHANGE_PREP'],  parentTotal:confirmedPrepTotal })}
@@ -1083,7 +1089,6 @@ function renderBoxes() {
       </div>
       <div class="kpi-value">${fmtMoney(confirmedShippedTotal)}</div>
       ${delta(confirmedShippedTotal, prevConfirmedShippedTotal, 'lower_better')}
-      ${pctLineHTML(confirmedShippedTotal, b.totalValue, 'من إجمالي المبيعات')}
       <div class="kpi-breakdown">
         ${sub({ key:'IP5', label:'مؤكد / خرج للشحن',      icon:'🚚', value:b.ipConfirmedShipped, buckets:['IP_CONFIRMED_SHIPPED'], parentTotal:confirmedShippedTotal })}
         ${sub({ key:'IP6', label:'استبدال / خرج للشحن',   icon:'🔁', value:b.ipExchangeShipped,  buckets:['IP_EXCHANGE_SHIPPED'],  parentTotal:confirmedShippedTotal })}
@@ -1098,7 +1103,6 @@ function renderBoxes() {
       </div>
       <div class="kpi-value clr-red">${fmtMoney(b.lost)}</div>
       ${delta(b.lost, pb.lost, 'lower_better')}
-      ${pctLineHTML(b.lost, b.totalValue, 'من إجمالي المبيعات', 'clr-red')}
       <div class="kpi-breakdown">
         ${sub({ key:'L3', label:'محذوف قبل الشحن',    icon:'🗑️', value:b.lostRemoved,        buckets:['REMOVED'],         parentTotal:b.lost, colorClass:'clr-red' })}
         ${sub({ key:'L1', label:'إلغاء قبل الشحن',    icon:'❌', value:b.lostCancelled,      buckets:['CANCELLED'],      parentTotal:b.lost, colorClass:'clr-red' })}
@@ -1115,15 +1119,108 @@ function renderBoxes() {
       </div>
       <div class="kpi-value clr-green">${fmtMoney(b.netSales)}</div>
       ${delta(b.netSales, pb.netSales)}
-      ${pctLineHTML(b.netSales, b.totalValue, 'من إجمالي المبيعات', 'clr-green')}
       <div class="kpi-breakdown">
         ${sub({ key:'N1', label:'تسليم أساسي',  icon:'✅', value:b.netSales - b.netSalesReplacement, buckets:['NET_SALES_NORMAL'],      parentTotal:b.netSales, colorClass:'clr-green' })}
         ${sub({ key:'N2', label:'تسليم استبدال', icon:'🔁', value:b.netSalesReplacement,               buckets:['NET_SALES_REPLACEMENT'], parentTotal:b.netSales, colorClass:'clr-green' })}
       </div>
     </div>
+
+    <div class="chart-card">
+      <div class="chart-card-hdr"><span class="kpi-icon">🥧</span>توزيع إجمالي المبيعات</div>
+      <div class="chart-card-sub">مصير كل جنيه دخل النظام في الفترة المختارة — ${fmtMoney(b.totalValue)}</div>
+      <div class="chart-card-body">
+        <div class="chart-canvas-wrap"><canvas id="mainPie"></canvas></div>
+        <div class="chart-legend" id="mainPieLegend"></div>
+      </div>
+    </div>
   `;
 
   renderIdentityCheck(b);
+  renderMainPie(b);
+}
+
+// ─── §TOOL-JS::renderMainPie — دونات توزيع إجمالي المبيعات على المربعات الأساسية ───
+let mainPieChart = null;
+
+function renderMainPie(b) {
+  const confirmedPrepTotal    = (b.ipConfirmedPrep || 0) + (b.ipExchangePrep || 0) + (b.ipReturnPrep || 0) + (b.ipUnclassified || 0);
+  const confirmedShippedTotal = (b.ipConfirmedShipped || 0) + (b.ipExchangeShipped || 0) + (b.ipReturnShipped || 0);
+
+  // نفس تقسيمة المربعات الأساسية بالظبط — مجموعها = إجمالي المبيعات (الهوية)
+  const segments = [
+    { key:'IP1',     label:'تحت التأكيد',        value:b.ipPendingConfirm, colour:'#7c3aed',
+      buckets:['IP_PENDING_CONFIRM'], title:'تحت التأكيد' },
+    { key:'IP_PREP', label:'مؤكد (تحت التجهيز)', value:confirmedPrepTotal, colour:'#2563eb',
+      buckets:['IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP','IP_UNCLASSIFIED'], title:'مؤكد (تحت التجهيز)' },
+    { key:'IP_SHIP', label:'مؤكد (خرج للشحن)',   value:confirmedShippedTotal, colour:'#0891b2',
+      buckets:['IP_CONFIRMED_SHIPPED','IP_EXCHANGE_SHIPPED','IP_RETURN_SHIPPED'], title:'مؤكد (خرج للشحن)' },
+    { key:'LOST',    label:'الخسائر',            value:b.lost, colour:'#dc2626',
+      buckets:['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], title:'الخسائر' },
+    { key:'NET',     label:'صافي المبيعات',      value:b.netSales, colour:'#16a34a',
+      buckets:['NET_SALES_NORMAL','NET_SALES_REPLACEMENT'], title:'صافي المبيعات' },
+  ];
+
+  const total = b.totalValue || segments.reduce((s, x) => s + x.value, 0);
+
+  // legend — كل عنصر قابل للضغط ويفتح نفس تفاصيل المربع
+  const legend = document.getElementById('mainPieLegend');
+  if (legend) {
+    legend.innerHTML = segments.map(s => {
+      const pct = total ? (s.value / total) * 100 : 0;
+      const active = state.detailsKey === s.key ? ' drill-active' : '';
+      return `<div class="chart-legend-item${active}"
+        onclick="showDetails(${JSON.stringify(s.buckets).replace(/"/g,'&quot;')}, '${s.title.replace(/'/g,"\\'")}', '${s.key}')">
+        <span class="chart-legend-dot" style="background:${s.colour}"></span>
+        <span class="chart-legend-label">${s.label}</span>
+        <span class="chart-legend-val">${fmtMoney(s.value)}</span>
+        <span class="chart-legend-pct">${fmtPct(pct)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  const canvas = document.getElementById('mainPie');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  if (mainPieChart) { mainPieChart.destroy(); mainPieChart = null; }
+
+  mainPieChart = new Chart(canvas.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: segments.map(s => s.label),
+      datasets: [{
+        data: segments.map(s => s.value),
+        backgroundColor: segments.map(s => s.colour),
+        borderColor: '#ffffff',
+        borderWidth: 2,
+        hoverOffset: 6,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          rtl: true,
+          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
+          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
+          callbacks: {
+            label: (ctx) => {
+              const v = ctx.parsed || 0;
+              const pct = total ? (v / total) * 100 : 0;
+              return ` ${CURRENCY_SUFFIX} ${Math.round(v).toLocaleString('en-US')} (${pct.toFixed(1)}%)`;
+            },
+          },
+        },
+      },
+      onClick: (evt, elements) => {
+        if (!elements.length) return;
+        const s = segments[elements[0].index];
+        showDetails(s.buckets, s.title, s.key);
+      },
+    },
+  });
 }
 
 // ─── §TOOL-JS::renderIdentityCheck ───
