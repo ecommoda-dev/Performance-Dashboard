@@ -75,6 +75,14 @@
   .hbtn.refreshing .ico { animation: hbtn-spin .7s linear infinite; }
   @keyframes hbtn-spin { to { transform: rotate(360deg); } }
 
+  /* ── Main Tabs (Segmented — v2.0.0، نفس نمط main-seg من ecommoda-html-builder) ── */
+  .main-tabs-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 16px; margin-bottom: 12px; box-shadow: var(--shadow); }
+  .main-seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border-strong); border-radius: 10px; padding: 4px; gap: 3px; }
+  .main-seg-btn { display: flex; align-items: center; gap: 6px; padding: 8px 22px; border-radius: 7px; font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--text-secondary); cursor: pointer; border: none; background: transparent; transition: all .15s; }
+  .main-seg-btn .msb-icon { font-size: 15px; }
+  .main-seg-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(37,99,235,.3); }
+  .main-seg-btn:not(.active):hover { background: var(--accent-light); color: var(--accent); }
+
   /* ── Dash Controls (range + freshness) ── */
   .dash-controls {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
@@ -367,7 +375,7 @@
       <div class="app-icon">🎯</div>
       <div class="app-title-text">
         <h1>لوحة الأداء — EcomModa</h1>
-        <span>الشاشة الرئيسية — كل جنيه دخل النظام راح فين؟ · بدون تسجيل دخول (🔓)</span>
+        <span>كل جنيه دخل النظام راح فين؟ وكام أوردر في كل مرحلة؟ · بدون تسجيل دخول (🔓)</span>
       </div>
     </div>
     <div class="app-header-btns">
@@ -377,8 +385,22 @@
         <span class="freshness-text">جاري التحميل…</span>
       </div>
       <button class="hbtn" onclick="openAbout()">ℹ️ عن الأداة</button>
-      <button class="hbtn ver-btn" onclick="openChangelog()">v1.4.0 📋</button>
+      <button class="hbtn ver-btn" onclick="openChangelog()">v2.0.0 📋</button>
       <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       §TABS — الرئيسية (فلوس) / الأوردرات (عدّ) — v2.0.0
+       ══════════════════════════════════════════════════════ -->
+  <div class="main-tabs-wrap">
+    <div class="main-seg">
+      <button class="main-seg-btn active" id="mainTabMain" onclick="switchMainTab('main')">
+        <span class="msb-icon">🎯</span><span>الرئيسية</span>
+      </button>
+      <button class="main-seg-btn" id="mainTabOrders" onclick="switchMainTab('orders')">
+        <span class="msb-icon">📦</span><span>الأوردرات</span>
+      </button>
     </div>
   </div>
 
@@ -461,6 +483,15 @@
     <div class="changelog-modal-hdr">📋 سجل التحديثات<button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="changelog-body">
       <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge">v2.0.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تاب "الأوردرات"</b> جنب "الرئيسية" — صفحة كاملة تعدّ الأوردرات (مش الجنيه/القطعة) في كل مرحلة: تحت التأكيد · مؤكد/استبدال/مرتجع (تحت التجهيز) · مؤكد/استبدال/مرتجع (خرج للشحن) · خسائر (إلغاء قبل الشحن/مرتجع رفض استلام/مرتجع كامل بعد الاستلام) · تسليمات (أساسي/استبدال/استرجاع جزئي).</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>نفس نداء <code>get_data</code> بيرجّع دلوقتي <code>orderBoxes</code> + <code>orderRows</code> جنب <code>boxes</code>/<code>rows</code> الأصليين — من نفس بيانات شوبيفاي المجابة أصلاً، <b>صفر</b> نداء GraphQL إضافي وصفر تغيير في الصفحة الرئيسية. التبديل بين التابين فوري (بيانات محمّلة مسبقاً)، مفيش أي fetch جديد.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>تصنيف الإلغاء/RTO في صفحة الأوردرات بيستخدم نفس <code>cancelledAt</code> + <code>displayFulfillmentStatus</code> المعتمدين في الصفحة الرئيسية — مش <code>manual_status</code> — لتفادي نفس باج #49472 القديم.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>دونات + جدول تفاصيل drill-down مستقل لصفحة الأوردرات (رقم الأوردر · عدد القطع · التاريخ · الحالة · S1 · S2)، بنفس شكل الصفحة الرئيسية.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge">v1.4.0</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مفتاح "طريقة العرض" (💰 قيمة / 🔢 عدد القطع)</b> بجانب فلتر التاريخ. نفس المربعات بالظبط (الرئيسية والفرعية + الدونات + بطاقة الهوية) بس الأرقام بتتحول من إجمالي القيمة (جنيه) لإجمالي عدد القطع — بدون أي نداء إضافي للـ Worker: الحساب كله client-side من نفس <code>rows[]</code> اللي أصلاً محمّلة (كل سطر فيه bucket + qty + value).</span></li>
@@ -534,7 +565,7 @@
       <details open style="margin-top:16px;">
         <summary class="about-summary">📋 وصف الأداة</summary>
         <div class="about-body">
-          <p class="about-desc">داشبورد يجاوب سؤال واحد: "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. بدون تسجيل دخول (🔓) — الحماية عن طريق WORKER_SECRET بس.</p>
+          <p class="about-desc">داشبورد فيه تابين: <b>الرئيسية</b> بتجاوب "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. و<b>الأوردرات</b> (v2.0.0) بتجاوب "كام أوردر في كل مرحلة؟" — عدّ أوردرات مش جنيه. التابين بيشتركوا في نفس فلتر التاريخ ونفس نداء <code>get_data</code> — التبديل بينهم فوري من غير أي تحميل إضافي. بدون تسجيل دخول (🔓) — الحماية عن طريق WORKER_SECRET بس.</p>
           <div class="about-label">المستخدمون</div>
           <p>المدير العام وفريق التحليل.</p>
           <div class="about-label">النموذج (Data Contract v2.0.0)</div>
@@ -583,6 +614,29 @@
           <div class="about-label">جدول التفاصيل</div>
           <p>الضغط على أي مربع (رئيسي أو فرعي) بيفتح قسم التفاصيل في آخر الصفحة: رقم الأوردر (هايبرلينك لشوبيفاي أدمن) · عدد قطع الأوردر · التاريخ · SKU · الكمية · القيمة · حالة القطعة · S1 · S2. البيانات جاهزة مسبقاً من نفس نداء <code>get_data</code> — الضغط مبيعملش أي fetch إضافي. الجدول نفسه بيفضل عارض القيمة والكمية مع بعض في عمودين منفصلين بصرف النظر عن "طريقة العرض" المختارة فوق.</p>
 
+          <div class="about-label">تاب "الأوردرات" (v2.0.0 — عدّ أوردرات، مش جنيه)</div>
+          <p>كل أوردر بياخد <b>bucket واحد بالظبط</b> — مختلف تمامًا عن تصنيف "الرئيسية" (اللي بيصنّف على مستوى القطعة/السطر). المصدر: <code>ecommoda-order-lifecycle</code> + Data Contract مستقل معتمد 03-08-2026.</p>
+          <table class="about-table">
+            <thead><tr><th>المربع</th><th>الفرع</th><th>الشرط المختصر</th></tr></thead>
+            <tbody>
+              <tr><td>تحت التأكيد</td><td>—</td><td>S1 ∈ (New Order · Pending Edit · WhatsApp-CANCELLED · WhatsApp-Confirmed)</td></tr>
+              <tr><td rowspan="3">مؤكد (تحت التجهيز)</td><td>مؤكد</td><td>S1 ∈ (Confirmed · Confirmed+Edit · Ready) بدون دورة R/E مفتوحة</td></tr>
+              <tr><td>مرتجع</td><td>S1=Delivered + دورة PREP مفتوحة + بدون exchangeLineItems</td></tr>
+              <tr><td>استبدال</td><td>S1=Delivered + دورة PREP مفتوحة + فيها exchangeLineItems</td></tr>
+              <tr><td rowspan="3">مؤكد (خرج للشحن)</td><td>مؤكد</td><td>S1 ∈ (Shipped · In-Return)</td></tr>
+              <tr><td>مرتجع</td><td>S1=Delivered + دورة SHIPPED مفتوحة + بدون exchangeLineItems</td></tr>
+              <tr><td>استبدال</td><td>S1=Delivered + دورة SHIPPED مفتوحة + فيها exchangeLineItems</td></tr>
+              <tr><td rowspan="3">خسائر</td><td>إلغاء قبل الشحن</td><td><code>cancelledAt</code> + FulfillmentStatus=UNFULFILLED (نفس isCancelledOrRTO)</td></tr>
+              <tr><td>مرتجع رفض استلام</td><td><code>cancelledAt</code> + FulfillmentStatus=FULFILLED</td></tr>
+              <tr><td>مرتجع كامل بعد الاستلام</td><td>S1=Delivered + S2=Returned مُسوّاة (CLOSED) + بدون استبدال + ΣcurrentQuantity=0</td></tr>
+              <tr><td rowspan="3">تسليمات</td><td>أساسي</td><td>S1=Delivered + S2=فاضي</td></tr>
+              <tr><td>+ استبدال</td><td>S1=Delivered + S2=Returned مُسوّاة + فيها استبدال + ΣcurrentQuantity&gt;0</td></tr>
+              <tr><td>+ استرجاع جزئي</td><td>S1=Delivered + S2=Returned مُسوّاة + بدون استبدال + ΣcurrentQuantity&gt;0</td></tr>
+              <tr><td>خارج التصنيف ⚠️</td><td>—</td><td>حالات شاذة (نفس فلسفة IP_UNCLASSIFIED في الرئيسية) — ظاهرة عمداً</td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">⚠️ الإلغاء/مرتجع رفض الاستلام بيُحسبوا من <code>cancelledAt</code> (حدث شوبيفاي الفعلي) — مش من <code>manual_status</code> — تفاديًا لباج قديم (أوردر #49472) كان فيه Flow بيكتب "Cancelled" في manual_status على أوردر RTO حقيقي. "دورة مفتوحة" = أي Return حالته مش CLOSED (بعد استبعاد CANCELED/DECLINED بالكامل).</p>
+
           <div class="about-label">كيف تعمل</div>
           <div class="about-steps">
             <div class="about-step"><span class="about-num">1</span><span>اختار فترة — preset أو تعديل يدوي على "من/إلى تاريخ" — بيتحمل من الكاش (KV) لو موجود.</span></div>
@@ -594,7 +648,7 @@
           </div>
           <div class="about-label">الـ Endpoints الرئيسية</div>
           <div class="about-endpoints">
-            <div class="about-ep"><code>get_data</code><span>المربعات + صفوف التفصيل + التحذيرات (POST — dateFrom/dateTo/forceRefresh)</span></div>
+            <div class="about-ep"><code>get_data</code><span>boxes/rows/warnings (الرئيسية) + orderBoxes/orderRows/orderWarnings (الأوردرات) معًا (POST — dateFrom/dateTo/forceRefresh)</span></div>
             <div class="about-ep"><code>get_meta</code><span>عمر بيانات الفترة من غير Shopify fetch (GET)</span></div>
             <div class="about-ep"><code>clear_cache</code><span>مسح كاش الفترة أو كل الكاش — للصيانة (مش متاح من الـ UI حالياً)</span></div>
           </div>
@@ -624,6 +678,15 @@ Feature                          │ File   │ §Section   │ fn/action
 مرحلة 2 — مرشّحون فقط            │ Worker │ §SHOPIFY   │ fetchStage2
 كاش (KV، مغلق=دائم)             │ Worker │ §CACHE     │ get_data / get_meta
 مؤشر آخر تحديث (age دايماً)      │ HTML   │ §DASH-JS   │ freshnessState / renderFreshness
+──────────────── v2.0.0 — تاب "الأوردرات" (عدّ، مش فلوس) ─────
+تبديل التابين (فوري، بدون fetch)  │ HTML   │ §TABS-JS   │ switchMainTab
+7 مربعات أوردرات + فرعية + الهوية │ HTML   │ §ORDERS-JS │ renderOrderBoxes / orderSub
+دونات توزيع الأوردرات            │ HTML   │ §ORDERS-JS │ renderOrdersPie (Chart.js)
+تفاصيل drill-down للأوردرات      │ HTML   │ §ORDERS-DETAILS│ showOrderDetails / renderOrderDetails
+بحث في جدول تفاصيل الأوردرات     │ HTML   │ §ORDERS-DETAILS│ onOrderDetailsSearch / searchFilteredOrderRows
+تصنيف الأوردر بالكامل (bucket واحد)│ Worker │ §AGGREGATE-ORDERS │ classifyOrderForCounts
+تجميع الأوردرات → orderBoxes     │ Worker │ §AGGREGATE-ORDERS │ computeOrderBoxes
+صف تفصيل واحد لكل أوردر          │ Worker │ §AGGREGATE-ORDERS │ pushOrderRow
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -639,6 +702,17 @@ NOTE_LABELS   = REDELIVERY (محاولة مكررة) · FULFIL_MISM (تعارض 
 DETAILS_ROW_LIMIT = 500 صف معروض دفعة واحدة، مع زرار "عرض المزيد"
 state.detailsSearch = نص البحث الحالي — بيتصفّر تلقائي عند اختيار مربع جديد
 SHOPIFY_ADMIN_ORDER_URL(id) = https://admin.shopify.com/store/6c7e1a-53/orders/{id}
+
+v2.0.0 — KEY VARIABLES (تاب الأوردرات)
+state.activePage = 'main' | 'orders' — يتحكم فيه switchMainTab()، بدون أي fetch إضافي
+state.orderBoxes / state.prevOrderBoxes = من نفس get_data response (orderBoxes)
+state.orderRows = [{ orderId, orderName, orderTotalPieces, createdAt, s1, s2, bucket }, ...]
+                  (صف واحد لكل أوردر — مختلف عن state.rows اللي صف لكل سطر/SKU)
+ORDER_BUCKET_LABELS = خريطة bucket (مستوى الأوردر) → التسمية العربية — لازم تطابق
+                      ORDER_BUCKET في الـ Worker حرفيًا (مستقلة تمامًا عن BUCKET_LABELS)
+state.orderDetailsKey / orderDetailsBuckets / orderDetailsSearch / orderDetailsLimit =
+  نفس نمط state.details* بالظبط بس لصفحة الأوردرات — مستقلة عشان فتح تفاصيل في
+  تاب معين ما يأثرش على تظليل/فلترة التاب التاني
 
 NOTES
 - CACHE_VERSION في الـ Worker = v3. أي فترة اتكاشت بنسخة أقدم هتتحسب من جديد
@@ -837,6 +911,21 @@ const state = {
   detailsTitle: '',
   detailsLimit: DETAILS_ROW_LIMIT,
   detailsSearch: '',
+
+  // ══ v2.0.0 — تاب "الأوردرات" (عدّ أوردرات، مش فلوس) ══
+  activePage: 'main',       // 'main' | 'orders' — switchMainTab() بيتحكم فيه، بدون أي fetch إضافي
+  orderBoxes: null,
+  prevOrderBoxes: null,
+  orderRows: [],
+  prevOrderRows: [],
+  orderWarnings: null,
+  // §ORDERS-DETAILS state — مستقل تمامًا عن details* بتاعة الرئيسية
+  orderDetailsOpen: false,
+  orderDetailsKey: null,
+  orderDetailsBuckets: [],
+  orderDetailsTitle: '',
+  orderDetailsLimit: DETAILS_ROW_LIMIT,
+  orderDetailsSearch: '',
 };
 
 // ══════════════════════════════════════════════════════
@@ -996,6 +1085,13 @@ async function loadAll({ forceRefresh }) {
     state.candidatesFetched = curRes.candidatesFetched || 0;
     state.meta              = { lastUpdated: curRes.lastUpdated, source: curRes.source };
 
+    // v2.0.0 — نفس الـ response بالظبط بيرجّع بيانات تاب "الأوردرات" كمان (صفر fetch إضافي)
+    state.orderBoxes     = curRes.orderBoxes;
+    state.prevOrderBoxes = prevRes.orderBoxes;
+    state.orderRows      = curRes.orderRows || [];
+    state.prevOrderRows  = prevRes.orderRows || [];
+    state.orderWarnings  = curRes.orderWarnings || null;
+
     state.viewState = 'ready';
     state.lastError = null;
     renderShell();
@@ -1034,29 +1130,74 @@ function renderShell() {
   if (w.fulfilmentMismatch) warnBits.push(`${fmtInt(w.fulfilmentMismatch)} تعارض في حالة الشحن`);
   if (w.redelivery)         warnBits.push(`${fmtInt(w.redelivery)} محاولة تسليم مكررة (Ready + Fulfilled)`);
 
+  // v2.0.0 — تحذيرات مستوى الأوردر (مستقلة عن تحذيرات مستوى القطعة فوق)
+  const ow = state.orderWarnings || {};
+  const orderWarnBits = [];
+  if (ow.unclassified) orderWarnBits.push(`${fmtInt(ow.unclassified)} أوردر خارج التصنيف`);
+
   wrap.innerHTML = `
     <div class="info-note">📊 تم فحص ${fmtInt(state.ordersScanned)} أوردر في الفترة المختارة — ${fmtInt(state.candidatesFetched)} منهم فيه نشاط إرجاع/استبدال (اتجابت بيانات مرتجعاتهم بالتفصيل).</div>
-    ${warnBits.length ? `<div class="warn-note">⚠️ ${warnBits.join(' · ')} — اضغط على المربع المعني لمراجعة الصفوف.</div>` : ''}
-    <div class="kpi-grid" id="overviewKpis"></div>
-    <div class="identity-card" id="identityCard"></div>
-    <div class="details-section${state.detailsOpen ? ' open' : ''}" id="detailsSection">
-      <div class="details-hdr" onclick="toggleDetails()">
-        <div class="details-hdr-right">
-          <span class="details-caret">▶</span>
-          <span class="details-title">📋 جدول التفاصيل</span>
-          <span class="details-scope" id="detailsScope"></span>
+
+    <div id="mainPageContent" class="${state.activePage === 'main' ? '' : 'hidden'}">
+      ${warnBits.length ? `<div class="warn-note">⚠️ ${warnBits.join(' · ')} — اضغط على المربع المعني لمراجعة الصفوف.</div>` : ''}
+      <div class="kpi-grid" id="overviewKpis"></div>
+      <div class="identity-card" id="identityCard"></div>
+      <div class="details-section${state.detailsOpen ? ' open' : ''}" id="detailsSection">
+        <div class="details-hdr" onclick="toggleDetails()">
+          <div class="details-hdr-right">
+            <span class="details-caret">▶</span>
+            <span class="details-title">📋 جدول التفاصيل</span>
+            <span class="details-scope" id="detailsScope"></span>
+          </div>
+          <div class="details-hdr-actions">
+            <button class="hbtn" onclick="event.stopPropagation(); showDetails([], 'كل الحركة', 'ALL')">عرض كل الحركة</button>
+          </div>
         </div>
-        <div class="details-hdr-actions">
-          <button class="hbtn" onclick="event.stopPropagation(); showDetails([], 'كل الحركة', 'ALL')">عرض كل الحركة</button>
-        </div>
+        <div class="details-body" id="detailsBody"></div>
       </div>
-      <div class="details-body" id="detailsBody"></div>
+    </div>
+
+    <div id="ordersPageContent" class="${state.activePage === 'orders' ? '' : 'hidden'}">
+      ${orderWarnBits.length ? `<div class="warn-note">⚠️ ${orderWarnBits.join(' · ')} — اضغط على المربع المعني لمراجعة الأوردرات.</div>` : ''}
+      <div class="kpi-grid" id="orderOverviewKpis"></div>
+      <div class="identity-card" id="orderIdentityCard"></div>
+      <div class="details-section${state.orderDetailsOpen ? ' open' : ''}" id="orderDetailsSection">
+        <div class="details-hdr" onclick="toggleOrderDetails()">
+          <div class="details-hdr-right">
+            <span class="details-caret">▶</span>
+            <span class="details-title">📋 جدول تفاصيل الأوردرات</span>
+            <span class="details-scope" id="orderDetailsScope"></span>
+          </div>
+          <div class="details-hdr-actions">
+            <button class="hbtn" onclick="event.stopPropagation(); showOrderDetails([], 'كل الأوردرات', 'ALL')">عرض كل الأوردرات</button>
+          </div>
+        </div>
+        <div class="details-body" id="orderDetailsBody"></div>
+      </div>
     </div>
   `;
 
   renderFreshness(state.meta.lastUpdated, state.meta.source);
   renderBoxes();
   renderDetails();
+  renderOrderBoxes();
+  renderOrderDetails();
+}
+
+// ══════════════════════════════════════════════════════
+// §TABS-JS — تبديل الرئيسية/الأوردرات — v2.0.0
+// بيانات التابين الاتنين محمّلة مسبقاً من نفس get_data response، فالتبديل هنا
+// بيتحكم بس في العرض (hidden class) — صفر fetch إضافي، صفر إعادة تحميل.
+// ══════════════════════════════════════════════════════
+function switchMainTab(page) {
+  if (state.activePage === page) return;
+  state.activePage = page;
+  document.getElementById('mainTabMain')?.classList.toggle('active', page === 'main');
+  document.getElementById('mainTabOrders')?.classList.toggle('active', page === 'orders');
+  document.getElementById('mainPageContent')?.classList.toggle('hidden', page !== 'main');
+  document.getElementById('ordersPageContent')?.classList.toggle('hidden', page !== 'orders');
+  // مفتاح "طريقة العرض" (قيمة/عدد قطع) خاص بصفحة الرئيسية بس — بيتخفي في الأوردرات
+  document.getElementById('viewToggleWrap')?.classList.toggle('hidden', page !== 'main');
 }
 
 // ══════════════════════════════════════════════════════
@@ -1516,6 +1657,400 @@ function renderDetailsTableWrap() {
       </table>
     </div>
     ${sorted.length > shown.length ? `<div class="details-more"><button class="btn" onclick="showMoreDetails()">عرض المزيد (${fmtInt(sorted.length - shown.length)} صف متبقي)</button></div>` : ''}
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+// §ORDERS-JS — تاب "الأوردرات" (عدّ أوردرات، مش فلوس) — v2.0.0
+// نفس بيانات get_data (state.orderBoxes/orderRows) — صفر fetch إضافي.
+// مستقل تمامًا عن §TOOL-JS فوق (بيانات مختلفة، bucket keys مختلفة)، لكن بيعيد
+// استخدام نفس الـ utils المشتركة (fmtInt, fmtPct, delta, infoIcon, esc, ...).
+// ══════════════════════════════════════════════════════
+
+// §ORDERS-JS::orderSub — نفس مكوّن sub() بالظبط بس لمربعات الأوردرات (عدد، مش قيمة)
+function orderSub({ key, label, icon = '', value, buckets, parentTotal = 0, colorClass = '', isWarn = false }) {
+  const active = state.orderDetailsKey === key ? ' drill-active' : '';
+  const warn   = isWarn ? ' is-warn' : '';
+  const pct    = parentTotal ? (value / parentTotal) * 100 : 0;
+  return `<div class="kpi-breakdown-item${active}${warn}"
+    onclick="event.stopPropagation(); showOrderDetails(${JSON.stringify(buckets).replace(/"/g, '&quot;')}, '${label.replace(/'/g, "\\'")}', '${key}')">
+    <div class="kpi-breakdown-label">${icon ? `<span class="kpi-icon">${icon}</span>` : ''}${label}</div>
+    <div class="kpi-breakdown-value ${colorClass}">${fmtInt(value)}</div>
+    <div class="kpi-breakdown-pct-bar"><div class="kpi-breakdown-pct-bar-fill ${colorClass ? 'clr-' + colorClass.replace('clr-','') : ''}" style="width:${Math.min(pct,100).toFixed(1)}%"></div></div>
+    <div class="kpi-breakdown-pct-text">${fmtPct(pct)}</div>
+  </div>`;
+}
+
+// §ORDERS-JS::renderOrderBoxes — 5 مربعات رئيسية (+ إجمالي) + الفروع + بطاقة الهوية
+function renderOrderBoxes() {
+  const b  = state.orderBoxes || {};
+  const pb = state.prevOrderBoxes || {};
+  const cardActive = key => state.orderDetailsKey === key ? ' drill-active' : '';
+
+  const prepTotal     = (b.prepConfirmed||0) + (b.prepExchange||0) + (b.prepReturn||0) + (b.unclassified||0);
+  const shippedTotal  = (b.shippedConfirmed||0) + (b.shippedExchange||0) + (b.shippedReturn||0);
+  const lostTotal     = (b.lostCancelled||0) + (b.lostRTO||0) + (b.lostFullReturn||0);
+  const deliveryTotal = (b.deliveryBasic||0) + (b.deliveryExchange||0) + (b.deliveryPartialReturn||0);
+
+  const prevPrepTotal     = (pb.prepConfirmed||0) + (pb.prepExchange||0) + (pb.prepReturn||0) + (pb.unclassified||0);
+  const prevShippedTotal  = (pb.shippedConfirmed||0) + (pb.shippedExchange||0) + (pb.shippedReturn||0);
+  const prevLostTotal     = (pb.lostCancelled||0) + (pb.lostRTO||0) + (pb.lostFullReturn||0);
+  const prevDeliveryTotal = (pb.deliveryBasic||0) + (pb.deliveryExchange||0) + (pb.deliveryPartialReturn||0);
+
+  const el = document.getElementById('orderOverviewKpis');
+  if (!el) return; // لسه على تاب الرئيسية — العنصر مش موجود في الـ DOM
+
+  el.innerHTML = `
+    <div class="kpi-card${cardActive('ALL')}" data-state="neutral" onclick="showOrderDetails([], 'إجمالي الأوردرات', 'ALL')">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">📦</span>إجمالي الأوردرات</span>
+        ${infoIcon('عدد كل الأوردرات في الفترة المختارة — القاعدة (100%) اللي بتتحسب عليها نسب باقي المربعات. أوردر واحد = صف واحد بالظبط، بصرف النظر عن عدد القطع فيه.')}
+      </div>
+      <div class="kpi-value">${fmtInt(b.totalOrders)}</div>
+      ${delta(b.totalOrders, pb.totalOrders)}
+    </div>
+
+    <div class="kpi-card${cardActive('OB1')}" data-state="neutral" onclick="showOrderDetails(['PENDING_CONFIRM'], 'تحت التأكيد', 'OB1')">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">⏳</span>تحت التأكيد</span>
+        ${infoIcon('أوردرات جديدة لسه محتاجة تأكيد تليفوني أو مراجعة (New Order · Pending Edit · WhatsApp-Confirmed · WhatsApp-CANCELLED).')}
+      </div>
+      <div class="kpi-value">${fmtInt(b.pendingConfirm)}</div>
+      ${delta(b.pendingConfirm, pb.pendingConfirm, 'lower_better')}
+    </div>
+
+    <div class="kpi-card${cardActive('OB_PREP')}" data-state="neutral" onclick="showOrderDetails(['PREP_CONFIRMED','PREP_EXCHANGE','PREP_RETURN','UNCLASSIFIED'], 'مؤكد (تحت التجهيز)', 'OB_PREP')">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">📦</span>مؤكد (تحت التجهيز)</span>
+        ${infoIcon('أوردرات مؤكدة لسه في مرحلة الطباعة/التجهيز — بيشمل أوردرات فيها دورة استبدال أو إرجاع مفتوحة في نفس المرحلة.')}
+      </div>
+      <div class="kpi-value">${fmtInt(prepTotal)}</div>
+      ${delta(prepTotal, prevPrepTotal, 'lower_better')}
+      <div class="kpi-breakdown">
+        ${orderSub({ key:'OB2', label:'مؤكد',    icon:'🧾', value:b.prepConfirmed, buckets:['PREP_CONFIRMED'], parentTotal:prepTotal })}
+        ${orderSub({ key:'OB3', label:'استبدال', icon:'🔁', value:b.prepExchange,  buckets:['PREP_EXCHANGE'],  parentTotal:prepTotal })}
+        ${orderSub({ key:'OB4', label:'مرتجع',   icon:'↩️', value:b.prepReturn,    buckets:['PREP_RETURN'],    parentTotal:prepTotal, colorClass:'clr-red' })}
+        ${b.unclassified > 0 ? orderSub({ key:'OB8', label:'خارج التصنيف ⚠️', value:b.unclassified, buckets:['UNCLASSIFIED'], parentTotal:prepTotal, isWarn:true }) : ''}
+      </div>
+    </div>
+
+    <div class="kpi-card${cardActive('OB_SHIP')}" data-state="neutral" onclick="showOrderDetails(['SHIPPED_CONFIRMED','SHIPPED_EXCHANGE','SHIPPED_RETURN'], 'مؤكد (خرج للشحن)', 'OB_SHIP')">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">🚚</span>مؤكد (خرج للشحن)</span>
+        ${infoIcon('أوردرات خرجت مع الكوريير ولسه في الطريق — بيشمل أوردرات فيها دورة استبدال أو إرجاع مفتوحة في نفس المرحلة.')}
+      </div>
+      <div class="kpi-value">${fmtInt(shippedTotal)}</div>
+      ${delta(shippedTotal, prevShippedTotal, 'lower_better')}
+      <div class="kpi-breakdown">
+        ${orderSub({ key:'OB5', label:'مؤكد',    icon:'🚚', value:b.shippedConfirmed, buckets:['SHIPPED_CONFIRMED'], parentTotal:shippedTotal })}
+        ${orderSub({ key:'OB6', label:'استبدال', icon:'🔁', value:b.shippedExchange,  buckets:['SHIPPED_EXCHANGE'],  parentTotal:shippedTotal })}
+        ${orderSub({ key:'OB7', label:'مرتجع',   icon:'↩️', value:b.shippedReturn,    buckets:['SHIPPED_RETURN'],    parentTotal:shippedTotal, colorClass:'clr-red' })}
+      </div>
+    </div>
+
+    <div class="kpi-card${cardActive('OB_LOST')}" data-state="${lostTotal > 0 ? 'bad' : 'good'}" onclick="showOrderDetails(['LOST_CANCELLED','LOST_RTO','LOST_FULL_RETURN'], 'خسائر', 'OB_LOST')">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">📉</span>خسائر</span>
+        ${infoIcon('إلغاء قبل الشحن (حدث إلغاء فعلي في شوبيفاي قبل الشحن) + مرتجع رفض الاستلام/RTO (حدث إلغاء بعد الشحن) + مرتجع كامل بعد الاستلام (كل قطع الأوردر رجعت، بدون استبدال).')}
+      </div>
+      <div class="kpi-value clr-red">${fmtInt(lostTotal)}</div>
+      ${delta(lostTotal, prevLostTotal, 'lower_better')}
+      <div class="kpi-breakdown">
+        ${orderSub({ key:'OL1', label:'إلغاء قبل الشحن',         icon:'❌', value:b.lostCancelled,  buckets:['LOST_CANCELLED'],   parentTotal:lostTotal, colorClass:'clr-red' })}
+        ${orderSub({ key:'OL2', label:'مرتجع رفض الاستلام',      icon:'🚫', value:b.lostRTO,        buckets:['LOST_RTO'],         parentTotal:lostTotal, colorClass:'clr-red' })}
+        ${orderSub({ key:'OL3', label:'مرتجع كامل بعد الاستلام', icon:'↩️', value:b.lostFullReturn, buckets:['LOST_FULL_RETURN'], parentTotal:lostTotal, colorClass:'clr-red' })}
+      </div>
+    </div>
+
+    <div class="kpi-card${cardActive('OB_DELIV')}" data-state="good" onclick="showOrderDetails(['DELIVERY_BASIC','DELIVERY_EXCHANGE','DELIVERY_PARTIAL_RETURN'], 'تسليمات', 'OB_DELIV')">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">✅</span>تسليمات</span>
+        ${infoIcon('أوردرات وصلت العميل ومفيش عليها دورة إرجاع/استبدال مفتوحة — سواء تسليم أساسي، أو بعد استبدال مُسوّى، أو بعد استرجاع جزئي مُسوّى (لسه فيها قطع باقية).')}
+      </div>
+      <div class="kpi-value clr-green">${fmtInt(deliveryTotal)}</div>
+      ${delta(deliveryTotal, prevDeliveryTotal)}
+      <div class="kpi-breakdown">
+        ${orderSub({ key:'OD1', label:'تسليم أساسي',          icon:'✅', value:b.deliveryBasic,         buckets:['DELIVERY_BASIC'],          parentTotal:deliveryTotal, colorClass:'clr-green' })}
+        ${orderSub({ key:'OD2', label:'تسليم + استبدال',      icon:'🔁', value:b.deliveryExchange,      buckets:['DELIVERY_EXCHANGE'],       parentTotal:deliveryTotal, colorClass:'clr-green' })}
+        ${orderSub({ key:'OD3', label:'تسليم + استرجاع جزئي', icon:'↩️', value:b.deliveryPartialReturn, buckets:['DELIVERY_PARTIAL_RETURN'], parentTotal:deliveryTotal, colorClass:'clr-green' })}
+      </div>
+    </div>
+
+    <div class="chart-card">
+      <div class="chart-card-hdr"><span class="kpi-icon">🥧</span>توزيع الأوردرات</div>
+      <div class="chart-card-sub">مصير كل أوردر دخل النظام في الفترة المختارة — ${fmtInt(b.totalOrders)} أوردر</div>
+      <div class="chart-card-body">
+        <div class="chart-canvas-wrap"><canvas id="ordersPie"></canvas></div>
+        <div class="chart-legend" id="ordersPieLegend"></div>
+      </div>
+    </div>
+  `;
+
+  renderOrderIdentityCheck(b);
+  renderOrdersPie(b);
+}
+
+// §ORDERS-JS::renderOrdersPie — دونات توزيع إجمالي الأوردرات على المربعات الأساسية الـ5
+let ordersPieChart = null;
+
+function renderOrdersPie(b) {
+  const prepTotal     = (b.prepConfirmed||0) + (b.prepExchange||0) + (b.prepReturn||0) + (b.unclassified||0);
+  const shippedTotal  = (b.shippedConfirmed||0) + (b.shippedExchange||0) + (b.shippedReturn||0);
+  const lostTotal     = (b.lostCancelled||0) + (b.lostRTO||0) + (b.lostFullReturn||0);
+  const deliveryTotal = (b.deliveryBasic||0) + (b.deliveryExchange||0) + (b.deliveryPartialReturn||0);
+
+  const segments = [
+    { key:'OB1',     label:'تحت التأكيد',        value:b.pendingConfirm || 0, colour:'#7c3aed',
+      buckets:['PENDING_CONFIRM'], title:'تحت التأكيد' },
+    { key:'OB_PREP', label:'مؤكد (تحت التجهيز)', value:prepTotal, colour:'#2563eb',
+      buckets:['PREP_CONFIRMED','PREP_EXCHANGE','PREP_RETURN','UNCLASSIFIED'], title:'مؤكد (تحت التجهيز)' },
+    { key:'OB_SHIP', label:'مؤكد (خرج للشحن)',   value:shippedTotal, colour:'#0891b2',
+      buckets:['SHIPPED_CONFIRMED','SHIPPED_EXCHANGE','SHIPPED_RETURN'], title:'مؤكد (خرج للشحن)' },
+    { key:'OB_LOST', label:'خسائر',              value:lostTotal, colour:'#dc2626',
+      buckets:['LOST_CANCELLED','LOST_RTO','LOST_FULL_RETURN'], title:'خسائر' },
+    { key:'OB_DELIV',label:'تسليمات',            value:deliveryTotal, colour:'#16a34a',
+      buckets:['DELIVERY_BASIC','DELIVERY_EXCHANGE','DELIVERY_PARTIAL_RETURN'], title:'تسليمات' },
+  ];
+
+  const total = b.totalOrders || segments.reduce((s, x) => s + x.value, 0);
+
+  const legend = document.getElementById('ordersPieLegend');
+  if (legend) {
+    legend.innerHTML = segments.map(s => {
+      const pct = total ? (s.value / total) * 100 : 0;
+      const active = state.orderDetailsKey === s.key ? ' drill-active' : '';
+      return `<div class="chart-legend-item${active}"
+        onclick="showOrderDetails(${JSON.stringify(s.buckets).replace(/"/g,'&quot;')}, '${s.title.replace(/'/g,"\\'")}', '${s.key}')">
+        <span class="chart-legend-dot" style="background:${s.colour}"></span>
+        <span class="chart-legend-label">${s.label}</span>
+        <span class="chart-legend-val">${fmtInt(s.value)}</span>
+        <span class="chart-legend-pct">${fmtPct(pct)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  const canvas = document.getElementById('ordersPie');
+  if (!canvas || typeof Chart === 'undefined') return;
+
+  if (ordersPieChart) { ordersPieChart.destroy(); ordersPieChart = null; }
+
+  ordersPieChart = new Chart(canvas.getContext('2d'), {
+    type: 'doughnut',
+    data: {
+      labels: segments.map(s => s.label),
+      datasets: [{
+        data: segments.map(s => s.value),
+        backgroundColor: segments.map(s => s.colour),
+        borderColor: '#ffffff',
+        borderWidth: 2,
+        hoverOffset: 6,
+      }],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '62%',
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          rtl: true,
+          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
+          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
+          callbacks: {
+            label: (ctx) => {
+              const v = ctx.parsed || 0;
+              const pct = total ? (v / total) * 100 : 0;
+              return ' ' + fmtInt(v) + ` (${pct.toFixed(1)}%)`;
+            },
+          },
+        },
+      },
+      onClick: (evt, elements) => {
+        if (!elements.length) return;
+        const s = segments[elements[0].index];
+        showOrderDetails(s.buckets, s.title, s.key);
+      },
+    },
+  });
+}
+
+// §ORDERS-JS::renderOrderIdentityCheck
+function renderOrderIdentityCheck(b) {
+  const prepTotal     = (b.prepConfirmed||0) + (b.prepExchange||0) + (b.prepReturn||0) + (b.unclassified||0);
+  const shippedTotal  = (b.shippedConfirmed||0) + (b.shippedExchange||0) + (b.shippedReturn||0);
+  const lostTotal     = (b.lostCancelled||0) + (b.lostRTO||0) + (b.lostFullReturn||0);
+  const deliveryTotal = (b.deliveryBasic||0) + (b.deliveryExchange||0) + (b.deliveryPartialReturn||0);
+  const sum  = (b.pendingConfirm||0) + prepTotal + shippedTotal + lostTotal + deliveryTotal;
+  const diff = Math.abs(sum - (b.totalOrders||0));
+  const ok   = diff < 1;
+  const card = document.getElementById('orderIdentityCard');
+  if (!card) return;
+  card.className = 'identity-card ' + (ok ? 'ok' : 'bad');
+  card.innerHTML = ok
+    ? `✅ الهوية الحسابية متوازنة: <span class="mono">${fmtInt(b.totalOrders)} = ${fmtInt(b.pendingConfirm)} + ${fmtInt(prepTotal)} + ${fmtInt(shippedTotal)} + ${fmtInt(lostTotal)} + ${fmtInt(deliveryTotal)}</span>`
+    : `⚠️ في اختلاف ${fmtInt(diff)} بين إجمالي الأوردرات ومجموع المربعات — ده باج محتاج مراجعة في الكود. <span class="mono">${fmtInt(b.totalOrders)} ≠ ${fmtInt(sum)}</span>`;
+}
+
+// ══════════════════════════════════════════════════════
+// §ORDERS-DETAILS — جدول تفاصيل الأوردرات (inline collapsible) — v2.0.0
+// نفس نمط §DETAILS بالظبط بس على state.orderRows (صف واحد لكل أوردر، مش لكل
+// سطر/SKU) — مستقل تمامًا في الـ state (orderDetails*) عشان فتح تفاصيل في تاب
+// ما يأثرش على تظليل/فلترة التاب التاني.
+// ══════════════════════════════════════════════════════
+
+// خريطة موحّدة لازم تتطابق مع ORDER_BUCKET في الـ Worker حرفيًا — مستقلة تمامًا
+// عن BUCKET_LABELS (دي لمستوى القطعة، دي لمستوى الأوردر بالكامل).
+const ORDER_BUCKET_LABELS = {
+  PENDING_CONFIRM:          { label: 'تحت التأكيد',            colour: 'var(--purple)' },
+  PREP_CONFIRMED:           { label: 'مؤكد / تحت التجهيز',      colour: 'var(--accent)' },
+  PREP_EXCHANGE:            { label: 'استبدال / تحت التجهيز',   colour: 'var(--accent)' },
+  PREP_RETURN:              { label: 'مرتجع / تحت التجهيز',     colour: 'var(--amber)' },
+  SHIPPED_CONFIRMED:        { label: 'مؤكد / خرج للشحن',        colour: 'var(--accent)' },
+  SHIPPED_EXCHANGE:         { label: 'استبدال / خرج للشحن',     colour: 'var(--accent)' },
+  SHIPPED_RETURN:           { label: 'مرتجع / خرج للشحن',       colour: 'var(--amber)' },
+  LOST_CANCELLED:           { label: 'إلغاء قبل الشحن',         colour: 'var(--red)' },
+  LOST_RTO:                 { label: 'مرتجع رفض الاستلام',      colour: 'var(--red)' },
+  LOST_FULL_RETURN:         { label: 'مرتجع كامل بعد الاستلام', colour: 'var(--red)' },
+  DELIVERY_BASIC:           { label: 'تسليم أساسي',             colour: 'var(--green)' },
+  DELIVERY_EXCHANGE:        { label: 'تسليم + استبدال',         colour: 'var(--green)' },
+  DELIVERY_PARTIAL_RETURN:  { label: 'تسليم + استرجاع جزئي',    colour: 'var(--green)' },
+  UNCLASSIFIED:             { label: 'خارج التصنيف',            colour: 'var(--red)' },
+};
+
+function orderBucketPill(bucketKey) {
+  const meta = ORDER_BUCKET_LABELS[bucketKey] || { label: bucketKey || '—', colour: 'var(--text-muted)' };
+  return `<span class="pill" style="background:color-mix(in srgb, ${meta.colour} 14%, transparent); color:${meta.colour};">${esc(meta.label)}</span>`;
+}
+
+// §ORDERS-DETAILS::showOrderDetails — buckets=[] معناها كل الأوردرات من غير فلترة
+function showOrderDetails(buckets, title, key) {
+  state.orderDetailsBuckets = buckets || [];
+  state.orderDetailsTitle   = title;
+  state.orderDetailsKey     = key;
+  state.orderDetailsOpen    = true;
+  state.orderDetailsLimit   = DETAILS_ROW_LIMIT;
+  state.orderDetailsSearch  = '';
+
+  document.getElementById('orderDetailsSection')?.classList.add('open');
+  renderOrderBoxes();   // لتحديث التظليل على المربع المختار
+  renderOrderDetails();
+}
+
+function toggleOrderDetails() {
+  state.orderDetailsOpen = !state.orderDetailsOpen;
+  document.getElementById('orderDetailsSection')?.classList.toggle('open', state.orderDetailsOpen);
+}
+
+function showMoreOrderDetails() {
+  state.orderDetailsLimit += DETAILS_ROW_LIMIT;
+  renderOrderDetailsTableWrap();
+}
+
+function currentOrderDetailRows() {
+  const bs = state.orderDetailsBuckets;
+  return (bs && bs.length) ? state.orderRows.filter(r => bs.includes(r.bucket)) : state.orderRows;
+}
+
+// §ORDERS-DETAILS::onOrderDetailsSearch — يعيد رسم الجدول بس (مش صندوق البحث) عشان مايفقدش الفوكس
+function onOrderDetailsSearch(value) {
+  state.orderDetailsSearch = value;
+  state.orderDetailsLimit  = DETAILS_ROW_LIMIT;
+  renderOrderDetailsTableWrap();
+}
+
+function searchFilteredOrderRows() {
+  const rows = currentOrderDetailRows();
+  const q = (state.orderDetailsSearch || '').trim().toLowerCase();
+  if (!q) return rows;
+  return rows.filter(r => {
+    const meta = ORDER_BUCKET_LABELS[r.bucket];
+    const hay = [r.orderName, r.orderId, r.s1, r.s2, meta ? meta.label : r.bucket].filter(Boolean).join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+}
+
+// §ORDERS-DETAILS::renderOrderDetails — الشِل الخارجي (صندوق البحث ثابت — بيتحط مرة واحدة بس)
+function renderOrderDetails() {
+  const scope = document.getElementById('orderDetailsScope');
+  const body  = document.getElementById('orderDetailsBody');
+  if (!scope || !body) return;
+
+  if (!state.orderDetailsKey) {
+    scope.textContent = '— اضغط على أي مربع لعرض الأوردرات بتاعته';
+    body.innerHTML = `<div class="details-placeholder">اضغط على أي مربع فوق (رئيسي أو فرعي) وهتظهر تفاصيل كل أوردر بنى عليه الرقم هنا.</div>`;
+    return;
+  }
+
+  scope.textContent = `— ${state.orderDetailsTitle} · ${state.range.from} → ${state.range.to}`;
+
+  body.innerHTML = `
+    <div class="details-search-row">
+      <div class="details-search-wrap">
+        <input type="text" id="orderDetailsSearchInput" class="details-search-input"
+               value="${esc(state.orderDetailsSearch)}"
+               oninput="onOrderDetailsSearch(this.value)">
+        <span class="details-search-icon">🔍</span>
+      </div>
+    </div>
+    <div id="orderDetailsTableWrap"></div>
+  `;
+
+  renderOrderDetailsTableWrap();
+}
+
+// §ORDERS-DETAILS::renderOrderDetailsTableWrap — الجزء المتغيّر بس — بيتحدّث مع كل بحث/عرض المزيد
+function renderOrderDetailsTableWrap() {
+  const wrap = document.getElementById('orderDetailsTableWrap');
+  if (!wrap) return;
+
+  const rows = searchFilteredOrderRows();
+  const totalPieces = rows.reduce((s, r) => s + (r.orderTotalPieces || 0), 0);
+
+  const summary = `
+    <div class="details-summary-row">
+      <span class="details-summary-item">عدد الأوردرات: <b>${fmtInt(rows.length)}</b></span>
+      <span class="details-summary-item">إجمالي عدد القطع فيهم: <b>${fmtInt(totalPieces)}</b></span>
+    </div>`;
+
+  if (!rows.length) {
+    wrap.innerHTML = summary + `<div class="details-empty">مفيش أوردرات مطابقة${state.orderDetailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.</div>`;
+    return;
+  }
+
+  const sorted = [...rows].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  const shown  = sorted.slice(0, state.orderDetailsLimit);
+
+  const tbody = shown.map(r => `
+    <tr>
+      <td><a class="details-order-link" href="${shopifyOrderUrl(r.orderId)}" target="_blank" rel="noopener">${esc(r.orderName || ('#' + r.orderId))}</a></td>
+      <td class="col-num">${fmtInt(r.orderTotalPieces)}</td>
+      <td class="col-num">${fmtRowDate(r.createdAt)}</td>
+      <td>${orderBucketPill(r.bucket)}</td>
+      <td>${esc(r.s1 || '—')}</td>
+      <td>${esc(r.s2 || '—')}</td>
+    </tr>`).join('');
+
+  wrap.innerHTML = summary + `
+    <div class="details-scroll">
+      <table class="details-table">
+        <colgroup>
+          <col style="width:16%"><col style="width:12%"><col style="width:14%">
+          <col style="width:26%"><col style="width:16%"><col style="width:16%">
+        </colgroup>
+        <thead>
+          <tr>
+            <th>رقم الأوردر</th>
+            <th>عدد القطع</th>
+            <th>التاريخ</th>
+            <th>الحالة</th>
+            <th>حالة الأوردر (S1)</th>
+            <th>حالة الإرجاع (S2)</th>
+          </tr>
+        </thead>
+        <tbody>${tbody}</tbody>
+      </table>
+    </div>
+    ${sorted.length > shown.length ? `<div class="details-more"><button class="btn" onclick="showMoreOrderDetails()">عرض المزيد (${fmtInt(sorted.length - shown.length)} أوردر متبقي)</button></div>` : ''}
   `;
 }
 
