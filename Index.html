@@ -118,8 +118,9 @@
   .freshness-dot.error { background: var(--red); }
   @keyframes pulse { 50% { opacity: .3; } }
 
-  /* ── Truncation / candidate note ── */
-  .info-note { background: var(--accent-light); color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; padding: 8px 14px; font-size: 12px; margin-bottom: 14px; }
+  /* ── Notes / warnings ── */
+  .info-note { background: var(--accent-light); color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; padding: 8px 14px; font-size: 12px; margin-bottom: 10px; }
+  .warn-note { background: var(--amber-light); color: #92400e; border: 1px solid #fde68a; border-radius: 10px; padding: 8px 14px; font-size: 12px; margin-bottom: 14px; }
 
   /* ── Error state ── */
   .error-state { background: var(--surface); border: 1px solid var(--red-border); border-radius: var(--radius); padding: 26px 20px; text-align: center; }
@@ -130,9 +131,10 @@
   .error-state pre { font-family: var(--font-mono); font-size: 11px; background: var(--surface-2); padding: 10px; border-radius: 8px; direction: ltr; text-align: left; overflow-x: auto; margin-top: 6px; white-space: pre-wrap; word-break: break-word; }
 
   /* ── KPI cards (الصف الأول — جسر بالقيمة) ── */
-  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; margin-bottom: 20px; }
   .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; border-inline-start: 4px solid var(--border); cursor: pointer; transition: box-shadow .15s, transform .1s; }
   .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.09); transform: translateY(-1px); }
+  .kpi-card.drill-active { box-shadow: 0 0 0 2px var(--accent); }
   .kpi-card[data-state="good"]    { border-inline-start-color: var(--green); }
   .kpi-card[data-state="warning"] { border-inline-start-color: var(--amber); }
   .kpi-card[data-state="bad"]     { border-inline-start-color: var(--red); }
@@ -140,19 +142,20 @@
   .kpi-label { font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px; }
   .kpi-label-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
   .kpi-label-row .kpi-label { margin-bottom: 0; }
-  .kpi-click-hint { font-size: 10.5px; color: var(--accent); opacity: 0; transition: opacity .15s; }
-  .kpi-card:hover .kpi-click-hint { opacity: 1; }
   .kpi-value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); direction: ltr; text-align: right; }
   .kpi-delta { font-size: 12px; margin-top: 4px; }
   .kpi-delta.up   { color: var(--green); }
   .kpi-delta.down { color: var(--red); }
   .kpi-pct { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
-  .kpi-breakdown { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); display: flex; gap: 10px; flex-wrap: wrap; }
-  .kpi-breakdown-item { flex: 1; min-width: 70px; text-align: center; border-radius: 8px; padding: 4px 2px; transition: background .12s; cursor: pointer; }
-  .kpi-breakdown-item:hover { background: var(--accent-light); }
-  .kpi-breakdown-item + .kpi-breakdown-item { border-inline-start: 1px solid var(--border); }
-  .kpi-breakdown-label { font-size: 10.5px; color: var(--text-secondary); margin-bottom: 3px; }
-  .kpi-breakdown-value { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; direction: ltr; }
+
+  /* breakdown — grid عشان 7 مربعات فرعية تتقسم على سطور مرتبة */
+  .kpi-breakdown { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 4px; }
+  .kpi-breakdown-item { text-align: center; border-radius: 8px; padding: 5px 3px; transition: background .12s; cursor: pointer; border: 1px solid transparent; }
+  .kpi-breakdown-item:hover { background: var(--accent-light); border-color: #bfdbfe; }
+  .kpi-breakdown-item.drill-active { background: var(--accent-light); border-color: var(--accent); }
+  .kpi-breakdown-label { font-size: 10px; color: var(--text-secondary); margin-bottom: 3px; line-height: 1.35; }
+  .kpi-breakdown-value { font-family: var(--font-mono); font-size: 12px; font-weight: 700; direction: ltr; }
+  .kpi-breakdown-item.is-warn .kpi-breakdown-label { color: var(--amber); font-weight: 700; }
 
   /* ── KPI info tooltip (hover-only explainer) ── */
   .kpi-info {
@@ -163,7 +166,7 @@
   .kpi-info:hover { background: var(--accent); color: #fff; }
   .kpi-info .kpi-tooltip {
     display: none; position: absolute; z-index: 60; top: calc(100% + 8px); left: 0;
-    width: 260px; background: #111827; color: #f9fafb; font-size: 11.5px; font-weight: 400;
+    width: 280px; background: #111827; color: #f9fafb; font-size: 11.5px; font-weight: 400;
     line-height: 1.7; padding: 10px 12px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.28);
     text-align: right; white-space: normal; cursor: auto;
   }
@@ -208,7 +211,7 @@
   /* ── Changelog Modal ── */
   .changelog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; }
   .changelog-overlay.open { display: flex; }
-  .changelog-modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.18); overflow: hidden; }
+  .changelog-modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 560px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.18); overflow: hidden; }
   .changelog-modal-hdr { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; flex-shrink: 0; }
   .changelog-body { overflow-y: auto; padding: 20px; flex: 1; }
   .cl-version-block { margin-bottom: 4px; }
@@ -243,35 +246,56 @@
   .about-ep { display: flex; gap: 10px; align-items: baseline; font-size: 13px; }
   .about-ep code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
   .about-code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre; direction: ltr; text-align: left; line-height: 1.65; color: var(--text-primary); margin: 0; }
+  .about-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 6px; }
+  .about-table th, .about-table td { border: 1px solid var(--border); padding: 5px 8px; text-align: right; }
+  .about-table th { background: var(--surface-2); font-size: 11px; }
 
-  /* ── Drilldown Modal (v1.0.1) ── */
-  .drill-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; }
-  .drill-overlay.open { display: flex; }
-  .drill-modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 920px; max-height: 85vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.2); overflow: hidden; }
-  .drill-hdr { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); flex-shrink: 0; gap: 10px; }
-  .drill-title { font-size: 14.5px; font-weight: 700; }
-  .drill-subtitle { font-size: 11.5px; color: var(--text-muted); margin-top: 2px; font-weight: 400; }
-  .drill-summary-row { display: flex; gap: 18px; padding: 10px 18px; background: var(--surface-2); border-bottom: 1px solid var(--border); flex-shrink: 0; font-size: 12px; flex-wrap: wrap; }
-  .drill-summary-item b { font-family: var(--font-mono); }
-  .drill-body { overflow-y: auto; flex: 1; }
-  .drill-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-  .drill-table thead th {
-    position: sticky; top: 0; background: var(--surface-2); text-align: right; padding: 9px 12px;
+  /* ══════════════════════════════════════════════════════
+     §DETAILS — جدول التفاصيل (inline collapsible — v1.1.0)
+     ══════════════════════════════════════════════════════ */
+  .details-section { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+  .details-hdr {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 12px 16px; cursor: pointer; user-select: none; background: var(--surface-2);
+    border-bottom: 1px solid transparent; flex-wrap: wrap;
+  }
+  .details-section.open .details-hdr { border-bottom-color: var(--border); }
+  .details-hdr-right { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .details-caret { font-size: 12px; color: var(--text-secondary); transition: transform .18s; display: inline-block; }
+  .details-section.open .details-caret { transform: rotate(90deg); }
+  .details-title { font-size: 14px; font-weight: 700; }
+  .details-scope { font-size: 11.5px; color: var(--text-muted); }
+  .details-hdr-actions { display: flex; align-items: center; gap: 6px; }
+  .details-body { display: none; }
+  .details-section.open .details-body { display: block; }
+
+  .details-summary-row { display: flex; gap: 18px; padding: 10px 16px; background: var(--accent-light); border-bottom: 1px solid #bfdbfe; font-size: 12px; flex-wrap: wrap; color: #1d4ed8; }
+  .details-summary-item b { font-family: var(--font-mono); }
+
+  .details-scroll { max-height: 560px; overflow-y: auto; }
+  .details-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .details-table thead th {
+    position: sticky; top: 0; z-index: 2; background: var(--surface-2); text-align: right; padding: 9px 12px;
     font-size: 11px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border-strong); white-space: nowrap;
   }
-  .drill-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-  .drill-table tbody tr:hover { background: var(--accent-light); }
-  .drill-table .col-value, .col-qty { font-family: var(--font-mono); direction: ltr; text-align: left; }
-  .drill-order-link { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; color: var(--accent); text-decoration: none; font-weight: 600; }
-  .drill-order-link:hover { text-decoration: underline; }
-  .drill-badge { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; display: inline-block; }
-  .drill-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+  .details-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .details-table tbody tr:hover { background: var(--accent-light); }
+  .details-table tbody tr.has-note { background: #fffdf5; }
+  .details-table tbody tr.has-note:hover { background: var(--amber-light); }
+  .col-num { font-family: var(--font-mono); direction: ltr; text-align: left; white-space: nowrap; }
+  .details-order-link { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; color: var(--accent); text-decoration: none; font-weight: 600; }
+  .details-order-link:hover { text-decoration: underline; }
+  .pill { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; display: inline-block; }
+  .note-pill { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--amber-light); color: #92400e; border: 1px solid #fde68a; white-space: nowrap; margin-inline-start: 5px; }
+  .details-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+  .details-placeholder { padding: 30px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+  .details-more { padding: 10px; text-align: center; }
 </style>
 </head>
 <body>
 
 <!-- ══════════════════════════════════════════════════════
-     §SHELL — header + settings modal + changelog modal + about modal + drilldown modal + toast
+     §SHELL — header + modals + toast
      ══════════════════════════════════════════════════════ -->
 <main>
   <div class="app-header">
@@ -289,13 +313,13 @@
         <span class="freshness-text">جاري التحميل…</span>
       </div>
       <button class="hbtn" onclick="openAbout()">ℹ️ عن الأداة</button>
-      <button class="hbtn ver-btn" onclick="openChangelog()">v1.0.1 📋</button>
+      <button class="hbtn ver-btn" onclick="openChangelog()">v1.1.0 📋</button>
       <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
     </div>
   </div>
 
   <!-- ══════════════════════════════════════════════════════
-       §DASH — date range filter (شكل موحّد — ecommoda-html-builder/references/date-range-filter.md)
+       §DASH — date range filter (شكل موحّد)
        ══════════════════════════════════════════════════════ -->
   <div class="dash-controls">
     <div class="range-frow">
@@ -366,21 +390,30 @@
     <div class="changelog-modal-hdr">📋 سجل التحديثات<button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="changelog-body">
       <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge">v1.1.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>تصحيح في الأرقام مش تسمية:</b> القطع اللي في دورة إرجاع/استبدال مفتوحة كانت بتتحسب "صافي مبيعات" لمجرد إن S1=Delivered — دلوقتي بقت "قيد التنفيذ". مثال حي: #49572 قطعة MRX155/Green/43</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>"قيد التنفيذ" اتقسم لـ 7 مربعات فرعية: تحت التأكيد · مؤكد/تحت التجهيز · استبدال/تحت التجهيز · مرتجع/تحت التجهيز · مؤكد/خرج للشحن · استبدال/خرج للشحن · مرتجع/خرج للشحن (+ مربع ثامن للحالات الشاذة)</span></li>
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span>S1 = In-Return بقت تُعامل معاملة Shipped بالظبط (في تقييم الفلوس فقط — S1 مش S2)</span></li>
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span>جدول التفاصيل نزل تحت في الصفحة كقسم قابل للطي بدل الـ popup</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>عمود "عدد قطع الأوردر" بعد رقم الأوردر مباشرة + عمود S2 + ملاحظات تشخيصية على الصف</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>unfulfilledQuantity كتأكيد إضافي على حالة شحن القطعة — أي تعارض بيتعلّم على الصف ومبيتبلعش</span></li>
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span>CACHE_VERSION → v3 (شكل البيانات اتغيّر)</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge">v1.0.1</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span>Drill-down: الضغط على أي مربع رئيسي أو أي فرع تحته بيفتح جدول تفصيلي (رقم الأوردر كهايبرلينك لشوبيفاي أدمن، التاريخ، SKU، القيمة، حالة القطعة، حالة الأوردر)</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span>الجدول بيتفتح فوراً من الـ cache المحمّل بالفعل (state.rows) — بدون أي نداء Worker إضافي</span></li>
-          <li class="cl-item"><span class="cl-tag change">تعديل</span><span>الـ Worker بقى يرجّع rows[] جنب boxes — CACHE_VERSION اترفع لـ v2 (breaking cache shape)</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>Drill-down: الضغط على أي مربع بيفتح جدول تفصيلي (رقم الأوردر كهايبرلينك لشوبيفاي أدمن، التاريخ، SKU، القيمة، حالة القطعة، حالة الأوردر)</span></li>
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span>الـ Worker بقى يرجّع rows[] جنب boxes — CACHE_VERSION اترفع لـ v2</span></li>
         </ul>
       </div>
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge">v1.0.0</span><span class="cl-ver-date">02-08-2026</span></div>
         <ul class="cl-items">
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span>إطلاق أول نسخة — الشاشة الرئيسية بس، مبنية على sales-dashboard-overview-data-contract-v2.md بالكامل (نموذج القطعة Q/C/P، مش نموذج الأوردر)</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span>4 مربعات: إجمالي القيمة · قيد التنفيذ · الفاقد · صافي المبيعات — بالهوية الحسابية المضمونة (مربع 1 = مجموع 2+3+4)</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span>مربع الفاقد فيه تفصيل 5 أعمدة منفصلة تماماً: ملغي · RTO · محذوف قبل الشحن · مرتجع نهائي · مرتجع استبدال (مفيش دمج بين مرتجع نهائي واستبدال — Rule 1)</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span>جلب على مرحلتين (Worker): أول 250 أوردر لكل الأوردرات، وبعدين بيانات المرتجعات للمرشّحين بس (دفعات 10)</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span>بطاقة تحقق الهوية (Identity Check) تحت المربعات — بتتأكد لحظياً إن إجمالي القيمة = قيد التنفيذ + الفاقد + صافي المبيعات، وتبين لو في اختلاف (bug مش في الموديل)</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>إطلاق أول نسخة — الشاشة الرئيسية، مبنية على sales-dashboard-overview-data-contract-v2.md (نموذج القطعة Q/C/P)</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>4 مربعات بالهوية الحسابية المضمونة (مربع 1 = مجموع 2+3+4) + بطاقة تحقق الهوية</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>جلب على مرحلتين: كل الأوردرات، وبعدين بيانات المرتجعات للمرشّحين بس (دفعات 10)</span></li>
         </ul>
       </div>
     </div>
@@ -389,30 +422,48 @@
 
 <!-- About Modal -->
 <div id="aboutOverlay" class="modal-overlay" onclick="if(event.target===this)closeAbout()">
-  <div class="modal-box" style="max-width:640px;">
+  <div class="modal-box" style="max-width:680px;">
     <div class="modal-header"><span>ℹ️ عن الأداة — لوحة الأداء</span><button class="modal-close" onclick="closeAbout()">✕</button></div>
     <div class="modal-body" style="padding:0 20px 20px;">
       <details open style="margin-top:16px;">
         <summary class="about-summary">📋 وصف الأداة</summary>
         <div class="about-body">
-          <p class="about-desc">داشبورد يجاوب سؤال واحد: "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. الشاشة دي هي الرئيسية بس حالياً — تابات تانية (لو اتقرر لاحقاً) هتيجي بـ Data Contract منفصل. بدون تسجيل دخول (🔓) — الحماية عن طريق WORKER_SECRET بس.</p>
+          <p class="about-desc">داشبورد يجاوب سؤال واحد: "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. بدون تسجيل دخول (🔓) — الحماية عن طريق WORKER_SECRET بس.</p>
           <div class="about-label">المستخدمون</div>
           <p>المدير العام وفريق التحليل.</p>
           <div class="about-label">النموذج (Data Contract v2.0.0)</div>
           <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي القيمة = قيد التنفيذ + الفاقد + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
-          <div class="about-label">Drill-down (v1.0.1)</div>
-          <p>كل مربع (رئيسي أو فرعي) قابل للضغط — بيفتح جدول بكل جزء كمية بنى عليه الرقم: رقم الأوردر (هايبرلينك لشوبيفاي أدمن)، التاريخ، SKU، القيمة، حالة القطعة، وحالة الأوردر (S1). البيانات جاهزة مسبقاً من نفس نداء get_data — الضغط مبيعملش أي fetch إضافي.</p>
+
+          <div class="about-label">مربعات "قيد التنفيذ" الفرعية (v1.1.0)</div>
+          <table class="about-table">
+            <thead><tr><th>#</th><th>المربع</th><th>الشرط</th></tr></thead>
+            <tbody>
+              <tr><td>1</td><td>تحت التأكيد</td><td>مش مرتبط باستبدال/إرجاع · S1 = New Order</td></tr>
+              <tr><td>2</td><td>مؤكد / تحت التجهيز</td><td>مش مرتبط · S1 غير (New Order · Shipped · In-Return · Delivered · Returned · Cancelled)</td></tr>
+              <tr><td>3</td><td>استبدال / تحت التجهيز</td><td>سطر بديل · دورة مفتوحة · S2 ∈ (Confirmed + RETURN · Confirmed + EXCHANGE · Ready)</td></tr>
+              <tr><td>4</td><td>مرتجع / تحت التجهيز</td><td>القطعة المرتجعة · دورة مفتوحة · نفس قيم S2 السابقة</td></tr>
+              <tr><td>5</td><td>مؤكد / خرج للشحن</td><td>مش مرتبط · S1 = Shipped أو In-Return</td></tr>
+              <tr><td>6</td><td>استبدال / خرج للشحن</td><td>سطر بديل · دورة مفتوحة · S2 ∈ (Shipped · In-Return)</td></tr>
+              <tr><td>7</td><td>مرتجع / خرج للشحن</td><td>القطعة المرتجعة · دورة مفتوحة · S2 ∈ (Shipped · In-Return)</td></tr>
+              <tr><td>8</td><td>خارج التصنيف</td><td>حالات شاذة (مثل S1 = Returned من غير إلغاء فعلي في شوبيفاي) — ظاهر عمداً عشان مايضيعش بصمت</td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">ملاحظة: <b>S1 = In-Return</b> تُعامل معاملة <b>Shipped</b> بالظبط (قرار 03-08-2026 — في S1 فقط، مش S2). و<b>S1 = Ready مع Fulfilled</b> (محاولة تسليم مكررة) موجودة مؤقتاً تحت مربع 2 ومعلّمة بملاحظة على الصف.</p>
+
+          <div class="about-label">جدول التفاصيل</div>
+          <p>الضغط على أي مربع (رئيسي أو فرعي) بيفتح قسم التفاصيل في آخر الصفحة: رقم الأوردر (هايبرلينك لشوبيفاي أدمن) · عدد قطع الأوردر · التاريخ · SKU · الكمية · القيمة · حالة القطعة · S1 · S2. البيانات جاهزة مسبقاً من نفس نداء <code>get_data</code> — الضغط مبيعملش أي fetch إضافي.</p>
+
           <div class="about-label">كيف تعمل</div>
           <div class="about-steps">
-            <div class="about-step"><span class="about-num">1</span><span>اختار فترة — preset من "⚡ فترة سريعة" أو تعديل يدوي على "من/إلى تاريخ" — بيتحمل من الكاش (KV) لو موجود.</span></div>
-            <div class="about-step"><span class="about-num">2</span><span>الـ Worker بيجيب كل الأوردرات (مرحلة 1، first: 250)، وبعدين بيانات المرتجعات للأوردرات المرشّحة بس (مرحلة 2، دفعات 10) — المرشّح = Σ(Q)≠Σ(C) أو فيه S2.</span></div>
-            <div class="about-step"><span class="about-num">3</span><span>زرار "تحديث" بيجبر Fetch جديد من Shopify. تغيير الفترة بيقرا من الكاش لو نطاق مغلق (قبل النهاردة) أو TTL 15 دقيقة لو نطاق مفتوح.</span></div>
+            <div class="about-step"><span class="about-num">1</span><span>اختار فترة — preset أو تعديل يدوي على "من/إلى تاريخ" — بيتحمل من الكاش (KV) لو موجود.</span></div>
+            <div class="about-step"><span class="about-num">2</span><span>الـ Worker بيجيب كل الأوردرات (مرحلة 1، first: 250)، وبعدين بيانات المرتجعات للأوردرات المرشّحة بس (مرحلة 2، دفعات 10).</span></div>
+            <div class="about-step"><span class="about-num">3</span><span>زرار "تحديث" بيجبر Fetch جديد. تغيير الفترة بيقرا من الكاش (نطاق مغلق = دائم · مفتوح = 15 دقيقة).</span></div>
             <div class="about-step"><span class="about-num">4</span><span>لو أي أوردر فيه أكتر من 25 سطر، أو أي صفحة فشلت، الطلب كله بيفشل برسالة واضحة — مفيش أرقام ناقصة بصمت.</span></div>
-            <div class="about-step"><span class="about-num">5</span><span>الضغط على أي مربع أو فرع بيفتح جدول التفاصيل من نفس البيانات المحمّلة (rows[]) — بدون أي تحميل إضافي.</span></div>
+            <div class="about-step"><span class="about-num">5</span><span>الضغط على أي مربع بيفتح قسم التفاصيل تحت من نفس البيانات المحمّلة (rows[]).</span></div>
           </div>
           <div class="about-label">الـ Endpoints الرئيسية</div>
           <div class="about-endpoints">
-            <div class="about-ep"><code>get_data</code><span>المربعات الأربعة + صفوف التفصيل (rows) للفترة (POST — dateFrom/dateTo/forceRefresh)</span></div>
+            <div class="about-ep"><code>get_data</code><span>المربعات + صفوف التفصيل + التحذيرات (POST — dateFrom/dateTo/forceRefresh)</span></div>
             <div class="about-ep"><code>get_meta</code><span>عمر بيانات الفترة من غير Shopify fetch (GET)</span></div>
             <div class="about-ep"><code>clear_cache</code><span>مسح كاش الفترة أو كل الكاش — للصيانة (مش متاح من الـ UI حالياً)</span></div>
           </div>
@@ -423,78 +474,46 @@
         <div class="about-body">
           <pre class="about-code">FEATURE MAP
 ──────────────────────────────────────────────────────────────
-Feature                         │ File    │ §Section    │ fn/action
+Feature                          │ File   │ §Section   │ fn/action
 ──────────────────────────────────────────────────────────────
-4 مربعات الرئيسية + الهوية      │ HTML    │ §TOOL-JS    │ renderBoxes
-فلتر التاريخ (شكل موحّد)        │ HTML    │ §DATERANGE  │ applyRangePreset / onRangeDateChange
-Drill-down modal (جدول تفصيلي)  │ HTML    │ §DRILL      │ openDrilldown / renderDrillTable
-تجميع القطعة (Q/C/P → مربعات)  │ Worker  │ §AGGREGATE  │ computeBoxes
-صفوف التفصيل لكل bucket         │ Worker  │ §AGGREGATE  │ pushRow
-تسوية دورات الإرجاع/الاستبدال   │ Worker  │ §AGGREGATE  │ computeBoxes (settledByLineId)
-ملغي/RTO short-circuit          │ Worker  │ §AGGREGATE  │ isCancelledOrRTO
-مرحلة 1 — كل الأوردرات          │ Worker  │ §SHOPIFY    │ fetchStage1
-مرحلة 2 — مرشّحون فقط           │ Worker  │ §SHOPIFY    │ fetchStage2
-كاش (KV، مغلق=دائم)            │ Worker  │ §CACHE      │ get_data / get_meta
-مؤشر آخر تحديث (age دايماً)     │ HTML    │ §DASH-JS    │ freshnessState / renderFreshness
+4 مربعات + 7 فرعية + الهوية      │ HTML   │ §TOOL-JS   │ renderBoxes
+فلتر التاريخ (شكل موحّد)         │ HTML   │ §DATERANGE │ applyRangePreset
+قسم التفاصيل (inline collapsible)│ HTML   │ §DETAILS   │ showDetails / renderDetailsTable
+تجميع القطعة (Q/C/P → مربعات)   │ Worker │ §AGGREGATE │ computeBoxes
+صفوف التفصيل لكل bucket          │ Worker │ §AGGREGATE │ pushRow
+تصنيف القطع العادية (S1)         │ Worker │ §AGGREGATE │ normalBucket
+مرحلة R/E من S2 (PREP/SHIPPED)   │ Worker │ §AGGREGATE │ stageFromS2
+تسوية دورات الإرجاع/الاستبدال    │ Worker │ §AGGREGATE │ computeBoxes (settledByLineId)
+ملغي/RTO short-circuit           │ Worker │ §AGGREGATE │ isCancelledOrRTO
+تأكيد حالة شحن القطعة            │ Worker │ §SHARED    │ isLineFulfilled
+مرحلة 1 — كل الأوردرات           │ Worker │ §SHOPIFY   │ fetchStage1
+مرحلة 2 — مرشّحون فقط            │ Worker │ §SHOPIFY   │ fetchStage2
+كاش (KV، مغلق=دائم)             │ Worker │ §CACHE     │ get_data / get_meta
+مؤشر آخر تحديث (age دايماً)      │ HTML   │ §DASH-JS   │ freshnessState / renderFreshness
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
 LS_URL    = 'perfdash_worker_url'
 LS_SECRET = 'perfdash_worker_secret'
-activeRangePreset = '' | 'today' | 'yesterday' | 'last3' | 'last7' | 'last30' | 'last90'
-                  | 'thisMonth' | 'lastMonth' | 'thisQuarter' | 'thisYear' | 'lastYear'
-state.rows = [{ orderId, orderName, createdAt, sku, qty, value, bucket, s1 }, ...]
-BUCKET_LABELS = خريطة bucket → التسمية العربية المعروضة في عمود "حالة القطعة"
+state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
+                qty, value, bucket, s1, s2, note }, ...]
+BUCKET_LABELS = خريطة bucket → التسمية العربية (لازم تطابق BUCKET في الـ Worker)
+NOTE_LABELS   = REDELIVERY (محاولة مكررة) · FULFIL_MISM (تعارض حالة شحن)
+DETAILS_ROW_LIMIT = 500 صف معروض دفعة واحدة، مع زرار "عرض المزيد"
 SHOPIFY_ADMIN_ORDER_URL(id) = https://admin.shopify.com/store/6c7e1a-53/orders/{id}
 
 NOTES
-- الأداة دي بتكاش المربعات النهائية + صفوف التفصيل مع بعض (v1.0.1) — لسه مفيش
-  تابات تانية محتاجة raw data على مستوى تاني غير ده.
-- CACHE_VERSION اترفع من v1 لـ v2 في هذا التحديث (shape جديد فيه rows[]) — أول
-  تحميل لأي فترة اتكاشت قبل التحديث هيتحسب من جديد من شوبيفاي تلقائياً.
-- الصف التاني (معدلات بالعدد زي نسبة RTO) متعمّد إنه مش موجود هنا — Data Contract v2
-  §10 بيقول ده Data Contract مستقل لسه ما اتعملش.
-- الـ Worker بيقارن الفترة الحالية بالسابقة تلقائياً (نداءين get_data منفصلين) عشان
-  الـ delta % تحت كل مربع — ده مطلوب من ecommoda-dashboard-builder (كل KPI card
-  لازم مقارنة، مش رقم لوحده).
-- مربع "قيد التنفيذ" فيه تفصيل فرعي: عادي / بديل قيد التسليم. مربع "صافي المبيعات"
-  فيه: مُسلَّم / بديل. دي مش مفروضة صراحة في الـ Contract لكل مربع، لكن Rule 1
-  (مرتجع نهائي ≠ مرتجع استبدال) طبّقناها بروح واحدة على باقي المربعات لسهولة
-  المراجعة — لو مش عايزها، سهل نشيلها.
+- CACHE_VERSION في الـ Worker = v3. أي فترة اتكاشت بنسخة أقدم هتتحسب من جديد
+  تلقائياً أول مرة تتفتح.
+- "عدد قطع الأوردر" = مجموع الكميات الأصلية Σ(Q) لكل أسطر الأوردر — مش الكمية
+  الباقية، عشان يتطابق مع أساس التقييم.
+- unfulfilledQuantity بيتستخدم كـ assertion بس — لو اتعارض مع المربع، الصف
+  بيتعلّم بملاحظة والقيمة بتفضل مكانها (مفيش جنيه بيختفي من التصنيف).
+- الصف التاني (معدلات بالعدد زي نسبة RTO) متعمّد إنه مش موجود — Data Contract
+  مستقل لسه ما اتعملش.
 - كل الأرقام en-US، والتوقيت بتوقيت القاهرة عبر toCairo().</pre>
         </div>
       </details>
-    </div>
-  </div>
-</div>
-
-<!-- Drilldown Modal (v1.0.1) -->
-<div class="drill-overlay" id="drillOverlay" onclick="closeDrillOnBackdrop(event)">
-  <div class="drill-modal">
-    <div class="drill-hdr">
-      <div>
-        <div class="drill-title" id="drillTitle">تفاصيل</div>
-        <div class="drill-subtitle" id="drillSubtitle"></div>
-      </div>
-      <button class="modal-close-x" onclick="closeDrill()">✕</button>
-    </div>
-    <div class="drill-summary-row" id="drillSummaryRow"></div>
-    <div class="drill-body">
-      <table class="drill-table">
-        <thead>
-          <tr>
-            <th>رقم الأوردر</th>
-            <th>التاريخ</th>
-            <th>SKU</th>
-            <th>الكمية</th>
-            <th>القيمة</th>
-            <th>حالة القطعة</th>
-            <th>حالة الأوردر</th>
-          </tr>
-        </thead>
-        <tbody id="drillTbody"></tbody>
-      </table>
-      <div class="drill-empty hidden" id="drillEmpty">مفيش صفوف ضمن الفلتر ده في الفترة المختارة.</div>
     </div>
   </div>
 </div>
@@ -507,6 +526,7 @@ const LS_URL    = 'perfdash_worker_url';
 const LS_SECRET = 'perfdash_worker_secret';
 const CURRENCY_SUFFIX = 'ج.م';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
+const DETAILS_ROW_LIMIT = 500;
 
 function getConfig() {
   return {
@@ -602,6 +622,7 @@ async function doRefresh() {
 function fmtMoney(n) { return CURRENCY_SUFFIX + ' ' + Math.round(n || 0).toLocaleString('en-US'); }
 function fmtInt(n)   { return Math.round(n || 0).toLocaleString('en-US'); }
 function fmtPct(n)   { return (n || 0).toFixed(1) + '%'; }
+function esc(s)      { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 function toCairo(iso) { return new Date(new Date(iso).getTime() + 3 * 60 * 60 * 1000); }
 function cairoNow()      { return toCairo(new Date().toISOString()); }
@@ -620,12 +641,9 @@ function getPreviousRange(range) {
   const prevFrom = addDays(prevTo, -(len - 1));
   return { from: prevFrom, to: prevTo };
 }
-// عرض تاريخ الأوردر بصيغة قصيرة en-US (اليوم/الشهر مبنيين على createdAt القادم من شوبيفاي — UTC، غير محوّل لتوقيت القاهرة عمداً هنا لأنه للعرض السريع بس في الجدول)
-function fmtDrillDate(iso) {
+function fmtRowDate(iso) {
   if (!iso) return '—';
-  const d = toCairo(iso);
-  const pad = n => String(n).padStart(2, '0');
-  return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`;
+  return cairoDateStr(toCairo(iso));
 }
 
 // ══════════════════════════════════════════════════════
@@ -637,15 +655,22 @@ const state = {
   boxes: null,
   prevBoxes: null,
   rows: [],
+  warnings: null,
   ordersScanned: 0,
   candidatesFetched: 0,
   meta: { lastUpdated: null, source: null },
   viewState: 'loading',
   lastError: null,
+  // §DETAILS state
+  detailsOpen: false,
+  detailsKey: null,          // معرف المربع المختار (للتظليل)
+  detailsBuckets: [],
+  detailsTitle: '',
+  detailsLimit: DETAILS_ROW_LIMIT,
 };
 
 // ══════════════════════════════════════════════════════
-// §DATERANGE — فترة سريعة (يمين) + من/إلى تاريخ — كومبوننت موحّد
+// §DATERANGE — فترة سريعة + من/إلى تاريخ — كومبوننت موحّد
 // ══════════════════════════════════════════════════════
 const RANGE_PRESET_LABELS = {
   today:'اليوم', yesterday:'أمس', last3:'آخر 3 أيام',
@@ -793,8 +818,9 @@ async function loadAll({ forceRefresh }) {
     ]);
 
     state.boxes             = curRes.boxes;
-    state.prevBoxes          = prevRes.boxes;
-    state.rows               = curRes.rows || [];
+    state.prevBoxes         = prevRes.boxes;
+    state.rows              = curRes.rows || [];
+    state.warnings          = curRes.warnings || null;
     state.ordersScanned     = curRes.ordersScanned || 0;
     state.candidatesFetched = curRes.candidatesFetched || 0;
     state.meta              = { lastUpdated: curRes.lastUpdated, source: curRes.source };
@@ -820,25 +846,46 @@ function renderShell() {
     wrap.innerHTML = `
       <div class="error-state">
         <div class="error-title">⚠️ فشل تحميل البيانات</div>
-        <div class="error-msg">${e.message || 'خطأ غير معروف'}</div>
+        <div class="error-msg">${esc(e.message || 'خطأ غير معروف')}</div>
         <button class="btn" onclick="doRefresh()">إعادة المحاولة</button>
         ${e.step || e.technical ? `
         <details>
           <summary>تفاصيل تقنية</summary>
-          <pre>step: ${e.step || '—'}\n${e.technical || ''}</pre>
+          <pre>step: ${esc(e.step || '—')}\n${esc(e.technical || '')}</pre>
         </details>` : ''}
       </div>`;
     return;
   }
 
+  const w = state.warnings || {};
+  const warnBits = [];
+  if (w.unclassified)       warnBits.push(`${fmtInt(w.unclassified)} قطعة خارج التصنيف`);
+  if (w.fulfilmentMismatch) warnBits.push(`${fmtInt(w.fulfilmentMismatch)} تعارض في حالة الشحن`);
+  if (w.redelivery)         warnBits.push(`${fmtInt(w.redelivery)} محاولة تسليم مكررة (Ready + Fulfilled)`);
+
   wrap.innerHTML = `
     <div class="info-note">📊 تم فحص ${fmtInt(state.ordersScanned)} أوردر في الفترة المختارة — ${fmtInt(state.candidatesFetched)} منهم فيه نشاط إرجاع/استبدال (اتجابت بيانات مرتجعاتهم بالتفصيل).</div>
+    ${warnBits.length ? `<div class="warn-note">⚠️ ${warnBits.join(' · ')} — اضغط على المربع المعني لمراجعة الصفوف.</div>` : ''}
     <div class="kpi-grid" id="overviewKpis"></div>
     <div class="identity-card" id="identityCard"></div>
+    <div class="details-section${state.detailsOpen ? ' open' : ''}" id="detailsSection">
+      <div class="details-hdr" onclick="toggleDetails()">
+        <div class="details-hdr-right">
+          <span class="details-caret">▶</span>
+          <span class="details-title">📋 جدول التفاصيل</span>
+          <span class="details-scope" id="detailsScope"></span>
+        </div>
+        <div class="details-hdr-actions">
+          <button class="hbtn" onclick="event.stopPropagation(); showDetails([], 'كل الحركة', 'ALL')">عرض كل الحركة</button>
+        </div>
+      </div>
+      <div class="details-body" id="detailsBody"></div>
+    </div>
   `;
 
   renderFreshness(state.meta.lastUpdated, state.meta.source);
   renderBoxes();
+  renderDetails();
 }
 
 // ══════════════════════════════════════════════════════
@@ -855,67 +902,85 @@ function delta(curVal, prevVal, direction = 'higher_better') {
 
 const infoIcon = html => `<span class="kpi-info">ⓘ<span class="kpi-tooltip">${html}</span></span>`;
 
-// ─── §TOOL-JS::renderBoxes — الـ 4 مربعات + بطاقة تحقق الهوية ───
-// كل كارت وكل فرع تحته قابل للضغط (v1.0.1) — data-buckets يحدد أي rows تتفلتر،
-// و stopPropagation على الفروع عشان الضغط على فرع مايفتحش drilldown الكارت الأب كمان.
+// sub — عنصر مربع فرعي قابل للضغط
+function sub(key, label, value, buckets, isWarn = false) {
+  const active = state.detailsKey === key ? ' drill-active' : '';
+  const warn   = isWarn ? ' is-warn' : '';
+  return `<div class="kpi-breakdown-item${active}${warn}"
+    onclick="event.stopPropagation(); showDetails(${JSON.stringify(buckets).replace(/"/g, '&quot;')}, '${label.replace(/'/g, "\\'")}', '${key}')">
+    <div class="kpi-breakdown-label">${label}</div>
+    <div class="kpi-breakdown-value">${fmtMoney(value)}</div>
+  </div>`;
+}
+
+// ─── §TOOL-JS::renderBoxes — الـ 4 مربعات + الفروع + بطاقة الهوية ───
 function renderBoxes() {
   const b = state.boxes, pb = state.prevBoxes || {};
   const pctOfTotal = amt => b.totalValue ? (amt / b.totalValue) * 100 : 0;
   const pctLine = amt => `<div class="kpi-pct">${fmtPct(pctOfTotal(amt))} من إجمالي القيمة</div>`;
+  const cardActive = key => state.detailsKey === key ? ' drill-active' : '';
+
+  const IP_ALL = ['IP_PENDING_CONFIRM','IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP',
+                  'IP_CONFIRMED_SHIPPED','IP_EXCHANGE_SHIPPED','IP_RETURN_SHIPPED','IP_UNCLASSIFIED'];
 
   document.getElementById('overviewKpis').innerHTML = `
-    <div class="kpi-card" data-state="neutral" onclick="openDrilldown([], 'إجمالي القيمة', 'كل الحركة في الفترة المختارة')">
+    <div class="kpi-card${cardActive('ALL')}" data-state="neutral" onclick="showDetails([], 'إجمالي القيمة', 'ALL')">
       <div class="kpi-label-row">
         <span class="kpi-label">إجمالي القيمة</span>
         ${infoIcon('مجموع Σ(Q×P) لكل سطر في كل أوردر بالفترة — القاعدة (100%) اللي بتتحسب عليها نسب باقي المربعات. Q = الكمية الأصلية، P = discountedUnitPriceSet.')}
       </div>
       <div class="kpi-value">${fmtMoney(b.totalValue)}</div>
       ${delta(b.totalValue, pb.totalValue)}
-      <div class="kpi-click-hint">اضغط لعرض كل الحركة بالتفصيل ↗</div>
     </div>
 
-    <div class="kpi-card" onclick="openDrilldown(['IN_PROGRESS_NORMAL','IN_PROGRESS_REPLACEMENT'], 'قيد التنفيذ', 'كل القطع اللي لسه ما اتسلّمتش')">
+    <div class="kpi-card${cardActive('IP')}" onclick="showDetails(${JSON.stringify(IP_ALL).replace(/"/g,'&quot;')}, 'قيد التنفيذ', 'IP')">
       <div class="kpi-label-row">
         <span class="kpi-label">قيد التنفيذ</span>
-        ${infoIcon('قيمة الأسطر الباقية (C×P) في الأوردرات اللي لسه ما اتسلّمتش (S1 ≠ Delivered)، زائد قيمة البدائل من دورات استبدال لسه مفتوحة (غير مُسوّاة).')}
+        ${infoIcon('كل القطع اللي لسه ما استقرّ مصيرها: أوردرات لسه ما اتسلّمتش، وقطع داخل دورة إرجاع/استبدال <b>مفتوحة</b> (سواء البديل الخارج أو القطعة الراجعة). القطعة بتخرج من هنا لصافي المبيعات أو للفاقد لما الدورة تتقفل فعلياً.')}
       </div>
       <div class="kpi-value">${fmtMoney(b.inProgress)}</div>
       ${delta(b.inProgress, pb.inProgress, 'lower_better')}
       ${pctLine(b.inProgress)}
       <div class="kpi-breakdown">
-        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['IN_PROGRESS_NORMAL'], 'قيد التنفيذ — عادي', '')"><div class="kpi-breakdown-label">عادي</div><div class="kpi-breakdown-value">${fmtMoney(b.inProgress - b.inProgressReplacement)}</div></div>
-        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['IN_PROGRESS_REPLACEMENT'], 'قيد التنفيذ — بديل قيد التسليم', '')"><div class="kpi-breakdown-label">بديل قيد التسليم</div><div class="kpi-breakdown-value">${fmtMoney(b.inProgressReplacement)}</div></div>
+        ${sub('IP1','تحت التأكيد',            b.ipPendingConfirm,   ['IP_PENDING_CONFIRM'])}
+        ${sub('IP2','مؤكد / تحت التجهيز',      b.ipConfirmedPrep,    ['IP_CONFIRMED_PREP'])}
+        ${sub('IP3','استبدال / تحت التجهيز',   b.ipExchangePrep,     ['IP_EXCHANGE_PREP'])}
+        ${sub('IP4','مرتجع / تحت التجهيز',     b.ipReturnPrep,       ['IP_RETURN_PREP'])}
+        ${sub('IP5','مؤكد / خرج للشحن',        b.ipConfirmedShipped, ['IP_CONFIRMED_SHIPPED'])}
+        ${sub('IP6','استبدال / خرج للشحن',     b.ipExchangeShipped,  ['IP_EXCHANGE_SHIPPED'])}
+        ${sub('IP7','مرتجع / خرج للشحن',       b.ipReturnShipped,    ['IP_RETURN_SHIPPED'])}
+        ${b.ipUnclassified > 0 ? sub('IP8','خارج التصنيف ⚠️',  b.ipUnclassified, ['IP_UNCLASSIFIED'], true) : ''}
       </div>
     </div>
 
-    <div class="kpi-card" data-state="${b.lost > 0 ? 'warning' : 'good'}" onclick="openDrilldown(['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], 'الفاقد', 'كل القطع اللي راحت من غير رجوع فلوسها')">
+    <div class="kpi-card${cardActive('LOST')}" data-state="${b.lost > 0 ? 'warning' : 'good'}" onclick="showDetails(['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], 'الفاقد', 'LOST')">
       <div class="kpi-label-row">
         <span class="kpi-label">الفاقد</span>
-        ${infoIcon('ملغي (كل قيمة الأوردر) + RTO (كل قيمة الأوردر) + محذوف قبل الشحن (جزء من سطر اتشال قبل الطباعة) + مرتجع نهائي (رجع من غير بديل) + مرتجع استبدال (رجع مع بديل — تسوية = return.status=CLOSED و S2 ضمن In-Return/Returned).')}
+        ${infoIcon('ملغي (كل قيمة الأوردر) + RTO (كل قيمة الأوردر) + محذوف قبل الشحن + مرتجع نهائي (رجع من غير بديل) + مرتجع استبدال (رجع مع بديل). الدورة بتتحسب هنا بس لما تتسوّى فعلياً: return.status = CLOSED و S2 ∈ (In-Return · Returned).')}
       </div>
       <div class="kpi-value">${fmtMoney(b.lost)}</div>
       ${delta(b.lost, pb.lost, 'lower_better')}
       ${pctLine(b.lost)}
       <div class="kpi-breakdown">
-        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['CANCELLED'], 'الفاقد — ملغي', '')"><div class="kpi-breakdown-label">ملغي</div><div class="kpi-breakdown-value">${fmtMoney(b.lostCancelled)}</div></div>
-        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['RTO'], 'الفاقد — RTO', '')"><div class="kpi-breakdown-label">RTO</div><div class="kpi-breakdown-value">${fmtMoney(b.lostRTO)}</div></div>
-        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['REMOVED'], 'الفاقد — محذوف قبل الشحن', '')"><div class="kpi-breakdown-label">محذوف قبل الشحن</div><div class="kpi-breakdown-value">${fmtMoney(b.lostRemoved)}</div></div>
-        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['FINAL_RETURN'], 'الفاقد — مرتجع نهائي', '')"><div class="kpi-breakdown-label">مرتجع نهائي</div><div class="kpi-breakdown-value">${fmtMoney(b.lostFinalReturn)}</div></div>
-        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['EXCHANGE_RETURN'], 'الفاقد — مرتجع استبدال', '')"><div class="kpi-breakdown-label">مرتجع استبدال</div><div class="kpi-breakdown-value">${fmtMoney(b.lostExchangeReturn)}</div></div>
+        ${sub('L1','ملغي',              b.lostCancelled,      ['CANCELLED'])}
+        ${sub('L2','RTO',               b.lostRTO,            ['RTO'])}
+        ${sub('L3','محذوف قبل الشحن',   b.lostRemoved,        ['REMOVED'])}
+        ${sub('L4','مرتجع نهائي',       b.lostFinalReturn,    ['FINAL_RETURN'])}
+        ${sub('L5','مرتجع استبدال',     b.lostExchangeReturn, ['EXCHANGE_RETURN'])}
       </div>
     </div>
 
-    <div class="kpi-card" data-state="good" onclick="openDrilldown(['NET_SALES_NORMAL','NET_SALES_REPLACEMENT'], 'صافي المبيعات', 'كل القطع اللي اتسلّمت فعلياً للعميل')">
+    <div class="kpi-card${cardActive('NET')}" data-state="good" onclick="showDetails(['NET_SALES_NORMAL','NET_SALES_REPLACEMENT'], 'صافي المبيعات', 'NET')">
       <div class="kpi-label-row">
         <span class="kpi-label">صافي المبيعات</span>
-        ${infoIcon('قيمة الأسطر الباقية (C×P) في الأوردرات المُسلَّمة (S1 = Delivered)، زائد قيمة البدائل من دورات استبدال مُسوّاة فعلياً.')}
+        ${infoIcon('القطع اللي اتسلّمت فعلياً ومفيش عليها أي دورة إرجاع/استبدال مفتوحة (S1 = Delivered)، زائد البدائل من دورات استبدال مُسوّاة فعلياً.')}
       </div>
       <div class="kpi-value">${fmtMoney(b.netSales)}</div>
       ${delta(b.netSales, pb.netSales)}
       ${pctLine(b.netSales)}
       <div class="kpi-breakdown">
-        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['NET_SALES_NORMAL'], 'صافي المبيعات — مُسلَّم', '')"><div class="kpi-breakdown-label">مُسلَّم</div><div class="kpi-breakdown-value">${fmtMoney(b.netSales - b.netSalesReplacement)}</div></div>
-        <div class="kpi-breakdown-item" onclick="event.stopPropagation(); openDrilldown(['NET_SALES_REPLACEMENT'], 'صافي المبيعات — بديل', '')"><div class="kpi-breakdown-label">بديل</div><div class="kpi-breakdown-value">${fmtMoney(b.netSalesReplacement)}</div></div>
+        ${sub('N1','مُسلَّم', b.netSales - b.netSalesReplacement, ['NET_SALES_NORMAL'])}
+        ${sub('N2','بديل',   b.netSalesReplacement,               ['NET_SALES_REPLACEMENT'])}
       </div>
     </div>
   `;
@@ -923,7 +988,7 @@ function renderBoxes() {
   renderIdentityCheck(b);
 }
 
-// ─── §TOOL-JS::renderIdentityCheck — إجمالي القيمة يجب أن يساوي مجموع المربعات الثلاثة ───
+// ─── §TOOL-JS::renderIdentityCheck ───
 function renderIdentityCheck(b) {
   const sum = b.inProgress + b.lost + b.netSales;
   const diff = Math.abs(sum - b.totalValue);
@@ -936,84 +1001,140 @@ function renderIdentityCheck(b) {
 }
 
 // ══════════════════════════════════════════════════════
-// §DRILL — Drill-down modal (v1.0.1)
+// §DETAILS — قسم التفاصيل (inline collapsible — v1.1.0)
 // ══════════════════════════════════════════════════════
 
 // خريطة موحّدة لازم تتطابق مع BUCKET في الـ Worker حرفياً — أي bucket جديد هناك
-// لازم يتضاف هنا وإلا هيظهر بدون تسمية عربية (fallback = الكود الخام).
+// لازم يتضاف هنا وإلا هيظهر بالكود الخام بدل التسمية العربية.
 const BUCKET_LABELS = {
-  RTO:                     { label: 'RTO',                    colour: 'var(--red)' },
-  CANCELLED:               { label: 'ملغي',                   colour: 'var(--red)' },
-  REMOVED:                 { label: 'محذوف قبل الشحن',        colour: 'var(--amber)' },
-  FINAL_RETURN:            { label: 'مرتجع نهائي',            colour: 'var(--red)' },
-  EXCHANGE_RETURN:         { label: 'مرتجع استبدال',          colour: 'var(--amber)' },
-  NET_SALES_NORMAL:        { label: 'مُسلَّم',                 colour: 'var(--green)' },
-  NET_SALES_REPLACEMENT:   { label: 'بديل (مُسلَّم)',          colour: 'var(--green)' },
-  IN_PROGRESS_NORMAL:      { label: 'عادي (قيد التنفيذ)',      colour: 'var(--accent)' },
-  IN_PROGRESS_REPLACEMENT: { label: 'بديل قيد التسليم',        colour: 'var(--accent)' },
+  RTO:                     { label: 'RTO',                  colour: 'var(--red)' },
+  CANCELLED:               { label: 'ملغي',                 colour: 'var(--red)' },
+  REMOVED:                 { label: 'محذوف قبل الشحن',      colour: 'var(--amber)' },
+  FINAL_RETURN:            { label: 'مرتجع نهائي',          colour: 'var(--red)' },
+  EXCHANGE_RETURN:         { label: 'مرتجع استبدال',        colour: 'var(--amber)' },
+  NET_SALES_NORMAL:        { label: 'مُسلَّم',               colour: 'var(--green)' },
+  NET_SALES_REPLACEMENT:   { label: 'بديل (مُسلَّم)',        colour: 'var(--green)' },
+  IP_PENDING_CONFIRM:      { label: 'تحت التأكيد',          colour: 'var(--purple)' },
+  IP_CONFIRMED_PREP:       { label: 'مؤكد / تحت التجهيز',    colour: 'var(--accent)' },
+  IP_EXCHANGE_PREP:        { label: 'استبدال / تحت التجهيز', colour: 'var(--accent)' },
+  IP_RETURN_PREP:          { label: 'مرتجع / تحت التجهيز',   colour: 'var(--amber)' },
+  IP_CONFIRMED_SHIPPED:    { label: 'مؤكد / خرج للشحن',      colour: 'var(--accent)' },
+  IP_EXCHANGE_SHIPPED:     { label: 'استبدال / خرج للشحن',   colour: 'var(--accent)' },
+  IP_RETURN_SHIPPED:       { label: 'مرتجع / خرج للشحن',     colour: 'var(--amber)' },
+  IP_UNCLASSIFIED:         { label: 'خارج التصنيف',         colour: 'var(--red)' },
 };
 
-function bucketBadge(bucketKey) {
+const NOTE_LABELS = {
+  REDELIVERY:  'محاولة تسليم مكررة',
+  FULFIL_MISM: 'تعارض حالة الشحن',
+};
+
+function bucketPill(bucketKey) {
   const meta = BUCKET_LABELS[bucketKey] || { label: bucketKey || '—', colour: 'var(--text-muted)' };
-  return `<span class="drill-badge" style="background:color-mix(in srgb, ${meta.colour} 14%, transparent); color:${meta.colour};">${meta.label}</span>`;
+  return `<span class="pill" style="background:color-mix(in srgb, ${meta.colour} 14%, transparent); color:${meta.colour};">${esc(meta.label)}</span>`;
 }
 
 function shopifyOrderUrl(orderId) {
   return `https://admin.shopify.com/store/${SHOPIFY_STORE_HANDLE}/orders/${orderId}`;
 }
 
-// §DRILL::openDrilldown — buckets=[] معناها كل الصفوف من غير فلترة (كارت إجمالي القيمة)
-function openDrilldown(buckets, title, subtitle) {
-  const rows = (buckets && buckets.length)
-    ? state.rows.filter(r => buckets.includes(r.bucket))
-    : state.rows;
+// §DETAILS::showDetails — buckets=[] معناها كل الصفوف من غير فلترة
+function showDetails(buckets, title, key) {
+  state.detailsBuckets = buckets || [];
+  state.detailsTitle   = title;
+  state.detailsKey     = key;
+  state.detailsOpen    = true;
+  state.detailsLimit   = DETAILS_ROW_LIMIT;
 
-  document.getElementById('drillTitle').textContent = title;
-  document.getElementById('drillSubtitle').textContent = subtitle || `${state.range.from} → ${state.range.to}`;
-  renderDrillSummary(rows);
-  renderDrillTable(rows);
-  document.getElementById('drillOverlay').classList.add('open');
+  document.getElementById('detailsSection').classList.add('open');
+  renderBoxes();     // لتحديث التظليل على المربع المختار
+  renderDetails();
+  document.getElementById('detailsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
-function closeDrill() { document.getElementById('drillOverlay').classList.remove('open'); }
-function closeDrillOnBackdrop(e) { if (e.target === e.currentTarget) closeDrill(); }
 
-function renderDrillSummary(rows) {
+function toggleDetails() {
+  state.detailsOpen = !state.detailsOpen;
+  document.getElementById('detailsSection').classList.toggle('open', state.detailsOpen);
+}
+
+function showMoreDetails() {
+  state.detailsLimit += DETAILS_ROW_LIMIT;
+  renderDetails();
+}
+
+function currentDetailRows() {
+  const bs = state.detailsBuckets;
+  return (bs && bs.length) ? state.rows.filter(r => bs.includes(r.bucket)) : state.rows;
+}
+
+function renderDetails() {
+  const scope = document.getElementById('detailsScope');
+  const body  = document.getElementById('detailsBody');
+  if (!scope || !body) return;
+
+  if (!state.detailsKey) {
+    scope.textContent = '— اضغط على أي مربع لعرض تفاصيله';
+    body.innerHTML = `<div class="details-placeholder">اضغط على أي مربع فوق (رئيسي أو فرعي) وهتظهر تفاصيل كل قطعة بنى عليها الرقم هنا.</div>`;
+    return;
+  }
+
+  const rows = currentDetailRows();
+  scope.textContent = `— ${state.detailsTitle} · ${state.range.from} → ${state.range.to}`;
+
   const totalValue = rows.reduce((s, r) => s + (r.value || 0), 0);
   const totalQty   = rows.reduce((s, r) => s + (r.qty || 0), 0);
   const orderCount = new Set(rows.map(r => r.orderId)).size;
-  document.getElementById('drillSummaryRow').innerHTML = `
-    <span class="drill-summary-item">عدد الصفوف: <b>${fmtInt(rows.length)}</b></span>
-    <span class="drill-summary-item">عدد الأوردرات: <b>${fmtInt(orderCount)}</b></span>
-    <span class="drill-summary-item">إجمالي الكمية: <b>${fmtInt(totalQty)}</b></span>
-    <span class="drill-summary-item">إجمالي القيمة: <b>${fmtMoney(totalValue)}</b></span>
-  `;
-}
 
-function renderDrillTable(rows) {
-  const tbody = document.getElementById('drillTbody');
-  const empty = document.getElementById('drillEmpty');
+  const summary = `
+    <div class="details-summary-row">
+      <span class="details-summary-item">عدد الصفوف: <b>${fmtInt(rows.length)}</b></span>
+      <span class="details-summary-item">عدد الأوردرات: <b>${fmtInt(orderCount)}</b></span>
+      <span class="details-summary-item">إجمالي الكمية: <b>${fmtInt(totalQty)}</b></span>
+      <span class="details-summary-item">إجمالي القيمة: <b>${fmtMoney(totalValue)}</b></span>
+    </div>`;
 
   if (!rows.length) {
-    tbody.innerHTML = '';
-    empty.classList.remove('hidden');
+    body.innerHTML = summary + `<div class="details-empty">مفيش صفوف ضمن الفلتر ده في الفترة المختارة.</div>`;
     return;
   }
-  empty.classList.add('hidden');
 
-  // الأحدث أولاً
   const sorted = [...rows].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  const shown  = sorted.slice(0, state.detailsLimit);
 
-  tbody.innerHTML = sorted.map(r => `
-    <tr>
-      <td><a class="drill-order-link" href="${shopifyOrderUrl(r.orderId)}" target="_blank" rel="noopener">${r.orderName || ('#' + r.orderId)}</a></td>
-      <td>${fmtDrillDate(r.createdAt)}</td>
-      <td class="mono">${r.sku || '—'}</td>
-      <td class="col-qty">${fmtInt(r.qty)}</td>
-      <td class="col-value">${fmtMoney(r.value)}</td>
-      <td>${bucketBadge(r.bucket)}</td>
-      <td>${r.s1 || '—'}</td>
-    </tr>
-  `).join('');
+  const tbody = shown.map(r => `
+    <tr class="${r.note ? 'has-note' : ''}">
+      <td><a class="details-order-link" href="${shopifyOrderUrl(r.orderId)}" target="_blank" rel="noopener">${esc(r.orderName || ('#' + r.orderId))}</a></td>
+      <td class="col-num">${fmtInt(r.orderTotalPieces)}</td>
+      <td class="col-num">${fmtRowDate(r.createdAt)}</td>
+      <td class="mono">${esc(r.sku || '—')}</td>
+      <td class="col-num">${fmtInt(r.qty)}</td>
+      <td class="col-num">${fmtMoney(r.value)}</td>
+      <td>${bucketPill(r.bucket)}${r.note ? `<span class="note-pill">${esc(NOTE_LABELS[r.note] || r.note)}</span>` : ''}</td>
+      <td>${esc(r.s1 || '—')}</td>
+      <td>${esc(r.s2 || '—')}</td>
+    </tr>`).join('');
+
+  body.innerHTML = summary + `
+    <div class="details-scroll">
+      <table class="details-table">
+        <thead>
+          <tr>
+            <th>رقم الأوردر</th>
+            <th>عدد قطع الأوردر</th>
+            <th>التاريخ</th>
+            <th>SKU</th>
+            <th>الكمية</th>
+            <th>القيمة</th>
+            <th>حالة القطعة</th>
+            <th>حالة الأوردر (S1)</th>
+            <th>حالة الإرجاع (S2)</th>
+          </tr>
+        </thead>
+        <tbody>${tbody}</tbody>
+      </table>
+    </div>
+    ${sorted.length > shown.length ? `<div class="details-more"><button class="btn" onclick="showMoreDetails()">عرض المزيد (${fmtInt(sorted.length - shown.length)} صف متبقي)</button></div>` : ''}
+  `;
 }
 
 // ══════════════════════════════════════════════════════
