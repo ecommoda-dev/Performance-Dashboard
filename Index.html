@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الأداء — EcomModa</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<!-- ══════════════════════════════════════════════════════
+     §STYLES
+     ══════════════════════════════════════════════════════ -->
+<style>
+  :root {
+    --bg:             #f3f4f6;
+    --surface:        #ffffff;
+    --surface-2:      #f9fafb;
+    --border:         #e5e7eb;
+    --border-strong:  #d1d5db;
+    --text-primary:   #111827;
+    --text-secondary: #6b7280;
+    --text-muted:     #6b7280;
+    --accent:         #2563eb;
+    --accent-light:   #eff6ff;
+    --accent-dark:    #1d4ed8;
+    --green:          #16a34a;
+    --green-light:    #f0fdf4;
+    --green-border:   #86efac;
+    --red:            #dc2626;
+    --red-light:      #fef2f2;
+    --red-border:     #fca5a5;
+    --amber:          #d97706;
+    --amber-light:    #fffbeb;
+    --purple:         #7c3aed;
+    --purple-light:   #f5f3ff;
+    --radius:         14px;
+    --radius-sm:      8px;
+    --shadow:         0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
+    --font-body:      'Noto Sans Arabic', -apple-system, sans-serif;
+    --font-mono:      'IBM Plex Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: var(--font-body); background: var(--bg);
+    color: var(--text-primary); direction: rtl; padding: 12px;
+  }
+  .mono { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; }
+  main { max-width: 1300px; margin: 0 auto 60px; }
+
+  /* ── App Header ── */
+  .app-header {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 16px; margin-bottom: 12px; box-shadow: var(--shadow);
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+  .app-title { display: flex; align-items: center; gap: 10px; }
+  .app-icon { font-size: 22px; }
+  .app-title-text h1 { font-size: 15px; font-weight: 700; line-height: 1.2; margin: 0; }
+  .app-title-text span { font-size: 11px; color: var(--text-muted); }
+  .app-header-btns { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+  .hbtn {
+    display: flex; align-items: center; gap: 5px; padding: 6px 12px;
+    border: 1.5px solid var(--border-strong); background: var(--surface); border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .hbtn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .hbtn:disabled { opacity: .5; cursor: not-allowed; }
+  .hbtn.settings-configured { border-color: var(--green); color: var(--green); background: var(--green-light); }
+  .hbtn.ver-btn { border-color: #bfdbfe; color: #1d4ed8; background: #eff6ff; font-family: var(--font-mono); font-weight: 700; }
+  .hbtn.ver-btn:hover { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
+  .hbtn .ico { display: inline-block; }
+  .hbtn.refreshing .ico { animation: hbtn-spin .7s linear infinite; }
+  @keyframes hbtn-spin { to { transform: rotate(360deg); } }
+
+  /* ── Dash Controls (range + freshness) ── */
+  .dash-controls {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 10px;
+  }
+
+  /* ── Date Range Filter (shared component — ecommoda-html-builder/references/date-range-filter.md) ── */
+  .range-frow { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+  .range-fg { display: flex; flex-direction: column; gap: 3px; }
+  .range-flabel { font-size: 10px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .4px; white-space: nowrap; }
+  .range-date-wrap input[type=date] {
+    width: 160px; height: 34px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    padding: 6px 10px; font-family: var(--font-mono); font-size: 12px; color: var(--text-primary);
+    background: var(--surface); outline: none; cursor: pointer;
+  }
+  .range-preset-wrap { position: relative; }
+  .range-preset-btn {
+    display: flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm); font-family: var(--font-body); font-size: 12px; font-weight: 600;
+    color: var(--text-secondary); background: var(--surface); cursor: pointer; height: 34px; white-space: nowrap;
+  }
+  .range-preset-btn.has-preset { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .range-preset-menu {
+    position: absolute; top: calc(100% + 4px); right: 0; background: var(--surface); border: 1px solid var(--border-strong);
+    border-radius: var(--radius-sm); box-shadow: 0 4px 20px rgba(0,0,0,.12); z-index: 200; min-width: 170px; padding: 4px; display: none;
+  }
+  .range-preset-menu.open { display: block; }
+  .range-preset-item { padding: 7px 12px; font-size: 12px; cursor: pointer; border-radius: 6px; color: var(--text-primary); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .range-preset-item:hover { background: var(--surface-2); }
+  .range-preset-item.active { background: var(--accent-light); color: var(--accent); }
+  .range-preset-item .pr-check { font-size: 11px; color: var(--accent); display: none; }
+  .range-preset-item.active .pr-check { display: block; }
+  .range-preset-sep { height: 1px; background: var(--border); margin: 3px 4px; }
+
+  .btn { border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); padding: 7px 13px; border-radius: 9px; font-family: var(--font-body); font-size: 13px; cursor: pointer; }
+  .btn:hover { background: var(--bg); }
+
+  .freshness { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+  .freshness-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; flex-shrink: 0; }
+  .freshness-dot.loading { background: var(--amber); animation: pulse 1s infinite; }
+  .freshness-dot.error { background: var(--red); }
+  @keyframes pulse { 50% { opacity: .3; } }
+
+  /* ── Truncation / candidate note ── */
+  .info-note { background: var(--accent-light); color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; padding: 8px 14px; font-size: 12px; margin-bottom: 14px; }
+
+  /* ── Error state ── */
+  .error-state { background: var(--surface); border: 1px solid var(--red-border); border-radius: var(--radius); padding: 26px 20px; text-align: center; }
+  .error-title { font-size: 15px; font-weight: 700; color: var(--red); margin-bottom: 8px; }
+  .error-msg { font-size: 13px; color: var(--text-primary); margin-bottom: 14px; }
+  .error-state details { text-align: right; margin-top: 12px; }
+  .error-state summary { cursor: pointer; font-size: 12px; color: var(--text-muted); }
+  .error-state pre { font-family: var(--font-mono); font-size: 11px; background: var(--surface-2); padding: 10px; border-radius: 8px; direction: ltr; text-align: left; overflow-x: auto; margin-top: 6px; white-space: pre-wrap; word-break: break-word; }
+
+  /* ── KPI cards (الصف الأول — جسر بالقيمة) ── */
+  .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; border-inline-start: 4px solid var(--border); }
+  .kpi-card[data-state="good"]    { border-inline-start-color: var(--green); }
+  .kpi-card[data-state="warning"] { border-inline-start-color: var(--amber); }
+  .kpi-card[data-state="bad"]     { border-inline-start-color: var(--red); }
+  .kpi-card[data-state="neutral"] { border-inline-start-color: var(--accent); }
+  .kpi-label { font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px; }
+  .kpi-label-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+  .kpi-label-row .kpi-label { margin-bottom: 0; }
+  .kpi-value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); direction: ltr; text-align: right; }
+  .kpi-delta { font-size: 12px; margin-top: 4px; }
+  .kpi-delta.up   { color: var(--green); }
+  .kpi-delta.down { color: var(--red); }
+  .kpi-pct { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+  .kpi-breakdown { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); display: flex; gap: 10px; flex-wrap: wrap; }
+  .kpi-breakdown-item { flex: 1; min-width: 70px; text-align: center; }
+  .kpi-breakdown-item + .kpi-breakdown-item { border-inline-start: 1px solid var(--border); }
+  .kpi-breakdown-label { font-size: 10.5px; color: var(--text-secondary); margin-bottom: 3px; }
+  .kpi-breakdown-value { font-family: var(--font-mono); font-size: 12.5px; font-weight: 700; direction: ltr; }
+
+  /* ── KPI info tooltip (hover-only explainer) ── */
+  .kpi-info {
+    position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 16px; height: 16px; border-radius: 50%; background: var(--border); color: var(--text-secondary);
+    font-size: 10px; font-weight: 700; cursor: help; flex-shrink: 0; font-family: var(--font-mono);
+  }
+  .kpi-info:hover { background: var(--accent); color: #fff; }
+  .kpi-info .kpi-tooltip {
+    display: none; position: absolute; z-index: 60; top: calc(100% + 8px); left: 0;
+    width: 260px; background: #111827; color: #f9fafb; font-size: 11.5px; font-weight: 400;
+    line-height: 1.7; padding: 10px 12px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.28);
+    text-align: right; white-space: normal; cursor: auto;
+  }
+  .kpi-info:hover .kpi-tooltip { display: block; }
+  .kpi-tooltip::before { content: ''; position: absolute; bottom: 100%; left: 4px; border: 6px solid transparent; border-bottom-color: #111827; }
+
+  /* ── Identity check card ── */
+  .identity-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 18px; font-size: 12.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
+  .identity-card.ok  { border-color: var(--green-border); color: #166534; background: var(--green-light); }
+  .identity-card.bad { border-color: var(--red-border); color: #991b1b; background: var(--red-light); }
+  .identity-card .mono { font-size: 12px; }
+
+  .hidden { display: none !important; }
+
+  /* ── Toast ── */
+  .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+  .toast { padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.2); animation: toastIn .3s ease; max-width: 320px; }
+  .toast-success { background: var(--green); }
+  .toast-error   { background: var(--red); }
+  .toast-neutral { background: #1a1d27; }
+  @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
+
+  /* ── Settings Modal ── */
+  .settings-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .settings-overlay.open { display: flex; }
+  .settings-modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,.18); animation: modalIn .2s ease; overflow: hidden; }
+  @keyframes modalIn { from { transform: scale(.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .settings-modal-hdr { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 700; }
+  .modal-close-x { background: none; border: none; font-size: 16px; line-height: 1; cursor: pointer; padding: 3px 7px; border-radius: var(--radius-sm); color: var(--red); transition: background .15s; }
+  .modal-close-x:hover { background: var(--red-light); }
+  .settings-modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+  .settings-field { display: flex; flex-direction: column; gap: 5px; }
+  .settings-label { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; }
+  .settings-input { border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); padding: 9px 11px; font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); outline: none; width: 100%; direction: ltr; background: var(--surface); transition: border-color .15s; }
+  .settings-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+  .settings-modal-ftr { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
+  .btn-modal-cancel { padding: 8px 14px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; cursor: pointer; }
+  .btn-modal-cancel:hover { color: var(--text-primary); }
+  .btn-modal-save { padding: 8px 18px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .15s; }
+  .btn-modal-save:hover { background: var(--accent-dark); }
+
+  /* ── Changelog Modal ── */
+  .changelog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .changelog-overlay.open { display: flex; }
+  .changelog-modal { background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 500px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0,0,0,.18); overflow: hidden; }
+  .changelog-modal-hdr { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; flex-shrink: 0; }
+  .changelog-body { overflow-y: auto; padding: 20px; flex: 1; }
+  .cl-version-block { margin-bottom: 4px; }
+  .cl-version-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .cl-ver-badge { font-family: var(--font-mono); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 5px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; direction: ltr; }
+  .cl-ver-date { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); direction: ltr; }
+  .cl-items { list-style: none; display: flex; flex-direction: column; gap: 5px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-inline-start: 0; }
+  .cl-version-block:last-child .cl-items { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
+  .cl-item { display: flex; gap: 8px; font-size: 13px; align-items: flex-start; }
+  .cl-tag { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; align-self: flex-start; margin-top: 2px; }
+  .cl-tag.new    { background: #f0fdf4; color: #15803d; }
+  .cl-tag.fix    { background: #fef2f2; color: #dc2626; }
+  .cl-tag.change { background: #fffbeb; color: #92400e; }
+
+  /* ── About Modal ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 400; display: none; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal-box { background: var(--surface); border-radius: var(--radius); width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.18); animation: modalIn .2s ease; }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 700; }
+  .modal-close { background: none; border: none; font-size: 16px; cursor: pointer; padding: 3px 7px; border-radius: var(--radius-sm); color: var(--red); }
+  .modal-close:hover { background: var(--red-light); }
+  .about-summary { padding: 10px 14px; cursor: pointer; font-weight: 700; font-size: 14px; color: var(--text-primary); background: var(--surface-2); border-radius: 8px; list-style: none; display: flex; align-items: center; gap: 6px; user-select: none; }
+  .about-summary::-webkit-details-marker { display: none; }
+  details[open] > .about-summary { border-radius: 8px 8px 0 0; }
+  .about-body { border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px; padding: 14px 16px; font-size: 13px; line-height: 1.75; }
+  .about-desc { color: var(--text-primary); margin: 0 0 12px; }
+  .about-label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .06em; margin: 14px 0 6px; }
+  .about-steps { display: flex; flex-direction: column; gap: 8px; }
+  .about-step { display: flex; gap: 10px; align-items: flex-start; }
+  .about-num { min-width: 22px; height: 22px; background: var(--accent); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; font-family: var(--font-mono); flex-shrink: 0; }
+  .about-endpoints { display: flex; flex-direction: column; gap: 6px; }
+  .about-ep { display: flex; gap: 10px; align-items: baseline; font-size: 13px; }
+  .about-ep code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 5px; padding: 1px 7px; color: var(--accent); white-space: nowrap; flex-shrink: 0; }
+  .about-code { font-family: var(--font-mono); font-size: 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre; direction: ltr; text-align: left; line-height: 1.65; color: var(--text-primary); margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════
+     §SHELL — header + settings modal + changelog modal + about modal + toast
+     ══════════════════════════════════════════════════════ -->
+<main>
+  <div class="app-header">
+    <div class="app-title">
+      <div class="app-icon">🎯</div>
+      <div class="app-title-text">
+        <h1>لوحة الأداء — EcomModa</h1>
+        <span>الشاشة الرئيسية — كل جنيه دخل النظام راح فين؟ · بدون تسجيل دخول (🔓)</span>
+      </div>
+    </div>
+    <div class="app-header-btns">
+      <button class="hbtn" id="refreshBtn" onclick="doRefresh()"><span class="ico">↺</span> تحديث</button>
+      <div class="freshness" id="freshnessBar">
+        <span class="freshness-dot loading"></span>
+        <span class="freshness-text">جاري التحميل…</span>
+      </div>
+      <button class="hbtn" onclick="openAbout()">ℹ️ عن الأداة</button>
+      <button class="hbtn ver-btn" onclick="openChangelog()">v1.0.0 📋</button>
+      <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       §DASH — date range filter (شكل موحّد — ecommoda-html-builder/references/date-range-filter.md)
+       ══════════════════════════════════════════════════════ -->
+  <div class="dash-controls">
+    <div class="range-frow">
+      <div class="range-fg">
+        <span class="range-flabel">فترة سريعة</span>
+        <div class="range-preset-wrap" id="rangePresetWrap">
+          <button class="range-preset-btn" id="rangePresetBtn" onclick="toggleRangePresetMenu(event)">
+            <span id="rangePresetLabel">⚡ اختار فترة</span><span class="pr-arrow">▾</span>
+          </button>
+          <div class="range-preset-menu" id="rangePresetMenu">
+            <div class="range-preset-item" data-preset="today"       onclick="applyRangePreset('today')">      <span>اليوم</span>        <span class="pr-check">✓</span></div>
+            <div class="range-preset-item" data-preset="yesterday"   onclick="applyRangePreset('yesterday')">  <span>أمس</span>          <span class="pr-check">✓</span></div>
+            <div class="range-preset-sep"></div>
+            <div class="range-preset-item" data-preset="last3"       onclick="applyRangePreset('last3')">      <span>آخر 3 أيام</span>   <span class="pr-check">✓</span></div>
+            <div class="range-preset-item" data-preset="last7"       onclick="applyRangePreset('last7')">      <span>آخر 7 أيام</span>   <span class="pr-check">✓</span></div>
+            <div class="range-preset-item" data-preset="last30"      onclick="applyRangePreset('last30')">     <span>آخر 30 يوم</span>   <span class="pr-check">✓</span></div>
+            <div class="range-preset-item" data-preset="last90"      onclick="applyRangePreset('last90')">     <span>آخر 90 يوم</span>   <span class="pr-check">✓</span></div>
+            <div class="range-preset-sep"></div>
+            <div class="range-preset-item" data-preset="thisMonth"   onclick="applyRangePreset('thisMonth')">  <span>الشهر الحالي</span>  <span class="pr-check">✓</span></div>
+            <div class="range-preset-item" data-preset="lastMonth"   onclick="applyRangePreset('lastMonth')">  <span>الشهر السابق</span>  <span class="pr-check">✓</span></div>
+            <div class="range-preset-item" data-preset="thisQuarter" onclick="applyRangePreset('thisQuarter')"><span>الربع الحالي</span>  <span class="pr-check">✓</span></div>
+            <div class="range-preset-sep"></div>
+            <div class="range-preset-item" data-preset="thisYear"    onclick="applyRangePreset('thisYear')">   <span>العام الحالي</span>  <span class="pr-check">✓</span></div>
+            <div class="range-preset-item" data-preset="lastYear"    onclick="applyRangePreset('lastYear')">   <span>العام السابق</span>  <span class="pr-check">✓</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="range-fg">
+        <span class="range-flabel">من تاريخ</span>
+        <div class="range-date-wrap">
+          <input type="date" id="rangeDateFrom" onclick="this.showPicker&&this.showPicker();" onchange="onRangeDateChange()">
+        </div>
+      </div>
+      <div class="range-fg">
+        <span class="range-flabel">إلى تاريخ</span>
+        <div class="range-date-wrap">
+          <input type="date" id="rangeDateTo" onclick="this.showPicker&&this.showPicker();" onchange="onRangeDateChange()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dashboardBody">
+    <!-- محتوى عادي أو error-state — renderShell() بيتحكم فيه -->
+  </div>
+</main>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- Settings Modal -->
+<div class="settings-overlay" id="settingsOverlay" onclick="closeSettingsOnBackdrop(event)">
+  <div class="settings-modal">
+    <div class="settings-modal-hdr">⚙️ الإعدادات<button class="modal-close-x" onclick="closeSettings()">✕</button></div>
+    <div class="settings-modal-body">
+      <div class="settings-field"><label class="settings-label">WORKER URL</label><input type="text" class="settings-input" id="cfgUrl"></div>
+      <div class="settings-field"><label class="settings-label">WORKER SECRET</label><input type="password" class="settings-input" id="cfgSecret"></div>
+    </div>
+    <div class="settings-modal-ftr">
+      <button class="btn-modal-cancel" onclick="closeSettings()">إلغاء</button>
+      <button class="btn-modal-save" onclick="saveSettings()">حفظ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Changelog Modal -->
+<div class="changelog-overlay" id="changelogOverlay" onclick="closeChangelogOnBackdrop(event)">
+  <div class="changelog-modal">
+    <div class="changelog-modal-hdr">📋 سجل التحديثات<button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
+    <div class="changelog-body">
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge">v1.0.0</span><span class="cl-ver-date">02-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>إطلاق أول نسخة — الشاشة الرئيسية بس، مبنية على sales-dashboard-overview-data-contract-v2.md بالكامل (نموذج القطعة Q/C/P، مش نموذج الأوردر)</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>4 مربعات: إجمالي القيمة · قيد التنفيذ · الفاقد · صافي المبيعات — بالهوية الحسابية المضمونة (مربع 1 = مجموع 2+3+4)</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>مربع الفاقد فيه تفصيل 5 أعمدة منفصلة تماماً: ملغي · RTO · محذوف قبل الشحن · مرتجع نهائي · مرتجع استبدال (مفيش دمج بين مرتجع نهائي واستبدال — Rule 1)</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>جلب على مرحلتين (Worker): أول 250 أوردر لكل الأوردرات، وبعدين بيانات المرتجعات للمرشّحين بس (دفعات 10)</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>بطاقة تحقق الهوية (Identity Check) تحت المربعات — بتتأكد لحظياً إن إجمالي القيمة = قيد التنفيذ + الفاقد + صافي المبيعات، وتبين لو في اختلاف (bug مش في الموديل)</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div id="aboutOverlay" class="modal-overlay" onclick="if(event.target===this)closeAbout()">
+  <div class="modal-box" style="max-width:640px;">
+    <div class="modal-header"><span>ℹ️ عن الأداة — لوحة الأداء</span><button class="modal-close" onclick="closeAbout()">✕</button></div>
+    <div class="modal-body" style="padding:0 20px 20px;">
+      <details open style="margin-top:16px;">
+        <summary class="about-summary">📋 وصف الأداة</summary>
+        <div class="about-body">
+          <p class="about-desc">داشبورد يجاوب سؤال واحد: "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. الشاشة دي هي الرئيسية بس حالياً — تابات تانية (لو اتقرر لاحقاً) هتيجي بـ Data Contract منفصل. بدون تسجيل دخول (🔓) — الحماية عن طريق WORKER_SECRET بس.</p>
+          <div class="about-label">المستخدمون</div>
+          <p>المدير العام وفريق التحليل.</p>
+          <div class="about-label">النموذج (Data Contract v2.0.0)</div>
+          <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي القيمة = قيد التنفيذ + الفاقد + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
+          <div class="about-label">كيف تعمل</div>
+          <div class="about-steps">
+            <div class="about-step"><span class="about-num">1</span><span>اختار فترة — preset من "⚡ فترة سريعة" أو تعديل يدوي على "من/إلى تاريخ" — بيتحمل من الكاش (KV) لو موجود.</span></div>
+            <div class="about-step"><span class="about-num">2</span><span>الـ Worker بيجيب كل الأوردرات (مرحلة 1، first: 250)، وبعدين بيانات المرتجعات للأوردرات المرشّحة بس (مرحلة 2، دفعات 10) — المرشّح = Σ(Q)≠Σ(C) أو فيه S2.</span></div>
+            <div class="about-step"><span class="about-num">3</span><span>زرار "تحديث" بيجبر Fetch جديد من Shopify. تغيير الفترة بيقرا من الكاش لو نطاق مغلق (قبل النهاردة) أو TTL 15 دقيقة لو نطاق مفتوح.</span></div>
+            <div class="about-step"><span class="about-num">4</span><span>لو أي أوردر فيه أكتر من 25 سطر، أو أي صفحة فشلت، الطلب كله بيفشل برسالة واضحة — مفيش أرقام ناقصة بصمت.</span></div>
+          </div>
+          <div class="about-label">الـ Endpoints الرئيسية</div>
+          <div class="about-endpoints">
+            <div class="about-ep"><code>get_data</code><span>المربعات الأربعة للفترة (POST — dateFrom/dateTo/forceRefresh)</span></div>
+            <div class="about-ep"><code>get_meta</code><span>عمر بيانات الفترة من غير Shopify fetch (GET)</span></div>
+            <div class="about-ep"><code>clear_cache</code><span>مسح كاش الفترة أو كل الكاش — للصيانة (مش متاح من الـ UI حالياً)</span></div>
+          </div>
+        </div>
+      </details>
+      <details style="margin-top:8px;">
+        <summary class="about-summary">🔧 تشريح الكود</summary>
+        <div class="about-body">
+          <pre class="about-code">FEATURE MAP
+──────────────────────────────────────────────────────────────
+Feature                         │ File    │ §Section    │ fn/action
+──────────────────────────────────────────────────────────────
+4 مربعات الرئيسية + الهوية      │ HTML    │ §TOOL-JS    │ renderBoxes
+فلتر التاريخ (شكل موحّد)        │ HTML    │ §DATERANGE  │ applyRangePreset / onRangeDateChange
+تجميع القطعة (Q/C/P → مربعات)  │ Worker  │ §AGGREGATE  │ computeBoxes
+تسوية دورات الإرجاع/الاستبدال   │ Worker  │ §AGGREGATE  │ computeBoxes (settledByLineId)
+ملغي/RTO short-circuit          │ Worker  │ §AGGREGATE  │ isCancelledOrRTO
+مرحلة 1 — كل الأوردرات          │ Worker  │ §SHOPIFY    │ fetchStage1
+مرحلة 2 — مرشّحون فقط           │ Worker  │ §SHOPIFY    │ fetchStage2
+كاش (KV، مغلق=دائم)            │ Worker  │ §CACHE      │ get_data / get_meta
+مؤشر آخر تحديث (age دايماً)     │ HTML    │ §DASH-JS    │ freshnessState / renderFreshness
+──────────────────────────────────────────────────────────────
+
+KEY VARIABLES (HTML)
+LS_URL    = 'perfdash_worker_url'
+LS_SECRET = 'perfdash_worker_secret'
+activeRangePreset = '' | 'today' | 'yesterday' | 'last3' | 'last7' | 'last30' | 'last90'
+                  | 'thisMonth' | 'lastMonth' | 'thisQuarter' | 'thisYear' | 'lastYear'
+
+NOTES
+- الأداة دي بتكاش المربعات النهائية بس (مش الأوردرات الخام) — لأن مفيش تابات تانية
+  محتاجة raw data دلوقتي. لو اتضافت تابات تانية لاحقاً (Data Contract منفصل)، ده
+  قد يحتاج مراجعة لاستراتيجية الكاش.
+- الصف التاني (معدلات بالعدد زي نسبة RTO) متعمّد إنه مش موجود هنا — Data Contract v2
+  §10 بيقول ده Data Contract مستقل لسه ما اتعملش.
+- الـ Worker بيقارن الفترة الحالية بالسابقة تلقائياً (نداءين get_data منفصلين) عشان
+  الـ delta % تحت كل مربع — ده مطلوب من ecommoda-dashboard-builder (كل KPI card
+  لازم مقارنة، مش رقم لوحده).
+- مربع "قيد التنفيذ" فيه تفصيل فرعي: عادي / بديل قيد التسليم. مربع "صافي المبيعات"
+  فيه: مُسلَّم / بديل. دي مش مفروضة صراحة في الـ Contract لكل مربع، لكن Rule 1
+  (مرتجع نهائي ≠ مرتجع استبدال) طبّقناها بروح واحدة على باقي المربعات لسهولة
+  المراجعة — لو مش عايزها، سهل نشيلها.
+- كل الأرقام en-US، والتوقيت بتوقيت القاهرة عبر toCairo().</pre>
+        </div>
+      </details>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// §CONFIG
+// ══════════════════════════════════════════════════════
+const LS_URL    = 'perfdash_worker_url';
+const LS_SECRET = 'perfdash_worker_secret';
+const CURRENCY_SUFFIX = 'ج.م';
+
+function getConfig() {
+  return {
+    workerUrl:    localStorage.getItem(LS_URL)    || '',
+    workerSecret: localStorage.getItem(LS_SECRET) || '',
+  };
+}
+function isConfigured() {
+  const c = getConfig();
+  return c.workerUrl.startsWith('http') && c.workerSecret.length > 0;
+}
+
+async function apiRequest(action, { method = 'GET', params = {}, body = null } = {}) {
+  const cfg = getConfig();
+  if (!isConfigured()) throw new Error('محتاج تظبط WORKER URL و WORKER SECRET من ⚙️ الإعدادات الأول');
+
+  const base = cfg.workerUrl.replace(/\/$/, '');
+  const url  = new URL(base);
+  url.searchParams.set('action', action);
+  Object.entries(params).forEach(([k, v]) => { if (v !== undefined && v !== null) url.searchParams.set(k, v); });
+
+  const resp = await fetch(url.toString(), {
+    method,
+    headers: {
+      'Authorization': `Bearer ${cfg.workerSecret}`,
+      ...(body ? { 'Content-Type': 'application/json' } : {}),
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+
+  const data = await resp.json().catch(() => ({}));
+  if (!resp.ok || data.error) {
+    const err = new Error(data.error || `Worker error ${resp.status}`);
+    err.step = data.step; err.technical = data.technical;
+    throw err;
+  }
+  return data;
+}
+const apiPost = (action, body = {}) => apiRequest(action, { method: 'POST', body });
+
+// ══════════════════════════════════════════════════════
+// §SHELL-JS
+// ══════════════════════════════════════════════════════
+function showToast(msg, type = 'neutral', duration = 3000) {
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.textContent = msg;
+  document.getElementById('toastContainer').appendChild(t);
+  setTimeout(() => t.remove(), duration);
+}
+
+function updateSettingsBtn() { document.getElementById('settingsBtn').classList.toggle('settings-configured', isConfigured()); }
+function openSettings() {
+  const c = getConfig();
+  document.getElementById('cfgUrl').value    = c.workerUrl;
+  document.getElementById('cfgSecret').value = c.workerSecret;
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+function closeSettings() { document.getElementById('settingsOverlay').classList.remove('open'); }
+function closeSettingsOnBackdrop(e) { if (e.target === e.currentTarget) closeSettings(); }
+function saveSettings() {
+  const url    = document.getElementById('cfgUrl').value.trim();
+  const secret = document.getElementById('cfgSecret').value.trim();
+  if (!url || !secret) { showToast('الرجاء إدخال الـ URL والـ Secret', 'error'); return; }
+  localStorage.setItem(LS_URL, url.replace(/\/$/, ''));
+  localStorage.setItem(LS_SECRET, secret);
+  updateSettingsBtn();
+  closeSettings();
+  showToast('تم حفظ الإعدادات ✓', 'success');
+  loadAll({ forceRefresh: false });
+}
+
+function openChangelog()             { document.getElementById('changelogOverlay').classList.add('open'); }
+function closeChangelog()            { document.getElementById('changelogOverlay').classList.remove('open'); }
+function closeChangelogOnBackdrop(e) { if (e.target === e.currentTarget) closeChangelog(); }
+function openAbout()  { document.getElementById('aboutOverlay').classList.add('open'); }
+function closeAbout() { document.getElementById('aboutOverlay').classList.remove('open'); }
+
+function setRefreshing(active) {
+  const btn = document.getElementById('refreshBtn');
+  btn.disabled = active;
+  btn.classList.toggle('refreshing', active);
+}
+async function doRefresh() {
+  setRefreshing(true);
+  try { await loadAll({ forceRefresh: true }); }
+  finally { setRefreshing(false); }
+}
+
+// ══════════════════════════════════════════════════════
+// §UTILS — en-US numbers + Cairo timezone
+// ══════════════════════════════════════════════════════
+function fmtMoney(n) { return CURRENCY_SUFFIX + ' ' + Math.round(n || 0).toLocaleString('en-US'); }
+function fmtInt(n)   { return Math.round(n || 0).toLocaleString('en-US'); }
+function fmtPct(n)   { return (n || 0).toFixed(1) + '%'; }
+
+function toCairo(iso) { return new Date(new Date(iso).getTime() + 3 * 60 * 60 * 1000); }
+function cairoNow()      { return toCairo(new Date().toISOString()); }
+function cairoDateStr(d) { const pad = n => String(n).padStart(2, '0'); return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`; }
+function addDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00Z');
+  d.setUTCDate(d.getUTCDate() + n);
+  return cairoDateStr(d);
+}
+function daysBetween(fromStr, toStr) {
+  return Math.round((new Date(toStr + 'T00:00:00Z') - new Date(fromStr + 'T00:00:00Z')) / 86400000) + 1;
+}
+function getPreviousRange(range) {
+  const len = daysBetween(range.from, range.to);
+  const prevTo   = addDays(range.from, -1);
+  const prevFrom = addDays(prevTo, -(len - 1));
+  return { from: prevFrom, to: prevTo };
+}
+
+// ══════════════════════════════════════════════════════
+// §STATE
+// ══════════════════════════════════════════════════════
+const state = {
+  rangeMode: 'today',
+  range: null,
+  boxes: null,
+  prevBoxes: null,
+  ordersScanned: 0,
+  candidatesFetched: 0,
+  meta: { lastUpdated: null, source: null },
+  viewState: 'loading',
+  lastError: null,
+};
+
+// ══════════════════════════════════════════════════════
+// §DATERANGE — فترة سريعة (يمين) + من/إلى تاريخ — كومبوننت موحّد
+// ══════════════════════════════════════════════════════
+const RANGE_PRESET_LABELS = {
+  today:'اليوم', yesterday:'أمس', last3:'آخر 3 أيام',
+  last7:'آخر 7 أيام', last30:'آخر 30 يوم', last90:'آخر 90 يوم',
+  thisMonth:'الشهر الحالي', lastMonth:'الشهر السابق', thisQuarter:'الربع الحالي',
+  thisYear:'العام الحالي', lastYear:'العام السابق',
+};
+let activeRangePreset = '';
+let rangeDebounce = null;
+
+function toggleRangePresetMenu(e) {
+  e.stopPropagation();
+  const menu = document.getElementById('rangePresetMenu'), btn = document.getElementById('rangePresetBtn');
+  const isOpen = menu.classList.contains('open');
+  menu.classList.toggle('open', !isOpen); btn.classList.toggle('open', !isOpen);
+}
+document.addEventListener('click', () => {
+  document.getElementById('rangePresetMenu')?.classList.remove('open');
+  document.getElementById('rangePresetBtn')?.classList.remove('open');
+});
+
+function computePresetRange(preset) {
+  const now = cairoNow();
+  const today = cairoDateStr(now);
+  switch (preset) {
+    case 'today':      return { from: today, to: today };
+    case 'yesterday':  { const y = addDays(today, -1); return { from: y, to: y }; }
+    case 'last3':        return { from: addDays(today, -2),  to: today };
+    case 'last7':        return { from: addDays(today, -6),  to: today };
+    case 'last30':       return { from: addDays(today, -29), to: today };
+    case 'last90':       return { from: addDays(today, -89), to: today };
+    case 'thisMonth': {
+      const from = `${now.getUTCFullYear()}-${String(now.getUTCMonth()+1).padStart(2,'0')}-01`;
+      return { from, to: today };
+    }
+    case 'lastMonth': {
+      const firstThis = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+      const lastPrev  = new Date(firstThis); lastPrev.setUTCDate(0);
+      const firstPrev = new Date(Date.UTC(lastPrev.getUTCFullYear(), lastPrev.getUTCMonth(), 1));
+      return { from: cairoDateStr(firstPrev), to: cairoDateStr(lastPrev) };
+    }
+    case 'thisQuarter': {
+      const q = Math.floor(now.getUTCMonth() / 3);
+      return { from: cairoDateStr(new Date(Date.UTC(now.getUTCFullYear(), q * 3, 1))), to: today };
+    }
+    case 'thisYear':    return { from: `${now.getUTCFullYear()}-01-01`, to: today };
+    case 'lastYear':  { const y = now.getUTCFullYear() - 1; return { from: `${y}-01-01`, to: `${y}-12-31` }; }
+    default: return null;
+  }
+}
+
+function applyRangePreset(preset) {
+  document.getElementById('rangePresetMenu').classList.remove('open');
+  document.getElementById('rangePresetBtn').classList.remove('open');
+  const range = computePresetRange(preset);
+  if (!range) return;
+  activeRangePreset = preset;
+  document.getElementById('rangeDateFrom').value = range.from;
+  document.getElementById('rangeDateTo').value   = range.to;
+  document.querySelectorAll('.range-preset-item').forEach(el => el.classList.toggle('active', el.dataset.preset === preset));
+  document.getElementById('rangePresetLabel').textContent = `⚡ ${RANGE_PRESET_LABELS[preset]}`;
+  document.getElementById('rangePresetBtn').classList.add('has-preset');
+  state.rangeMode = preset;
+  state.range = range;
+  loadAll({ forceRefresh: false });
+}
+
+function onRangeDateChange() {
+  activeRangePreset = '';
+  document.querySelectorAll('.range-preset-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('rangePresetLabel').textContent = '⚡ اختار فترة';
+  document.getElementById('rangePresetBtn').classList.remove('has-preset');
+
+  const fromVal = document.getElementById('rangeDateFrom').value;
+  const toVal   = document.getElementById('rangeDateTo').value;
+  if (!fromVal || !toVal || fromVal > toVal) return;
+
+  state.rangeMode = 'custom';
+  state.range = { from: fromVal, to: toVal };
+
+  clearTimeout(rangeDebounce);
+  rangeDebounce = setTimeout(() => loadAll({ forceRefresh: false }), 400);
+}
+
+function initDateRange() {
+  const DEFAULT_PRESET = 'today';
+  const range = computePresetRange(DEFAULT_PRESET);
+  activeRangePreset = DEFAULT_PRESET;
+  state.rangeMode = DEFAULT_PRESET;
+  state.range = range;
+  document.getElementById('rangeDateFrom').value = range.from;
+  document.getElementById('rangeDateTo').value   = range.to;
+  document.querySelectorAll('.range-preset-item').forEach(el => el.classList.toggle('active', el.dataset.preset === DEFAULT_PRESET));
+  document.getElementById('rangePresetLabel').textContent = `⚡ ${RANGE_PRESET_LABELS[DEFAULT_PRESET]}`;
+  document.getElementById('rangePresetBtn').classList.add('has-preset');
+}
+
+// ══════════════════════════════════════════════════════
+// §DASH-JS — freshness, load, error state
+// ══════════════════════════════════════════════════════
+function freshnessState(lastUpdated, source) {
+  if (!lastUpdated) return { colour: null, label: '—' };
+  const mins = Math.floor((Date.now() - new Date(lastUpdated)) / 60000);
+  if (source === 'shopify' && mins < 1) return { colour: 'var(--green)', label: 'بيانات لحظية — تم التحديث الآن' };
+  if (mins < 60)  return { colour: 'var(--green)', label: `آخر تحديث: من ${mins} دقيقة` };
+  if (mins < 360) return { colour: 'var(--amber)', label: `آخر تحديث: من ${Math.floor(mins/60)} ساعات` };
+  return { colour: 'var(--red)', label: 'البيانات قديمة — اضغط تحديث' };
+}
+function renderFreshness(lastUpdated, source) {
+  const bar  = document.getElementById('freshnessBar');
+  const dot  = bar.querySelector('.freshness-dot');
+  const text = bar.querySelector('.freshness-text');
+  dot.classList.remove('loading', 'error');
+  const { colour, label } = freshnessState(lastUpdated, source);
+  if (colour) dot.style.background = colour;
+  text.textContent = label;
+  if (colour) text.style.color = colour;
+}
+// إعادة رسم العمر كل 60 ثانية — بنفس lastUpdated/source، أبداً مش بيبعت fetch جديد
+setInterval(() => { if (state.viewState === 'ready') renderFreshness(state.meta.lastUpdated, state.meta.source); }, 60000);
+
+function setFreshnessLoading() {
+  const bar = document.getElementById('freshnessBar');
+  bar.querySelector('.freshness-dot').className = 'freshness-dot loading';
+  bar.querySelector('.freshness-text').textContent = 'جاري التحميل…';
+}
+
+async function loadAll({ forceRefresh }) {
+  if (!isConfigured()) {
+    state.viewState = 'error';
+    state.lastError = { message: 'محتاج تظبط WORKER URL و WORKER SECRET من ⚙️ الإعدادات' };
+    renderShell();
+    return;
+  }
+
+  state.range = state.range || computePresetRange(state.rangeMode) || computePresetRange('today');
+  const prevRange = getPreviousRange(state.range);
+
+  setFreshnessLoading();
+
+  try {
+    const [curRes, prevRes] = await Promise.all([
+      apiPost('get_data', { dateFrom: state.range.from, dateTo: state.range.to, forceRefresh }),
+      apiPost('get_data', { dateFrom: prevRange.from,   dateTo: prevRange.to,   forceRefresh: false }),
+    ]);
+
+    state.boxes             = curRes.boxes;
+    state.prevBoxes          = prevRes.boxes;
+    state.ordersScanned     = curRes.ordersScanned || 0;
+    state.candidatesFetched = curRes.candidatesFetched || 0;
+    state.meta              = { lastUpdated: curRes.lastUpdated, source: curRes.source };
+
+    state.viewState = 'ready';
+    state.lastError = null;
+    renderShell();
+  } catch (e) {
+    console.error(e);
+    state.viewState = 'error';
+    state.lastError = e;
+    renderShell();
+  }
+}
+
+function renderShell() {
+  const wrap = document.getElementById('dashboardBody');
+
+  if (state.viewState === 'error') {
+    const e = state.lastError || {};
+    document.querySelector('.freshness-dot').className = 'freshness-dot error';
+    document.querySelector('.freshness-text').textContent = 'فشل التحميل';
+    wrap.innerHTML = `
+      <div class="error-state">
+        <div class="error-title">⚠️ فشل تحميل البيانات</div>
+        <div class="error-msg">${e.message || 'خطأ غير معروف'}</div>
+        <button class="btn" onclick="doRefresh()">إعادة المحاولة</button>
+        ${e.step || e.technical ? `
+        <details>
+          <summary>تفاصيل تقنية</summary>
+          <pre>step: ${e.step || '—'}\n${e.technical || ''}</pre>
+        </details>` : ''}
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div class="info-note">📊 تم فحص ${fmtInt(state.ordersScanned)} أوردر في الفترة المختارة — ${fmtInt(state.candidatesFetched)} منهم فيه نشاط إرجاع/استبدال (اتجابت بيانات مرتجعاتهم بالتفصيل).</div>
+    <div class="kpi-grid" id="overviewKpis"></div>
+    <div class="identity-card" id="identityCard"></div>
+  `;
+
+  renderFreshness(state.meta.lastUpdated, state.meta.source);
+  renderBoxes();
+}
+
+// ══════════════════════════════════════════════════════
+// §TOOL-JS
+// ══════════════════════════════════════════════════════
+function delta(curVal, prevVal, direction = 'higher_better') {
+  if (!prevVal) return '';
+  const pct = ((curVal - prevVal) / prevVal) * 100;
+  const isGood = direction === 'higher_better' ? pct >= 0 : pct <= 0;
+  const cls = isGood ? 'up' : 'down';
+  const arrow = pct >= 0 ? '▲' : '▼';
+  return `<div class="kpi-delta ${cls}">${arrow} ${fmtPct(Math.abs(pct))} عن الفترة السابقة</div>`;
+}
+
+const infoIcon = html => `<span class="kpi-info">ⓘ<span class="kpi-tooltip">${html}</span></span>`;
+
+// ─── §TOOL-JS::renderBoxes — الـ 4 مربعات + بطاقة تحقق الهوية ───
+function renderBoxes() {
+  const b = state.boxes, pb = state.prevBoxes || {};
+  const pctOfTotal = amt => b.totalValue ? (amt / b.totalValue) * 100 : 0;
+  const pctLine = amt => `<div class="kpi-pct">${fmtPct(pctOfTotal(amt))} من إجمالي القيمة</div>`;
+
+  document.getElementById('overviewKpis').innerHTML = `
+    <div class="kpi-card" data-state="neutral">
+      <div class="kpi-label-row">
+        <span class="kpi-label">إجمالي القيمة</span>
+        ${infoIcon('مجموع Σ(Q×P) لكل سطر في كل أوردر بالفترة — القاعدة (100%) اللي بتتحسب عليها نسب باقي المربعات. Q = الكمية الأصلية، P = discountedUnitPriceSet.')}
+      </div>
+      <div class="kpi-value">${fmtMoney(b.totalValue)}</div>
+      ${delta(b.totalValue, pb.totalValue)}
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-label-row">
+        <span class="kpi-label">قيد التنفيذ</span>
+        ${infoIcon('قيمة الأسطر الباقية (C×P) في الأوردرات اللي لسه ما اتسلّمتش (S1 ≠ Delivered)، زائد قيمة البدائل من دورات استبدال لسه مفتوحة (غير مُسوّاة).')}
+      </div>
+      <div class="kpi-value">${fmtMoney(b.inProgress)}</div>
+      ${delta(b.inProgress, pb.inProgress, 'lower_better')}
+      ${pctLine(b.inProgress)}
+      <div class="kpi-breakdown">
+        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">عادي</div><div class="kpi-breakdown-value">${fmtMoney(b.inProgress - b.inProgressReplacement)}</div></div>
+        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">بديل قيد التسليم</div><div class="kpi-breakdown-value">${fmtMoney(b.inProgressReplacement)}</div></div>
+      </div>
+    </div>
+
+    <div class="kpi-card" data-state="${b.lost > 0 ? 'warning' : 'good'}">
+      <div class="kpi-label-row">
+        <span class="kpi-label">الفاقد</span>
+        ${infoIcon('ملغي (كل قيمة الأوردر) + RTO (كل قيمة الأوردر) + محذوف قبل الشحن (جزء من سطر اتشال قبل الطباعة) + مرتجع نهائي (رجع من غير بديل) + مرتجع استبدال (رجع مع بديل — تسوية = return.status=CLOSED و S2 ضمن In-Return/Returned).')}
+      </div>
+      <div class="kpi-value">${fmtMoney(b.lost)}</div>
+      ${delta(b.lost, pb.lost, 'lower_better')}
+      ${pctLine(b.lost)}
+      <div class="kpi-breakdown">
+        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">ملغي</div><div class="kpi-breakdown-value">${fmtMoney(b.lostCancelled)}</div></div>
+        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">RTO</div><div class="kpi-breakdown-value">${fmtMoney(b.lostRTO)}</div></div>
+        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">محذوف قبل الشحن</div><div class="kpi-breakdown-value">${fmtMoney(b.lostRemoved)}</div></div>
+        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">مرتجع نهائي</div><div class="kpi-breakdown-value">${fmtMoney(b.lostFinalReturn)}</div></div>
+        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">مرتجع استبدال</div><div class="kpi-breakdown-value">${fmtMoney(b.lostExchangeReturn)}</div></div>
+      </div>
+    </div>
+
+    <div class="kpi-card" data-state="good">
+      <div class="kpi-label-row">
+        <span class="kpi-label">صافي المبيعات</span>
+        ${infoIcon('قيمة الأسطر الباقية (C×P) في الأوردرات المُسلَّمة (S1 = Delivered)، زائد قيمة البدائل من دورات استبدال مُسوّاة فعلياً.')}
+      </div>
+      <div class="kpi-value">${fmtMoney(b.netSales)}</div>
+      ${delta(b.netSales, pb.netSales)}
+      ${pctLine(b.netSales)}
+      <div class="kpi-breakdown">
+        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">مُسلَّم</div><div class="kpi-breakdown-value">${fmtMoney(b.netSales - b.netSalesReplacement)}</div></div>
+        <div class="kpi-breakdown-item"><div class="kpi-breakdown-label">بديل</div><div class="kpi-breakdown-value">${fmtMoney(b.netSalesReplacement)}</div></div>
+      </div>
+    </div>
+  `;
+
+  renderIdentityCheck(b);
+}
+
+// ─── §TOOL-JS::renderIdentityCheck — إجمالي القيمة يجب أن يساوي مجموع المربعات الثلاثة ───
+function renderIdentityCheck(b) {
+  const sum = b.inProgress + b.lost + b.netSales;
+  const diff = Math.abs(sum - b.totalValue);
+  const ok = diff < 1; // هامش قرش واحد لتقريب الفاصلة العشرية
+  const card = document.getElementById('identityCard');
+  card.className = 'identity-card ' + (ok ? 'ok' : 'bad');
+  card.innerHTML = ok
+    ? `✅ الهوية الحسابية متوازنة: <span class="mono">${fmtMoney(b.totalValue)} = ${fmtMoney(b.inProgress)} + ${fmtMoney(b.lost)} + ${fmtMoney(b.netSales)}</span>`
+    : `⚠️ في اختلاف ${fmtMoney(diff)} بين إجمالي القيمة ومجموع المربعات — ده باج محتاج مراجعة في الكود، مش في الموديل. <span class="mono">${fmtMoney(b.totalValue)} ≠ ${fmtMoney(sum)}</span>`;
+}
+
+// ══════════════════════════════════════════════════════
+// §INIT
+// ══════════════════════════════════════════════════════
+updateSettingsBtn();
+initDateRange();
+loadAll({ forceRefresh: false });
+</script>
+</body>
+</html>
