@@ -110,6 +110,18 @@
   .range-preset-item.active .pr-check { display: block; }
   .range-preset-sep { height: 1px; background: var(--border); margin: 3px 4px; }
 
+  /* ── View Mode Toggle (قيمة / عدد قطع — v1.4.0) ── */
+  .view-toggle { display: flex; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); overflow: hidden; height: 34px; }
+  .view-toggle-btn {
+    padding: 0 13px; border: none; border-inline-start: 1px solid var(--border-strong); background: var(--surface);
+    font-family: var(--font-body); font-size: 12px; font-weight: 700; color: var(--text-secondary); cursor: pointer;
+    white-space: nowrap; transition: background .15s, color .15s;
+  }
+  .view-toggle-btn:first-child { border-inline-start: none; }
+  .view-toggle-btn:hover { background: var(--accent-light); color: var(--accent); }
+  .view-toggle-btn.active { background: var(--accent); color: #fff; }
+  .view-toggle-btn.active:hover { background: var(--accent-dark); color: #fff; }
+
   .btn { border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); padding: 7px 13px; border-radius: 9px; font-family: var(--font-body); font-size: 13px; cursor: pointer; }
   .btn:hover { background: var(--bg); }
 
@@ -365,13 +377,13 @@
         <span class="freshness-text">جاري التحميل…</span>
       </div>
       <button class="hbtn" onclick="openAbout()">ℹ️ عن الأداة</button>
-      <button class="hbtn ver-btn" onclick="openChangelog()">v1.3.0 📋</button>
+      <button class="hbtn ver-btn" onclick="openChangelog()">v1.4.0 📋</button>
       <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
     </div>
   </div>
 
   <!-- ══════════════════════════════════════════════════════
-       §DASH — date range filter (شكل موحّد)
+       §DASH — date range filter (شكل موحّد) + طريقة العرض
        ══════════════════════════════════════════════════════ -->
   <div class="dash-controls">
     <div class="range-frow">
@@ -411,6 +423,13 @@
           <input type="date" id="rangeDateTo" onclick="this.showPicker&&this.showPicker();" onchange="onRangeDateChange()">
         </div>
       </div>
+      <div class="range-fg">
+        <span class="range-flabel">طريقة العرض</span>
+        <div class="view-toggle" id="viewToggleWrap">
+          <button class="view-toggle-btn active" id="viewModeBtnValue" onclick="setViewMode('value')">💰 قيمة</button>
+          <button class="view-toggle-btn" id="viewModeBtnQty" onclick="setViewMode('qty')">🔢 عدد القطع</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -441,6 +460,13 @@
   <div class="changelog-modal">
     <div class="changelog-modal-hdr">📋 سجل التحديثات<button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="changelog-body">
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge">v1.4.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مفتاح "طريقة العرض" (💰 قيمة / 🔢 عدد القطع)</b> بجانب فلتر التاريخ. نفس المربعات بالظبط (الرئيسية والفرعية + الدونات + بطاقة الهوية) بس الأرقام بتتحول من إجمالي القيمة (جنيه) لإجمالي عدد القطع — بدون أي نداء إضافي للـ Worker: الحساب كله client-side من نفس <code>rows[]</code> اللي أصلاً محمّلة (كل سطر فيه bucket + qty + value).</span></li>
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span>الفترة السابقة (اللي بتتحسب منها الـ Δ%) بقت بتحتفظ بـ <code>rows</code> بتاعتها كمان (<code>state.prevRows</code>) — كانت بتتجاب من الـ Worker أصلاً وبتترمى، دلوقتي بتتستخدم لحساب مقارنة عدد القطع.</span></li>
+        </ul>
+      </div>
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge">v1.3.0</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
@@ -514,6 +540,9 @@
           <div class="about-label">النموذج (Data Contract v2.0.0)</div>
           <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي المبيعات = (تحت التأكيد + مؤكد تحت التجهيز + مؤكد خرج للشحن) + الخسائر + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
 
+          <div class="about-label">طريقة العرض (v1.4.0 — قيمة / عدد قطع)</div>
+          <p>مفتاح "طريقة العرض" بجانب فلتر التاريخ بيبدّل كل الأرقام في المربعات (الرئيسية والفرعية) والدونات وبطاقة الهوية من <b>إجمالي القيمة (جنيه)</b> لـ <b>إجمالي عدد القطع</b> — نفس التصنيف بالظبط (نفس الـ buckets)، بس وحدة القياس بتتغيّر. الحساب في وضع "عدد القطع" client-side بالكامل: تجميع <code>qty</code> لكل bucket من <code>state.rows</code> (الفترة الحالية) و <code>state.prevRows</code> (الفترة السابقة، لحساب الـ Δ%) — مفيش أي نداء إضافي للـ Worker ومفيش تغيير في الـ Data Contract.</p>
+
           <div class="about-label">مربعات "قيد التنفيذ" (v1.2.0 — 3 مربعات رئيسية مستقلة بدل مربع واحد)</div>
           <table class="about-table">
             <thead><tr><th>#</th><th>المربع الرئيسي</th><th>الفرع</th><th>الشرط</th></tr></thead>
@@ -552,7 +581,7 @@
           </table>
 
           <div class="about-label">جدول التفاصيل</div>
-          <p>الضغط على أي مربع (رئيسي أو فرعي) بيفتح قسم التفاصيل في آخر الصفحة: رقم الأوردر (هايبرلينك لشوبيفاي أدمن) · عدد قطع الأوردر · التاريخ · SKU · الكمية · القيمة · حالة القطعة · S1 · S2. البيانات جاهزة مسبقاً من نفس نداء <code>get_data</code> — الضغط مبيعملش أي fetch إضافي.</p>
+          <p>الضغط على أي مربع (رئيسي أو فرعي) بيفتح قسم التفاصيل في آخر الصفحة: رقم الأوردر (هايبرلينك لشوبيفاي أدمن) · عدد قطع الأوردر · التاريخ · SKU · الكمية · القيمة · حالة القطعة · S1 · S2. البيانات جاهزة مسبقاً من نفس نداء <code>get_data</code> — الضغط مبيعملش أي fetch إضافي. الجدول نفسه بيفضل عارض القيمة والكمية مع بعض في عمودين منفصلين بصرف النظر عن "طريقة العرض" المختارة فوق.</p>
 
           <div class="about-label">كيف تعمل</div>
           <div class="about-steps">
@@ -561,6 +590,7 @@
             <div class="about-step"><span class="about-num">3</span><span>زرار "تحديث" بيجبر Fetch جديد. تغيير الفترة بيقرا من الكاش (نطاق مغلق = دائم · مفتوح = 15 دقيقة).</span></div>
             <div class="about-step"><span class="about-num">4</span><span>لو أي أوردر فيه أكتر من 25 سطر، أو أي صفحة فشلت، الطلب كله بيفشل برسالة واضحة — مفيش أرقام ناقصة بصمت.</span></div>
             <div class="about-step"><span class="about-num">5</span><span>الضغط على أي مربع بيفتح قسم التفاصيل تحت من نفس البيانات المحمّلة (rows[]).</span></div>
+            <div class="about-step"><span class="about-num">6</span><span>مفتاح "طريقة العرض" بيبدّل عرض المربعات فوق بين القيمة وعدد القطع فوراً من نفس البيانات المحمّلة — من غير أي إعادة تحميل.</span></div>
           </div>
           <div class="about-label">الـ Endpoints الرئيسية</div>
           <div class="about-endpoints">
@@ -579,6 +609,7 @@ Feature                          │ File   │ §Section   │ fn/action
 ──────────────────────────────────────────────────────────────
 6 مربعات رئيسية + فرعية + الهوية │ HTML   │ §TOOL-JS   │ renderBoxes / sub
 دونات توزيع إجمالي المبيعات      │ HTML   │ §TOOL-JS   │ renderMainPie (Chart.js)
+طريقة العرض (قيمة/عدد قطع)       │ HTML   │ §TOOL-JS   │ setViewMode / activeBoxes / computeQtyBoxes / fmtAmt
 فلتر التاريخ (شكل موحّد)         │ HTML   │ §DATERANGE │ applyRangePreset
 قسم التفاصيل (inline collapsible)│ HTML   │ §DETAILS   │ showDetails / renderDetails / renderDetailsTableWrap
 بحث في جدول التفاصيل             │ HTML   │ §DETAILS   │ onDetailsSearch / searchFilteredRows
@@ -600,6 +631,9 @@ LS_URL    = 'perfdash_worker_url'
 LS_SECRET = 'perfdash_worker_secret'
 state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
                 qty, value, bucket, s1, s2, note }, ...]
+state.prevRows = نفس شكل state.rows بس للفترة السابقة (v1.4.0 — كانت بتتجاب
+                 من الـ Worker وبتترمى، دلوقتي بتتخزن لحساب Δ% في وضع عدد القطع)
+state.viewMode = 'value' | 'qty' — يتحكم في activeBoxes() و fmtAmt()
 BUCKET_LABELS = خريطة bucket → التسمية العربية (لازم تطابق BUCKET في الـ Worker)
 NOTE_LABELS   = REDELIVERY (محاولة مكررة) · FULFIL_MISM (تعارض حالة شحن)
 DETAILS_ROW_LIMIT = 500 صف معروض دفعة واحدة، مع زرار "عرض المزيد"
@@ -608,8 +642,8 @@ SHOPIFY_ADMIN_ORDER_URL(id) = https://admin.shopify.com/store/6c7e1a-53/orders/{
 
 NOTES
 - CACHE_VERSION في الـ Worker = v3. أي فترة اتكاشت بنسخة أقدم هتتحسب من جديد
-  تلقائياً أول مرة تتفتح. (v1.2.0 تغيير عرض/تسمية بس — مفيش تغيير في شكل
-  بيانات الـ Worker، فـ CACHE_VERSION متغيّرش.)
+  تلقائياً أول مرة تتفتح. (v1.2.0/v1.3.0/v1.4.0 تغييرات عرض بس — مفيش تغيير في
+  شكل بيانات الـ Worker، فـ CACHE_VERSION متغيّرش من v3.)
 - "عدد قطع الأوردر" = مجموع الكميات الأصلية Σ(Q) لكل أسطر الأوردر — مش الكمية
   الباقية، عشان يتطابق مع أساس التقييم.
 - unfulfilledQuantity بيتستخدم كـ assertion بس — لو اتعارض مع المربع، الصف
@@ -629,6 +663,13 @@ NOTES
 - البحث في جدول التفاصيل client-side بس (على الصفوف المحمّلة فعلاً) وبيغطي:
   رقم الأوردر · SKU · حالة القطعة · S1 · S2 — مفيش بيانات عميل/تليفون في
   الصف حالياً (خارج الـ Data Contract الحالي).
+- طريقة العرض (v1.4.0): activeBoxes()/activePrevBoxes() بيرجّعوا naturally
+  state.boxes/state.prevBoxes (وضع قيمة) أو computeQtyBoxes(rows) محسوبة
+  client-side من state.rows/state.prevRows (وضع عدد القطع) — نفس أسماء
+  الحقول بالظبط (ipPendingConfirm، lostRTO، netSales، إلخ) عشان renderBoxes
+  و renderMainPie يفضلوا يشتغلوا من غير أي تفريق. fmtAmt() بيختار المنسّق
+  (fmtMoney أو fmtInt + 'قطعة') حسب state.viewMode. جدول التفاصيل تحت
+  مابيتأثرش بالمفتاح ده — بيفضل عارض القيمة والكمية مع بعض دايماً.
 - الصف التاني (معدلات بالعدد زي نسبة RTO) متعمّد إنه مش موجود — Data Contract
   مستقل لسه ما اتعملش.
 - كل الأرقام en-US، والتوقيت بتوقيت القاهرة عبر toCairo().</pre>
@@ -645,6 +686,7 @@ NOTES
 const LS_URL    = 'perfdash_worker_url';
 const LS_SECRET = 'perfdash_worker_secret';
 const CURRENCY_SUFFIX = 'ج.م';
+const QTY_SUFFIX = 'قطعة';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
 const DETAILS_ROW_LIMIT = 500;
 
@@ -744,6 +786,11 @@ function fmtInt(n)   { return Math.round(n || 0).toLocaleString('en-US'); }
 function fmtPct(n)   { return (n || 0).toFixed(1) + '%'; }
 function esc(s)      { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
+// §UTILS::fmtAmt — v1.4.0: منسّق موحّد يتبع state.viewMode (قيمة بالجنيه أو عدد قطع)
+function fmtAmt(n) {
+  return state.viewMode === 'qty' ? (fmtInt(n) + ' ' + QTY_SUFFIX) : fmtMoney(n);
+}
+
 function toCairo(iso) { return new Date(new Date(iso).getTime() + 3 * 60 * 60 * 1000); }
 function cairoNow()      { return toCairo(new Date().toISOString()); }
 function cairoDateStr(d) { const pad = n => String(n).padStart(2, '0'); return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`; }
@@ -775,12 +822,14 @@ const state = {
   boxes: null,
   prevBoxes: null,
   rows: [],
+  prevRows: [],
   warnings: null,
   ordersScanned: 0,
   candidatesFetched: 0,
   meta: { lastUpdated: null, source: null },
   viewState: 'loading',
   lastError: null,
+  viewMode: 'value',          // 'value' | 'qty' — v1.4.0
   // §DETAILS state
   detailsOpen: false,
   detailsKey: null,          // معرف المربع المختار (للتظليل)
@@ -941,6 +990,7 @@ async function loadAll({ forceRefresh }) {
     state.boxes             = curRes.boxes;
     state.prevBoxes         = prevRes.boxes;
     state.rows              = curRes.rows || [];
+    state.prevRows          = prevRes.rows || [];
     state.warnings          = curRes.warnings || null;
     state.ordersScanned     = curRes.ordersScanned || 0;
     state.candidatesFetched = curRes.candidatesFetched || 0;
@@ -1023,6 +1073,56 @@ function delta(curVal, prevVal, direction = 'higher_better') {
 
 const infoIcon = html => `<span class="kpi-info">ⓘ<span class="kpi-tooltip">${html}</span></span>`;
 
+// ─── §TOOL-JS::computeQtyBoxes — v1.4.0: نفس شكل b (من الـ Worker) بس بعدد القطع، محسوب client-side من rows[] ───
+function computeQtyBoxes(rows) {
+  const q = {};
+  (rows || []).forEach(r => { q[r.bucket] = (q[r.bucket] || 0) + (r.qty || 0); });
+  const g = key => q[key] || 0;
+
+  const ipPendingConfirm     = g('IP_PENDING_CONFIRM');
+  const ipConfirmedPrep      = g('IP_CONFIRMED_PREP');
+  const ipExchangePrep       = g('IP_EXCHANGE_PREP');
+  const ipReturnPrep         = g('IP_RETURN_PREP');
+  const ipUnclassified       = g('IP_UNCLASSIFIED');
+  const ipConfirmedShipped   = g('IP_CONFIRMED_SHIPPED');
+  const ipExchangeShipped    = g('IP_EXCHANGE_SHIPPED');
+  const ipReturnShipped      = g('IP_RETURN_SHIPPED');
+  const lostCancelled        = g('CANCELLED');
+  const lostRTO              = g('RTO');
+  const lostRemoved          = g('REMOVED');
+  const lostFinalReturn      = g('FINAL_RETURN');
+  const lostExchangeReturn   = g('EXCHANGE_RETURN');
+  const netSalesNormalOnly   = g('NET_SALES_NORMAL');
+  const netSalesReplacement  = g('NET_SALES_REPLACEMENT');
+
+  const lost     = lostCancelled + lostRTO + lostRemoved + lostFinalReturn + lostExchangeReturn;
+  const netSales = netSalesNormalOnly + netSalesReplacement;
+  const inProgress = ipPendingConfirm + ipConfirmedPrep + ipExchangePrep + ipReturnPrep + ipUnclassified
+                   + ipConfirmedShipped + ipExchangeShipped + ipReturnShipped;
+  const totalValue = inProgress + lost + netSales;
+
+  return {
+    totalValue, inProgress, lost, netSales,
+    ipPendingConfirm, ipConfirmedPrep, ipExchangePrep, ipReturnPrep, ipUnclassified,
+    ipConfirmedShipped, ipExchangeShipped, ipReturnShipped,
+    lostCancelled, lostRTO, lostRemoved, lostFinalReturn, lostExchangeReturn,
+    netSalesReplacement,
+  };
+}
+
+// ─── §TOOL-JS::activeBoxes / activePrevBoxes — v1.4.0: مصدر واحد لـ renderBoxes/renderMainPie بصرف النظر عن viewMode ───
+function activeBoxes()     { return state.viewMode === 'qty' ? computeQtyBoxes(state.rows)     : (state.boxes || {}); }
+function activePrevBoxes()  { return state.viewMode === 'qty' ? computeQtyBoxes(state.prevRows) : (state.prevBoxes || {}); }
+
+// ─── §TOOL-JS::setViewMode — v1.4.0: تبديل قيمة/عدد قطع — إعادة رسم فورية من نفس البيانات المحمّلة ───
+function setViewMode(mode) {
+  if (state.viewMode === mode) return;
+  state.viewMode = mode;
+  document.getElementById('viewModeBtnValue').classList.toggle('active', mode === 'value');
+  document.getElementById('viewModeBtnQty').classList.toggle('active', mode === 'qty');
+  if (state.viewState === 'ready') renderBoxes();
+}
+
 // sub — عنصر مربع فرعي قابل للضغط، بنسبة مئوية من إجمالي المربع الرئيسي اللي هو جواه
 function sub({ key, label, icon = '', value, buckets, parentTotal = 0, colorClass = '', isWarn = false }) {
   const active = state.detailsKey === key ? ' drill-active' : '';
@@ -1031,7 +1131,7 @@ function sub({ key, label, icon = '', value, buckets, parentTotal = 0, colorClas
   return `<div class="kpi-breakdown-item${active}${warn}"
     onclick="event.stopPropagation(); showDetails(${JSON.stringify(buckets).replace(/"/g, '&quot;')}, '${label.replace(/'/g, "\\'")}', '${key}')">
     <div class="kpi-breakdown-label">${icon ? `<span class="kpi-icon">${icon}</span>` : ''}${label}</div>
-    <div class="kpi-breakdown-value ${colorClass}">${fmtMoney(value)}</div>
+    <div class="kpi-breakdown-value ${colorClass}">${fmtAmt(value)}</div>
     <div class="kpi-breakdown-pct-bar"><div class="kpi-breakdown-pct-bar-fill ${colorClass ? 'clr-' + colorClass.replace('clr-','') : ''}" style="width:${Math.min(pct,100).toFixed(1)}%"></div></div>
     <div class="kpi-breakdown-pct-text">${fmtPct(pct)}</div>
   </div>`;
@@ -1039,7 +1139,7 @@ function sub({ key, label, icon = '', value, buckets, parentTotal = 0, colorClas
 
 // ─── §TOOL-JS::renderBoxes — 6 مربعات رئيسية + الفروع + بطاقة الهوية ───
 function renderBoxes() {
-  const b = state.boxes, pb = state.prevBoxes || {};
+  const b = activeBoxes(), pb = activePrevBoxes();
   const cardActive = key => state.detailsKey === key ? ' drill-active' : '';
 
   // مجاميع المربعات الجديدة (نفس أرقام b — بس مقسّمة بصرياً على 3 مربعات بدل مربع واحد)
@@ -1052,9 +1152,9 @@ function renderBoxes() {
     <div class="kpi-card${cardActive('ALL')}" data-state="neutral" onclick="showDetails([], 'إجمالي المبيعات', 'ALL')">
       <div class="kpi-label-row">
         <span class="kpi-label"><span class="kpi-icon">💰</span>إجمالي المبيعات</span>
-        ${infoIcon('مجموع Σ(Q×P) لكل سطر في كل أوردر بالفترة — القاعدة (100%) اللي بتتحسب عليها نسب باقي المربعات. Q = الكمية الأصلية، P = discountedUnitPriceSet.')}
+        ${infoIcon('مجموع Σ(Q×P) لكل سطر في كل أوردر بالفترة — القاعدة (100%) اللي بتتحسب عليها نسب باقي المربعات. Q = الكمية الأصلية، P = discountedUnitPriceSet. في وضع "عدد القطع" الرقم بيبقى Σ(Q) بس.')}
       </div>
-      <div class="kpi-value">${fmtMoney(b.totalValue)}</div>
+      <div class="kpi-value">${fmtAmt(b.totalValue)}</div>
       ${delta(b.totalValue, pb.totalValue)}
     </div>
 
@@ -1063,7 +1163,7 @@ function renderBoxes() {
         <span class="kpi-label"><span class="kpi-icon">⏳</span>تحت التأكيد</span>
         ${infoIcon('أوردرات جديدة لسه محتاجة تأكيد تليفوني — S1 = New Order.')}
       </div>
-      <div class="kpi-value">${fmtMoney(b.ipPendingConfirm)}</div>
+      <div class="kpi-value">${fmtAmt(b.ipPendingConfirm)}</div>
       ${delta(b.ipPendingConfirm, pb.ipPendingConfirm, 'lower_better')}
     </div>
 
@@ -1072,7 +1172,7 @@ function renderBoxes() {
         <span class="kpi-label"><span class="kpi-icon">📦</span>مؤكد (تحت التجهيز)</span>
         ${infoIcon('أوردرات مؤكدة لسه في مرحلة الطباعة/التجهيز — بيشمل البديل الخارج والقطعة الراجعة من دورات إرجاع/استبدال مفتوحة.')}
       </div>
-      <div class="kpi-value">${fmtMoney(confirmedPrepTotal)}</div>
+      <div class="kpi-value">${fmtAmt(confirmedPrepTotal)}</div>
       ${delta(confirmedPrepTotal, prevConfirmedPrepTotal, 'lower_better')}
       <div class="kpi-breakdown">
         ${sub({ key:'IP2', label:'مؤكد / تحت التجهيز',    icon:'🧾', value:b.ipConfirmedPrep, buckets:['IP_CONFIRMED_PREP'], parentTotal:confirmedPrepTotal })}
@@ -1087,7 +1187,7 @@ function renderBoxes() {
         <span class="kpi-label"><span class="kpi-icon">🚚</span>مؤكد (خرج للشحن)</span>
         ${infoIcon('أوردرات خرجت مع الكوريير ولسه في الطريق — بيشمل البديل الخارج والقطعة الراجعة من دورات إرجاع/استبدال مفتوحة.')}
       </div>
-      <div class="kpi-value">${fmtMoney(confirmedShippedTotal)}</div>
+      <div class="kpi-value">${fmtAmt(confirmedShippedTotal)}</div>
       ${delta(confirmedShippedTotal, prevConfirmedShippedTotal, 'lower_better')}
       <div class="kpi-breakdown">
         ${sub({ key:'IP5', label:'مؤكد / خرج للشحن',      icon:'🚚', value:b.ipConfirmedShipped, buckets:['IP_CONFIRMED_SHIPPED'], parentTotal:confirmedShippedTotal })}
@@ -1101,7 +1201,7 @@ function renderBoxes() {
         <span class="kpi-label"><span class="kpi-icon">📉</span>الخسائر</span>
         ${infoIcon('إلغاء قبل الشحن (كل قيمة الأوردر) + مرتجع رفض الاستلام/RTO (كل قيمة الأوردر) + محذوف قبل الشحن + مرتجع بعد الإستلام (رجع من غير بديل) + مرتجع استبدال (رجع مع بديل). الدورة بتتحسب هنا بس لما تتسوّى فعلياً: return.status = CLOSED و S2 ∈ (In-Return · Returned).')}
       </div>
-      <div class="kpi-value clr-red">${fmtMoney(b.lost)}</div>
+      <div class="kpi-value clr-red">${fmtAmt(b.lost)}</div>
       ${delta(b.lost, pb.lost, 'lower_better')}
       <div class="kpi-breakdown">
         ${sub({ key:'L3', label:'محذوف قبل الشحن',    icon:'🗑️', value:b.lostRemoved,        buckets:['REMOVED'],         parentTotal:b.lost, colorClass:'clr-red' })}
@@ -1117,7 +1217,7 @@ function renderBoxes() {
         <span class="kpi-label"><span class="kpi-icon">✅</span>صافي المبيعات</span>
         ${infoIcon('القطع اللي اتسلّمت فعلياً ومفيش عليها أي دورة إرجاع/استبدال مفتوحة (S1 = Delivered)، زائد البدائل من دورات استبدال مُسوّاة فعلياً.')}
       </div>
-      <div class="kpi-value clr-green">${fmtMoney(b.netSales)}</div>
+      <div class="kpi-value clr-green">${fmtAmt(b.netSales)}</div>
       ${delta(b.netSales, pb.netSales)}
       <div class="kpi-breakdown">
         ${sub({ key:'N1', label:'تسليم أساسي',  icon:'✅', value:b.netSales - b.netSalesReplacement, buckets:['NET_SALES_NORMAL'],      parentTotal:b.netSales, colorClass:'clr-green' })}
@@ -1127,7 +1227,7 @@ function renderBoxes() {
 
     <div class="chart-card">
       <div class="chart-card-hdr"><span class="kpi-icon">🥧</span>توزيع إجمالي المبيعات</div>
-      <div class="chart-card-sub">مصير كل جنيه دخل النظام في الفترة المختارة — ${fmtMoney(b.totalValue)}</div>
+      <div class="chart-card-sub">مصير كل ${state.viewMode === 'qty' ? 'قطعة' : 'جنيه'} دخل النظام في الفترة المختارة — ${fmtAmt(b.totalValue)}</div>
       <div class="chart-card-body">
         <div class="chart-canvas-wrap"><canvas id="mainPie"></canvas></div>
         <div class="chart-legend" id="mainPieLegend"></div>
@@ -1172,7 +1272,7 @@ function renderMainPie(b) {
         onclick="showDetails(${JSON.stringify(s.buckets).replace(/"/g,'&quot;')}, '${s.title.replace(/'/g,"\\'")}', '${s.key}')">
         <span class="chart-legend-dot" style="background:${s.colour}"></span>
         <span class="chart-legend-label">${s.label}</span>
-        <span class="chart-legend-val">${fmtMoney(s.value)}</span>
+        <span class="chart-legend-val">${fmtAmt(s.value)}</span>
         <span class="chart-legend-pct">${fmtPct(pct)}</span>
       </div>`;
     }).join('');
@@ -1209,7 +1309,7 @@ function renderMainPie(b) {
             label: (ctx) => {
               const v = ctx.parsed || 0;
               const pct = total ? (v / total) * 100 : 0;
-              return ` ${CURRENCY_SUFFIX} ${Math.round(v).toLocaleString('en-US')} (${pct.toFixed(1)}%)`;
+              return ' ' + fmtAmt(v) + ` (${pct.toFixed(1)}%)`;
             },
           },
         },
@@ -1227,12 +1327,12 @@ function renderMainPie(b) {
 function renderIdentityCheck(b) {
   const sum = b.inProgress + b.lost + b.netSales;
   const diff = Math.abs(sum - b.totalValue);
-  const ok = diff < 1; // هامش قرش واحد لتقريب الفاصلة العشرية
+  const ok = diff < 1; // هامش قرش واحد (أو قطعة واحدة) لتقريب الفاصلة العشرية
   const card = document.getElementById('identityCard');
   card.className = 'identity-card ' + (ok ? 'ok' : 'bad');
   card.innerHTML = ok
-    ? `✅ الهوية الحسابية متوازنة: <span class="mono">${fmtMoney(b.totalValue)} = ${fmtMoney(b.inProgress)} + ${fmtMoney(b.lost)} + ${fmtMoney(b.netSales)}</span>`
-    : `⚠️ في اختلاف ${fmtMoney(diff)} بين إجمالي المبيعات ومجموع المربعات — ده باج محتاج مراجعة في الكود، مش في الموديل. <span class="mono">${fmtMoney(b.totalValue)} ≠ ${fmtMoney(sum)}</span>`;
+    ? `✅ الهوية الحسابية متوازنة: <span class="mono">${fmtAmt(b.totalValue)} = ${fmtAmt(b.inProgress)} + ${fmtAmt(b.lost)} + ${fmtAmt(b.netSales)}</span>`
+    : `⚠️ في اختلاف ${fmtAmt(diff)} بين إجمالي المبيعات ومجموع المربعات — ده باج محتاج مراجعة في الكود، مش في الموديل. <span class="mono">${fmtAmt(b.totalValue)} ≠ ${fmtAmt(sum)}</span>`;
 }
 
 // ══════════════════════════════════════════════════════
