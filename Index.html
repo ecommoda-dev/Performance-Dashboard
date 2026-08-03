@@ -139,23 +139,49 @@
   .kpi-card[data-state="warning"] { border-inline-start-color: var(--amber); }
   .kpi-card[data-state="bad"]     { border-inline-start-color: var(--red); }
   .kpi-card[data-state="neutral"] { border-inline-start-color: var(--accent); }
-  .kpi-label { font-size: 12.5px; color: var(--text-muted); margin-bottom: 6px; }
+  .kpi-label { font-size: 14px; color: var(--text-primary); margin-bottom: 6px; font-weight: 800; letter-spacing: .1px; display: flex; align-items: center; gap: 6px; }
+  .kpi-label .kpi-icon { font-size: 15px; line-height: 1; }
   .kpi-label-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
   .kpi-label-row .kpi-label { margin-bottom: 0; }
   .kpi-value { font-size: 24px; font-weight: 700; font-family: var(--font-mono); direction: ltr; text-align: right; }
+  .kpi-value.clr-red   { color: var(--red); }
+  .kpi-value.clr-green { color: var(--green); }
   .kpi-delta { font-size: 12px; margin-top: 4px; }
   .kpi-delta.up   { color: var(--green); }
   .kpi-delta.down { color: var(--red); }
   .kpi-pct { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
 
-  /* breakdown — grid عشان 7 مربعات فرعية تتقسم على سطور مرتبة */
-  .kpi-breakdown { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(88px, 1fr)); gap: 4px; }
-  .kpi-breakdown-item { text-align: center; border-radius: 8px; padding: 5px 3px; transition: background .12s; cursor: pointer; border: 1px solid transparent; }
+  /* ── نسبة مئوية بصرية (bar + رقم) — للمربعات الرئيسية والفرعية ── */
+  .pct-line { display: flex; align-items: center; gap: 7px; margin-top: 7px; }
+  .pct-bar { flex: 1; height: 7px; border-radius: 5px; background: var(--border); overflow: hidden; }
+  .pct-bar-fill { height: 100%; border-radius: 5px; background: var(--accent); transition: width .35s ease; }
+  .pct-bar-fill.clr-red    { background: var(--red); }
+  .pct-bar-fill.clr-green  { background: var(--green); }
+  .pct-bar-fill.clr-amber  { background: var(--amber); }
+  .pct-bar-fill.clr-purple { background: var(--purple); }
+  .pct-text { font-family: var(--font-mono); font-size: 11.5px; font-weight: 800; color: var(--text-secondary); white-space: nowrap; direction: ltr; }
+  .pct-text.clr-red    { color: var(--red); }
+  .pct-text.clr-green  { color: var(--green); }
+  .pct-text.clr-amber  { color: var(--amber); }
+  .pct-text.clr-purple { color: var(--purple); }
+
+  /* breakdown — grid عشان المربعات الفرعية تتقسم على سطور مرتبة */
+  .kpi-breakdown { margin-top: 10px; padding-top: 8px; border-top: 1px dashed var(--border); display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 5px; }
+  .kpi-breakdown-item { text-align: center; border-radius: 8px; padding: 6px 4px; transition: background .12s; cursor: pointer; border: 1px solid transparent; }
   .kpi-breakdown-item:hover { background: var(--accent-light); border-color: #bfdbfe; }
   .kpi-breakdown-item.drill-active { background: var(--accent-light); border-color: var(--accent); }
-  .kpi-breakdown-label { font-size: 10px; color: var(--text-secondary); margin-bottom: 3px; line-height: 1.35; }
-  .kpi-breakdown-value { font-family: var(--font-mono); font-size: 12px; font-weight: 700; direction: ltr; }
+  .kpi-breakdown-label { font-size: 10.5px; color: var(--text-primary); margin-bottom: 3px; line-height: 1.35; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 3px; }
+  .kpi-breakdown-label .kpi-icon { font-size: 11px; }
+  .kpi-breakdown-value { font-family: var(--font-mono); font-size: 12.5px; font-weight: 800; direction: ltr; }
+  .kpi-breakdown-value.clr-red   { color: var(--red); }
+  .kpi-breakdown-value.clr-green { color: var(--green); }
   .kpi-breakdown-item.is-warn .kpi-breakdown-label { color: var(--amber); font-weight: 700; }
+  .kpi-breakdown-pct-bar { height: 4px; border-radius: 3px; background: var(--border); overflow: hidden; margin-top: 4px; }
+  .kpi-breakdown-pct-bar-fill { height: 100%; border-radius: 3px; background: var(--accent); }
+  .kpi-breakdown-pct-bar-fill.clr-red    { background: var(--red); }
+  .kpi-breakdown-pct-bar-fill.clr-green  { background: var(--green); }
+  .kpi-breakdown-pct-bar-fill.clr-amber  { background: var(--amber); }
+  .kpi-breakdown-pct-text { font-size: 9.5px; color: var(--text-muted); margin-top: 2px; font-family: var(--font-mono); direction: ltr; }
 
   /* ── KPI info tooltip (hover-only explainer) ── */
   .kpi-info {
@@ -272,13 +298,35 @@
   .details-summary-row { display: flex; gap: 18px; padding: 10px 16px; background: var(--accent-light); border-bottom: 1px solid #bfdbfe; font-size: 12px; flex-wrap: wrap; color: #1d4ed8; }
   .details-summary-item b { font-family: var(--font-mono); }
 
+  /* ── مربع البحث فوق الجدول ── */
+  .details-search-row { padding: 10px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  .details-search-wrap { position: relative; max-width: 420px; }
+  .details-search-icon { position: absolute; top: 50%; right: 12px; transform: translateY(-50%); font-size: 13px; color: var(--text-muted); pointer-events: none; }
+  .details-search-input {
+    width: 100%; height: 36px; border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm);
+    padding: 6px 36px 6px 12px; font-family: var(--font-body); font-size: 12.5px; color: var(--text-primary);
+    background: var(--surface); outline: none; transition: border-color .15s;
+  }
+  .details-search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+  .details-search-count { font-size: 11.5px; color: var(--text-muted); margin-top: 6px; }
+
   .details-scroll { max-height: 560px; overflow-y: auto; }
-  .details-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .details-table { width: 100%; border-collapse: collapse; font-size: 12.5px; table-layout: fixed; }
+  .details-table col.c-order   { width: 11%; }
+  .details-table col.c-pieces  { width: 8%; }
+  .details-table col.c-date    { width: 10%; }
+  .details-table col.c-sku     { width: 17%; }
+  .details-table col.c-qty     { width: 7%; }
+  .details-table col.c-value   { width: 11%; }
+  .details-table col.c-bucket  { width: 15%; }
+  .details-table col.c-s1      { width: 10.5%; }
+  .details-table col.c-s2      { width: 10.5%; }
   .details-table thead th {
     position: sticky; top: 0; z-index: 2; background: var(--surface-2); text-align: right; padding: 9px 12px;
-    font-size: 11px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border-strong); white-space: nowrap;
+    font-size: 11px; font-weight: 700; color: var(--text-secondary); border-bottom: 1px solid var(--border-strong);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .details-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .details-table tbody td { padding: 8px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .details-table tbody tr:hover { background: var(--accent-light); }
   .details-table tbody tr.has-note { background: #fffdf5; }
   .details-table tbody tr.has-note:hover { background: var(--amber-light); }
@@ -313,7 +361,7 @@
         <span class="freshness-text">جاري التحميل…</span>
       </div>
       <button class="hbtn" onclick="openAbout()">ℹ️ عن الأداة</button>
-      <button class="hbtn ver-btn" onclick="openChangelog()">v1.1.1 📋</button>
+      <button class="hbtn ver-btn" onclick="openChangelog()">v1.2.0 📋</button>
       <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
     </div>
   </div>
@@ -390,6 +438,20 @@
     <div class="changelog-modal-hdr">📋 سجل التحديثات<button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="changelog-body">
       <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge">v1.2.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span><b>مربع "إجمالي القيمة" اتسمّى "إجمالي المبيعات"</b> في كل مكان في الأداة.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span><b>مربع "قيد التنفيذ" اتلغى وانقسم لـ 3 مربعات رئيسية مستقلة:</b> "تحت التأكيد" (مفرد)، "مؤكد (تحت التجهيز)" (3 فروع: مؤكد/استبدال/مرتجع)، "مؤكد (خرج للشحن)" (3 فروع: مؤكد/استبدال/مرتجع). القطعة "خارج التصنيف" ظاهرة كفرع تحذيري داخل "مؤكد (تحت التجهيز)".</span></li>
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span><b>مربع "الفاقد" اتسمّى "الخسائر"</b> — وإعادة تسمية فروعه: ملغي → إلغاء قبل الشحن، RTO → مرتجع رفض الاستلام، مرتجع نهائي → مرتجع بعد الإستلام. ترتيب الفروع اتغيّر لـ: محذوف قبل الشحن · إلغاء قبل الشحن · مرتجع رفض الاستلام · مرتجع بعد الإستلام · مرتجع استبدال.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تعديل</span><span>فرعي "صافي المبيعات": مُسلَّم → تسليم أساسي، بديل → تسليم استبدال.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>تلوين الأرقام: أحمر لمربع "الخسائر" وكل فروعه + فرعي "مرتجع/تحت التجهيز" و"مرتجع/خرج للشحن"؛ أخضر لمربع "صافي المبيعات" وفروعه.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>نسبة مئوية بصرية (شريط تقدّم ملوّن + رقم) في كل مربع رئيسي وكل مربع فرعي — الفرعي بيتحسب من إجمالي المربع الرئيسي اللي هو جواه.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>إعادة تصميم عناوين المربعات (رئيسية وفرعية) بخط أوضح وأثقل + أيقونات لكل مربع.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>مربع بحث فوق جدول التفاصيل (برقم الأوردر، SKU، أو حالة القطعة/الأوردر) + تثبيت عرض الأعمدة (table-layout: fixed) عشان تتظبط مع صف العنوان.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>إيقاف التمرير التلقائي (scrollIntoView) للأسفل عند الضغط على أي مربع.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge">v1.1.1</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>شيل تأكيد حالة الشحن عن مربعي "مرتجع / تحت التجهيز" و"مرتجع / خرج للشحن" — القطعة المرتجعة Fulfilled دايماً بحكم إنها وصلت العميل قبل ما ترجع، فالتوقع كان بيولّد تحذير كاذب على كل صف مرتجع (اتأكد على #49572)</span></li>
@@ -439,23 +501,44 @@
           <div class="about-label">المستخدمون</div>
           <p>المدير العام وفريق التحليل.</p>
           <div class="about-label">النموذج (Data Contract v2.0.0)</div>
-          <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي القيمة = قيد التنفيذ + الفاقد + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
+          <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي المبيعات = (تحت التأكيد + مؤكد تحت التجهيز + مؤكد خرج للشحن) + الخسائر + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
 
-          <div class="about-label">مربعات "قيد التنفيذ" الفرعية (v1.1.0)</div>
+          <div class="about-label">مربعات "قيد التنفيذ" (v1.2.0 — 3 مربعات رئيسية مستقلة بدل مربع واحد)</div>
           <table class="about-table">
-            <thead><tr><th>#</th><th>المربع</th><th>الشرط</th></tr></thead>
+            <thead><tr><th>#</th><th>المربع الرئيسي</th><th>الفرع</th><th>الشرط</th></tr></thead>
             <tbody>
-              <tr><td>1</td><td>تحت التأكيد</td><td>مش مرتبط باستبدال/إرجاع · S1 = New Order</td></tr>
-              <tr><td>2</td><td>مؤكد / تحت التجهيز</td><td>مش مرتبط · S1 غير (New Order · Shipped · In-Return · Delivered · Returned · Cancelled)</td></tr>
+              <tr><td>1</td><td>تحت التأكيد</td><td>—</td><td>مش مرتبط باستبدال/إرجاع · S1 = New Order</td></tr>
+              <tr><td>2</td><td rowspan="4">مؤكد (تحت التجهيز)</td><td>مؤكد / تحت التجهيز</td><td>مش مرتبط · S1 غير (New Order · Shipped · In-Return · Delivered · Returned · Cancelled)</td></tr>
               <tr><td>3</td><td>استبدال / تحت التجهيز</td><td>سطر بديل · دورة مفتوحة · S2 ∈ (Confirmed + RETURN · Confirmed + EXCHANGE · Ready)</td></tr>
               <tr><td>4</td><td>مرتجع / تحت التجهيز</td><td>القطعة المرتجعة · دورة مفتوحة · نفس قيم S2 السابقة (بدون شرط حالة شحن — المرتجع Fulfilled دايماً)</td></tr>
-              <tr><td>5</td><td>مؤكد / خرج للشحن</td><td>مش مرتبط · S1 = Shipped أو In-Return</td></tr>
+              <tr><td>8</td><td>خارج التصنيف ⚠️ (فرع تحذيري)</td><td>حالات شاذة (مثل S1 = Returned من غير إلغاء فعلي في شوبيفاي) — ظاهر عمداً عشان مايضيعش بصمت</td></tr>
+              <tr><td>5</td><td rowspan="3">مؤكد (خرج للشحن)</td><td>مؤكد / خرج للشحن</td><td>مش مرتبط · S1 = Shipped أو In-Return</td></tr>
               <tr><td>6</td><td>استبدال / خرج للشحن</td><td>سطر بديل · دورة مفتوحة · S2 ∈ (Shipped · In-Return)</td></tr>
               <tr><td>7</td><td>مرتجع / خرج للشحن</td><td>القطعة المرتجعة · دورة مفتوحة · S2 ∈ (Shipped · In-Return) (بدون شرط حالة شحن)</td></tr>
-              <tr><td>8</td><td>خارج التصنيف</td><td>حالات شاذة (مثل S1 = Returned من غير إلغاء فعلي في شوبيفاي) — ظاهر عمداً عشان مايضيعش بصمت</td></tr>
             </tbody>
           </table>
-          <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">ملاحظة: <b>S1 = In-Return</b> تُعامل معاملة <b>Shipped</b> بالظبط (قرار 03-08-2026 — في S1 فقط، مش S2). و<b>S1 = Ready مع Fulfilled</b> (محاولة تسليم مكررة) موجودة مؤقتاً تحت مربع 2 ومعلّمة بملاحظة على الصف.</p>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">ملاحظة: <b>S1 = In-Return</b> تُعامل معاملة <b>Shipped</b> بالظبط (قرار 03-08-2026 — في S1 فقط، مش S2). و<b>S1 = Ready مع Fulfilled</b> (محاولة تسليم مكررة) موجودة مؤقتاً تحت "مؤكد (تحت التجهيز)" ومعلّمة بملاحظة على الصف. الفروع الملوّنة بالأحمر (مرتجع/تحت التجهيز · مرتجع/خرج للشحن) هي القطعة الراجعة نفسها داخل دورة استبدال/إرجاع مفتوحة.</p>
+
+          <div class="about-label">مربع "الخسائر" — الفروع بعد إعادة التسمية (v1.2.0)</div>
+          <table class="about-table">
+            <thead><tr><th>الاسم القديم</th><th>الاسم الحالي</th></tr></thead>
+            <tbody>
+              <tr><td>ملغي</td><td>إلغاء قبل الشحن</td></tr>
+              <tr><td>RTO</td><td>مرتجع رفض الاستلام</td></tr>
+              <tr><td>مرتجع نهائي</td><td>مرتجع بعد الإستلام</td></tr>
+              <tr><td>محذوف قبل الشحن</td><td>محذوف قبل الشحن (بدون تغيير)</td></tr>
+              <tr><td>مرتجع استبدال</td><td>مرتجع استبدال (بدون تغيير)</td></tr>
+            </tbody>
+          </table>
+
+          <div class="about-label">مربع "صافي المبيعات" — الفروع بعد إعادة التسمية (v1.2.0)</div>
+          <table class="about-table">
+            <thead><tr><th>الاسم القديم</th><th>الاسم الحالي</th></tr></thead>
+            <tbody>
+              <tr><td>مُسلَّم</td><td>تسليم أساسي</td></tr>
+              <tr><td>بديل</td><td>تسليم استبدال</td></tr>
+            </tbody>
+          </table>
 
           <div class="about-label">جدول التفاصيل</div>
           <p>الضغط على أي مربع (رئيسي أو فرعي) بيفتح قسم التفاصيل في آخر الصفحة: رقم الأوردر (هايبرلينك لشوبيفاي أدمن) · عدد قطع الأوردر · التاريخ · SKU · الكمية · القيمة · حالة القطعة · S1 · S2. البيانات جاهزة مسبقاً من نفس نداء <code>get_data</code> — الضغط مبيعملش أي fetch إضافي.</p>
@@ -483,9 +566,10 @@
 ──────────────────────────────────────────────────────────────
 Feature                          │ File   │ §Section   │ fn/action
 ──────────────────────────────────────────────────────────────
-4 مربعات + 7 فرعية + الهوية      │ HTML   │ §TOOL-JS   │ renderBoxes
+6 مربعات رئيسية + فرعية + الهوية │ HTML   │ §TOOL-JS   │ renderBoxes / sub / pctLineHTML
 فلتر التاريخ (شكل موحّد)         │ HTML   │ §DATERANGE │ applyRangePreset
-قسم التفاصيل (inline collapsible)│ HTML   │ §DETAILS   │ showDetails / renderDetailsTable
+قسم التفاصيل (inline collapsible)│ HTML   │ §DETAILS   │ showDetails / renderDetails / renderDetailsTableWrap
+بحث في جدول التفاصيل             │ HTML   │ §DETAILS   │ onDetailsSearch / searchFilteredRows
 تجميع القطعة (Q/C/P → مربعات)   │ Worker │ §AGGREGATE │ computeBoxes
 صفوف التفصيل لكل bucket          │ Worker │ §AGGREGATE │ pushRow
 تصنيف القطع العادية (S1)         │ Worker │ §AGGREGATE │ normalBucket
@@ -507,15 +591,26 @@ state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
 BUCKET_LABELS = خريطة bucket → التسمية العربية (لازم تطابق BUCKET في الـ Worker)
 NOTE_LABELS   = REDELIVERY (محاولة مكررة) · FULFIL_MISM (تعارض حالة شحن)
 DETAILS_ROW_LIMIT = 500 صف معروض دفعة واحدة، مع زرار "عرض المزيد"
+state.detailsSearch = نص البحث الحالي — بيتصفّر تلقائي عند اختيار مربع جديد
 SHOPIFY_ADMIN_ORDER_URL(id) = https://admin.shopify.com/store/6c7e1a-53/orders/{id}
 
 NOTES
 - CACHE_VERSION في الـ Worker = v3. أي فترة اتكاشت بنسخة أقدم هتتحسب من جديد
-  تلقائياً أول مرة تتفتح.
+  تلقائياً أول مرة تتفتح. (v1.2.0 تغيير عرض/تسمية بس — مفيش تغيير في شكل
+  بيانات الـ Worker، فـ CACHE_VERSION متغيّرش.)
 - "عدد قطع الأوردر" = مجموع الكميات الأصلية Σ(Q) لكل أسطر الأوردر — مش الكمية
   الباقية، عشان يتطابق مع أساس التقييم.
 - unfulfilledQuantity بيتستخدم كـ assertion بس — لو اتعارض مع المربع، الصف
   بيتعلّم بملاحظة والقيمة بتفضل مكانها (مفيش جنيه بيختفي من التصنيف).
+- مربع "قيد التنفيذ" القديم بقى 3 مربعات رئيسية (تحت التأكيد · مؤكد تحت
+  التجهيز · مؤكد خرج للشحن) — بيانات b.ipXxx زي ما هي من الـ Worker، بس
+  الجمع والعرض بقى في renderBoxes على مستوى العميل (client-side)، مفيش أي
+  حقل جديد اتطلب من الـ Worker.
+- نسبة كل مربع فرعي بتتحسب بالنسبة لإجمالي المربع الرئيسي اللي هو جواه
+  (parentTotal في sub())، مش بالنسبة لإجمالي المبيعات الكامل.
+- البحث في جدول التفاصيل client-side بس (على الصفوف المحمّلة فعلاً) وبيغطي:
+  رقم الأوردر · SKU · حالة القطعة · S1 · S2 — مفيش بيانات عميل/تليفون في
+  الصف حالياً (خارج الـ Data Contract الحالي).
 - الصف التاني (معدلات بالعدد زي نسبة RTO) متعمّد إنه مش موجود — Data Contract
   مستقل لسه ما اتعملش.
 - كل الأرقام en-US، والتوقيت بتوقيت القاهرة عبر toCairo().</pre>
@@ -674,6 +769,7 @@ const state = {
   detailsBuckets: [],
   detailsTitle: '',
   detailsLimit: DETAILS_ROW_LIMIT,
+  detailsSearch: '',
 };
 
 // ══════════════════════════════════════════════════════
@@ -909,85 +1005,120 @@ function delta(curVal, prevVal, direction = 'higher_better') {
 
 const infoIcon = html => `<span class="kpi-info">ⓘ<span class="kpi-tooltip">${html}</span></span>`;
 
-// sub — عنصر مربع فرعي قابل للضغط
-function sub(key, label, value, buckets, isWarn = false) {
+// ─── §TOOL-JS::pctLineHTML — شريط نسبة مئوية بصري للمربع الرئيسي ───
+function pctLineHTML(amt, total, label, colorClass = '') {
+  const pct = total ? (amt / total) * 100 : 0;
+  return `<div class="pct-line">
+    <div class="pct-bar"><div class="pct-bar-fill ${colorClass}" style="width:${Math.min(pct,100).toFixed(1)}%"></div></div>
+    <span class="pct-text ${colorClass}">${fmtPct(pct)}</span>
+  </div>
+  <div class="kpi-pct">${label}</div>`;
+}
+
+// sub — عنصر مربع فرعي قابل للضغط، بنسبة مئوية من إجمالي المربع الرئيسي اللي هو جواه
+function sub({ key, label, icon = '', value, buckets, parentTotal = 0, colorClass = '', isWarn = false }) {
   const active = state.detailsKey === key ? ' drill-active' : '';
   const warn   = isWarn ? ' is-warn' : '';
+  const pct    = parentTotal ? (value / parentTotal) * 100 : 0;
   return `<div class="kpi-breakdown-item${active}${warn}"
     onclick="event.stopPropagation(); showDetails(${JSON.stringify(buckets).replace(/"/g, '&quot;')}, '${label.replace(/'/g, "\\'")}', '${key}')">
-    <div class="kpi-breakdown-label">${label}</div>
-    <div class="kpi-breakdown-value">${fmtMoney(value)}</div>
+    <div class="kpi-breakdown-label">${icon ? `<span class="kpi-icon">${icon}</span>` : ''}${label}</div>
+    <div class="kpi-breakdown-value ${colorClass}">${fmtMoney(value)}</div>
+    <div class="kpi-breakdown-pct-bar"><div class="kpi-breakdown-pct-bar-fill ${colorClass ? 'clr-' + colorClass.replace('clr-','') : ''}" style="width:${Math.min(pct,100).toFixed(1)}%"></div></div>
+    <div class="kpi-breakdown-pct-text">${fmtPct(pct)}</div>
   </div>`;
 }
 
-// ─── §TOOL-JS::renderBoxes — الـ 4 مربعات + الفروع + بطاقة الهوية ───
+// ─── §TOOL-JS::renderBoxes — 6 مربعات رئيسية + الفروع + بطاقة الهوية ───
 function renderBoxes() {
   const b = state.boxes, pb = state.prevBoxes || {};
-  const pctOfTotal = amt => b.totalValue ? (amt / b.totalValue) * 100 : 0;
-  const pctLine = amt => `<div class="kpi-pct">${fmtPct(pctOfTotal(amt))} من إجمالي القيمة</div>`;
   const cardActive = key => state.detailsKey === key ? ' drill-active' : '';
 
-  const IP_ALL = ['IP_PENDING_CONFIRM','IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP',
-                  'IP_CONFIRMED_SHIPPED','IP_EXCHANGE_SHIPPED','IP_RETURN_SHIPPED','IP_UNCLASSIFIED'];
+  // مجاميع المربعات الجديدة (نفس أرقام b — بس مقسّمة بصرياً على 3 مربعات بدل مربع واحد)
+  const confirmedPrepTotal    = (b.ipConfirmedPrep || 0) + (b.ipExchangePrep || 0) + (b.ipReturnPrep || 0) + (b.ipUnclassified || 0);
+  const confirmedShippedTotal = (b.ipConfirmedShipped || 0) + (b.ipExchangeShipped || 0) + (b.ipReturnShipped || 0);
+  const prevConfirmedPrepTotal    = (pb.ipConfirmedPrep || 0) + (pb.ipExchangePrep || 0) + (pb.ipReturnPrep || 0) + (pb.ipUnclassified || 0);
+  const prevConfirmedShippedTotal = (pb.ipConfirmedShipped || 0) + (pb.ipExchangeShipped || 0) + (pb.ipReturnShipped || 0);
 
   document.getElementById('overviewKpis').innerHTML = `
-    <div class="kpi-card${cardActive('ALL')}" data-state="neutral" onclick="showDetails([], 'إجمالي القيمة', 'ALL')">
+    <div class="kpi-card${cardActive('ALL')}" data-state="neutral" onclick="showDetails([], 'إجمالي المبيعات', 'ALL')">
       <div class="kpi-label-row">
-        <span class="kpi-label">إجمالي القيمة</span>
+        <span class="kpi-label"><span class="kpi-icon">💰</span>إجمالي المبيعات</span>
         ${infoIcon('مجموع Σ(Q×P) لكل سطر في كل أوردر بالفترة — القاعدة (100%) اللي بتتحسب عليها نسب باقي المربعات. Q = الكمية الأصلية، P = discountedUnitPriceSet.')}
       </div>
       <div class="kpi-value">${fmtMoney(b.totalValue)}</div>
       ${delta(b.totalValue, pb.totalValue)}
     </div>
 
-    <div class="kpi-card${cardActive('IP')}" onclick="showDetails(${JSON.stringify(IP_ALL).replace(/"/g,'&quot;')}, 'قيد التنفيذ', 'IP')">
+    <div class="kpi-card${cardActive('IP1')}" data-state="neutral" onclick="showDetails(['IP_PENDING_CONFIRM'], 'تحت التأكيد', 'IP1')">
       <div class="kpi-label-row">
-        <span class="kpi-label">قيد التنفيذ</span>
-        ${infoIcon('كل القطع اللي لسه ما استقرّ مصيرها: أوردرات لسه ما اتسلّمتش، وقطع داخل دورة إرجاع/استبدال <b>مفتوحة</b> (سواء البديل الخارج أو القطعة الراجعة). القطعة بتخرج من هنا لصافي المبيعات أو للفاقد لما الدورة تتقفل فعلياً.')}
+        <span class="kpi-label"><span class="kpi-icon">⏳</span>تحت التأكيد</span>
+        ${infoIcon('أوردرات جديدة لسه محتاجة تأكيد تليفوني — S1 = New Order.')}
       </div>
-      <div class="kpi-value">${fmtMoney(b.inProgress)}</div>
-      ${delta(b.inProgress, pb.inProgress, 'lower_better')}
-      ${pctLine(b.inProgress)}
+      <div class="kpi-value">${fmtMoney(b.ipPendingConfirm)}</div>
+      ${delta(b.ipPendingConfirm, pb.ipPendingConfirm, 'lower_better')}
+      ${pctLineHTML(b.ipPendingConfirm, b.totalValue, 'من إجمالي المبيعات', 'clr-purple')}
+    </div>
+
+    <div class="kpi-card${cardActive('IP_PREP')}" data-state="neutral" onclick="showDetails(['IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP','IP_UNCLASSIFIED'], 'مؤكد (تحت التجهيز)', 'IP_PREP')">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">📦</span>مؤكد (تحت التجهيز)</span>
+        ${infoIcon('أوردرات مؤكدة لسه في مرحلة الطباعة/التجهيز — بيشمل البديل الخارج والقطعة الراجعة من دورات إرجاع/استبدال مفتوحة.')}
+      </div>
+      <div class="kpi-value">${fmtMoney(confirmedPrepTotal)}</div>
+      ${delta(confirmedPrepTotal, prevConfirmedPrepTotal, 'lower_better')}
+      ${pctLineHTML(confirmedPrepTotal, b.totalValue, 'من إجمالي المبيعات')}
       <div class="kpi-breakdown">
-        ${sub('IP1','تحت التأكيد',            b.ipPendingConfirm,   ['IP_PENDING_CONFIRM'])}
-        ${sub('IP2','مؤكد / تحت التجهيز',      b.ipConfirmedPrep,    ['IP_CONFIRMED_PREP'])}
-        ${sub('IP3','استبدال / تحت التجهيز',   b.ipExchangePrep,     ['IP_EXCHANGE_PREP'])}
-        ${sub('IP4','مرتجع / تحت التجهيز',     b.ipReturnPrep,       ['IP_RETURN_PREP'])}
-        ${sub('IP5','مؤكد / خرج للشحن',        b.ipConfirmedShipped, ['IP_CONFIRMED_SHIPPED'])}
-        ${sub('IP6','استبدال / خرج للشحن',     b.ipExchangeShipped,  ['IP_EXCHANGE_SHIPPED'])}
-        ${sub('IP7','مرتجع / خرج للشحن',       b.ipReturnShipped,    ['IP_RETURN_SHIPPED'])}
-        ${b.ipUnclassified > 0 ? sub('IP8','خارج التصنيف ⚠️',  b.ipUnclassified, ['IP_UNCLASSIFIED'], true) : ''}
+        ${sub({ key:'IP2', label:'مؤكد / تحت التجهيز',    icon:'🧾', value:b.ipConfirmedPrep, buckets:['IP_CONFIRMED_PREP'], parentTotal:confirmedPrepTotal })}
+        ${sub({ key:'IP3', label:'استبدال / تحت التجهيز', icon:'🔁', value:b.ipExchangePrep,  buckets:['IP_EXCHANGE_PREP'],  parentTotal:confirmedPrepTotal })}
+        ${sub({ key:'IP4', label:'مرتجع / تحت التجهيز',   icon:'↩️', value:b.ipReturnPrep,    buckets:['IP_RETURN_PREP'],    parentTotal:confirmedPrepTotal, colorClass:'clr-red' })}
+        ${b.ipUnclassified > 0 ? sub({ key:'IP8', label:'خارج التصنيف ⚠️', value:b.ipUnclassified, buckets:['IP_UNCLASSIFIED'], parentTotal:confirmedPrepTotal, isWarn:true }) : ''}
       </div>
     </div>
 
-    <div class="kpi-card${cardActive('LOST')}" data-state="${b.lost > 0 ? 'warning' : 'good'}" onclick="showDetails(['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], 'الفاقد', 'LOST')">
+    <div class="kpi-card${cardActive('IP_SHIP')}" data-state="neutral" onclick="showDetails(['IP_CONFIRMED_SHIPPED','IP_EXCHANGE_SHIPPED','IP_RETURN_SHIPPED'], 'مؤكد (خرج للشحن)', 'IP_SHIP')">
       <div class="kpi-label-row">
-        <span class="kpi-label">الفاقد</span>
-        ${infoIcon('ملغي (كل قيمة الأوردر) + RTO (كل قيمة الأوردر) + محذوف قبل الشحن + مرتجع نهائي (رجع من غير بديل) + مرتجع استبدال (رجع مع بديل). الدورة بتتحسب هنا بس لما تتسوّى فعلياً: return.status = CLOSED و S2 ∈ (In-Return · Returned).')}
+        <span class="kpi-label"><span class="kpi-icon">🚚</span>مؤكد (خرج للشحن)</span>
+        ${infoIcon('أوردرات خرجت مع الكوريير ولسه في الطريق — بيشمل البديل الخارج والقطعة الراجعة من دورات إرجاع/استبدال مفتوحة.')}
       </div>
-      <div class="kpi-value">${fmtMoney(b.lost)}</div>
-      ${delta(b.lost, pb.lost, 'lower_better')}
-      ${pctLine(b.lost)}
+      <div class="kpi-value">${fmtMoney(confirmedShippedTotal)}</div>
+      ${delta(confirmedShippedTotal, prevConfirmedShippedTotal, 'lower_better')}
+      ${pctLineHTML(confirmedShippedTotal, b.totalValue, 'من إجمالي المبيعات')}
       <div class="kpi-breakdown">
-        ${sub('L1','ملغي',              b.lostCancelled,      ['CANCELLED'])}
-        ${sub('L2','RTO',               b.lostRTO,            ['RTO'])}
-        ${sub('L3','محذوف قبل الشحن',   b.lostRemoved,        ['REMOVED'])}
-        ${sub('L4','مرتجع نهائي',       b.lostFinalReturn,    ['FINAL_RETURN'])}
-        ${sub('L5','مرتجع استبدال',     b.lostExchangeReturn, ['EXCHANGE_RETURN'])}
+        ${sub({ key:'IP5', label:'مؤكد / خرج للشحن',      icon:'🚚', value:b.ipConfirmedShipped, buckets:['IP_CONFIRMED_SHIPPED'], parentTotal:confirmedShippedTotal })}
+        ${sub({ key:'IP6', label:'استبدال / خرج للشحن',   icon:'🔁', value:b.ipExchangeShipped,  buckets:['IP_EXCHANGE_SHIPPED'],  parentTotal:confirmedShippedTotal })}
+        ${sub({ key:'IP7', label:'مرتجع / خرج للشحن',     icon:'↩️', value:b.ipReturnShipped,    buckets:['IP_RETURN_SHIPPED'],    parentTotal:confirmedShippedTotal, colorClass:'clr-red' })}
+      </div>
+    </div>
+
+    <div class="kpi-card${cardActive('LOST')}" data-state="${b.lost > 0 ? 'bad' : 'good'}" onclick="showDetails(['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], 'الخسائر', 'LOST')">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">📉</span>الخسائر</span>
+        ${infoIcon('إلغاء قبل الشحن (كل قيمة الأوردر) + مرتجع رفض الاستلام/RTO (كل قيمة الأوردر) + محذوف قبل الشحن + مرتجع بعد الإستلام (رجع من غير بديل) + مرتجع استبدال (رجع مع بديل). الدورة بتتحسب هنا بس لما تتسوّى فعلياً: return.status = CLOSED و S2 ∈ (In-Return · Returned).')}
+      </div>
+      <div class="kpi-value clr-red">${fmtMoney(b.lost)}</div>
+      ${delta(b.lost, pb.lost, 'lower_better')}
+      ${pctLineHTML(b.lost, b.totalValue, 'من إجمالي المبيعات', 'clr-red')}
+      <div class="kpi-breakdown">
+        ${sub({ key:'L3', label:'محذوف قبل الشحن',    icon:'🗑️', value:b.lostRemoved,        buckets:['REMOVED'],         parentTotal:b.lost, colorClass:'clr-red' })}
+        ${sub({ key:'L1', label:'إلغاء قبل الشحن',    icon:'❌', value:b.lostCancelled,      buckets:['CANCELLED'],      parentTotal:b.lost, colorClass:'clr-red' })}
+        ${sub({ key:'L2', label:'مرتجع رفض الاستلام', icon:'🚫', value:b.lostRTO,            buckets:['RTO'],            parentTotal:b.lost, colorClass:'clr-red' })}
+        ${sub({ key:'L4', label:'مرتجع بعد الإستلام', icon:'↩️', value:b.lostFinalReturn,    buckets:['FINAL_RETURN'],   parentTotal:b.lost, colorClass:'clr-red' })}
+        ${sub({ key:'L5', label:'مرتجع استبدال',      icon:'🔁', value:b.lostExchangeReturn, buckets:['EXCHANGE_RETURN'],parentTotal:b.lost, colorClass:'clr-red' })}
       </div>
     </div>
 
     <div class="kpi-card${cardActive('NET')}" data-state="good" onclick="showDetails(['NET_SALES_NORMAL','NET_SALES_REPLACEMENT'], 'صافي المبيعات', 'NET')">
       <div class="kpi-label-row">
-        <span class="kpi-label">صافي المبيعات</span>
+        <span class="kpi-label"><span class="kpi-icon">✅</span>صافي المبيعات</span>
         ${infoIcon('القطع اللي اتسلّمت فعلياً ومفيش عليها أي دورة إرجاع/استبدال مفتوحة (S1 = Delivered)، زائد البدائل من دورات استبدال مُسوّاة فعلياً.')}
       </div>
-      <div class="kpi-value">${fmtMoney(b.netSales)}</div>
+      <div class="kpi-value clr-green">${fmtMoney(b.netSales)}</div>
       ${delta(b.netSales, pb.netSales)}
-      ${pctLine(b.netSales)}
+      ${pctLineHTML(b.netSales, b.totalValue, 'من إجمالي المبيعات', 'clr-green')}
       <div class="kpi-breakdown">
-        ${sub('N1','مُسلَّم', b.netSales - b.netSalesReplacement, ['NET_SALES_NORMAL'])}
-        ${sub('N2','بديل',   b.netSalesReplacement,               ['NET_SALES_REPLACEMENT'])}
+        ${sub({ key:'N1', label:'تسليم أساسي',  icon:'✅', value:b.netSales - b.netSalesReplacement, buckets:['NET_SALES_NORMAL'],      parentTotal:b.netSales, colorClass:'clr-green' })}
+        ${sub({ key:'N2', label:'تسليم استبدال', icon:'🔁', value:b.netSalesReplacement,               buckets:['NET_SALES_REPLACEMENT'], parentTotal:b.netSales, colorClass:'clr-green' })}
       </div>
     </div>
   `;
@@ -1004,7 +1135,7 @@ function renderIdentityCheck(b) {
   card.className = 'identity-card ' + (ok ? 'ok' : 'bad');
   card.innerHTML = ok
     ? `✅ الهوية الحسابية متوازنة: <span class="mono">${fmtMoney(b.totalValue)} = ${fmtMoney(b.inProgress)} + ${fmtMoney(b.lost)} + ${fmtMoney(b.netSales)}</span>`
-    : `⚠️ في اختلاف ${fmtMoney(diff)} بين إجمالي القيمة ومجموع المربعات — ده باج محتاج مراجعة في الكود، مش في الموديل. <span class="mono">${fmtMoney(b.totalValue)} ≠ ${fmtMoney(sum)}</span>`;
+    : `⚠️ في اختلاف ${fmtMoney(diff)} بين إجمالي المبيعات ومجموع المربعات — ده باج محتاج مراجعة في الكود، مش في الموديل. <span class="mono">${fmtMoney(b.totalValue)} ≠ ${fmtMoney(sum)}</span>`;
 }
 
 // ══════════════════════════════════════════════════════
@@ -1014,13 +1145,13 @@ function renderIdentityCheck(b) {
 // خريطة موحّدة لازم تتطابق مع BUCKET في الـ Worker حرفياً — أي bucket جديد هناك
 // لازم يتضاف هنا وإلا هيظهر بالكود الخام بدل التسمية العربية.
 const BUCKET_LABELS = {
-  RTO:                     { label: 'RTO',                  colour: 'var(--red)' },
-  CANCELLED:               { label: 'ملغي',                 colour: 'var(--red)' },
-  REMOVED:                 { label: 'محذوف قبل الشحن',      colour: 'var(--amber)' },
-  FINAL_RETURN:            { label: 'مرتجع نهائي',          colour: 'var(--red)' },
-  EXCHANGE_RETURN:         { label: 'مرتجع استبدال',        colour: 'var(--amber)' },
-  NET_SALES_NORMAL:        { label: 'مُسلَّم',               colour: 'var(--green)' },
-  NET_SALES_REPLACEMENT:   { label: 'بديل (مُسلَّم)',        colour: 'var(--green)' },
+  RTO:                     { label: 'مرتجع رفض الاستلام',   colour: 'var(--red)' },
+  CANCELLED:               { label: 'إلغاء قبل الشحن',      colour: 'var(--red)' },
+  REMOVED:                 { label: 'محذوف قبل الشحن',      colour: 'var(--red)' },
+  FINAL_RETURN:            { label: 'مرتجع بعد الإستلام',   colour: 'var(--red)' },
+  EXCHANGE_RETURN:         { label: 'مرتجع استبدال',        colour: 'var(--red)' },
+  NET_SALES_NORMAL:        { label: 'تسليم أساسي',          colour: 'var(--green)' },
+  NET_SALES_REPLACEMENT:   { label: 'تسليم استبدال',        colour: 'var(--green)' },
   IP_PENDING_CONFIRM:      { label: 'تحت التأكيد',          colour: 'var(--purple)' },
   IP_CONFIRMED_PREP:       { label: 'مؤكد / تحت التجهيز',    colour: 'var(--accent)' },
   IP_EXCHANGE_PREP:        { label: 'استبدال / تحت التجهيز', colour: 'var(--accent)' },
@@ -1052,11 +1183,11 @@ function showDetails(buckets, title, key) {
   state.detailsKey     = key;
   state.detailsOpen    = true;
   state.detailsLimit   = DETAILS_ROW_LIMIT;
+  state.detailsSearch  = '';
 
   document.getElementById('detailsSection').classList.add('open');
   renderBoxes();     // لتحديث التظليل على المربع المختار
   renderDetails();
-  document.getElementById('detailsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function toggleDetails() {
@@ -1066,7 +1197,7 @@ function toggleDetails() {
 
 function showMoreDetails() {
   state.detailsLimit += DETAILS_ROW_LIMIT;
-  renderDetails();
+  renderDetailsTableWrap();
 }
 
 function currentDetailRows() {
@@ -1074,6 +1205,28 @@ function currentDetailRows() {
   return (bs && bs.length) ? state.rows.filter(r => bs.includes(r.bucket)) : state.rows;
 }
 
+// §DETAILS::onDetailsSearch — يعيد رسم الجدول بس (مش صندوق البحث) عشان مايفقدش الفوكس
+function onDetailsSearch(value) {
+  state.detailsSearch = value;
+  state.detailsLimit  = DETAILS_ROW_LIMIT;
+  renderDetailsTableWrap();
+}
+
+function searchFilteredRows() {
+  const rows = currentDetailRows();
+  const q = (state.detailsSearch || '').trim().toLowerCase();
+  if (!q) return rows;
+  return rows.filter(r => {
+    const meta = BUCKET_LABELS[r.bucket];
+    const hay = [
+      r.orderName, r.orderId, r.sku, r.s1, r.s2,
+      meta ? meta.label : r.bucket,
+    ].filter(Boolean).join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+}
+
+// §DETAILS::renderDetails — الشِل الخارجي (صندوق البحث ثابت — بيتحط مرة واحدة بس)
 function renderDetails() {
   const scope = document.getElementById('detailsScope');
   const body  = document.getElementById('detailsBody');
@@ -1085,8 +1238,29 @@ function renderDetails() {
     return;
   }
 
-  const rows = currentDetailRows();
   scope.textContent = `— ${state.detailsTitle} · ${state.range.from} → ${state.range.to}`;
+
+  body.innerHTML = `
+    <div class="details-search-row">
+      <div class="details-search-wrap">
+        <input type="text" id="detailsSearchInput" class="details-search-input"
+               value="${esc(state.detailsSearch)}"
+               oninput="onDetailsSearch(this.value)">
+        <span class="details-search-icon">🔍</span>
+      </div>
+    </div>
+    <div id="detailsTableWrap"></div>
+  `;
+
+  renderDetailsTableWrap();
+}
+
+// §DETAILS::renderDetailsTableWrap — الجزء المتغيّر بس (الملخّص + الجدول) — بيتحدّث مع كل بحث/عرض المزيد
+function renderDetailsTableWrap() {
+  const wrap = document.getElementById('detailsTableWrap');
+  if (!wrap) return;
+
+  const rows = searchFilteredRows();
 
   const totalValue = rows.reduce((s, r) => s + (r.value || 0), 0);
   const totalQty   = rows.reduce((s, r) => s + (r.qty || 0), 0);
@@ -1097,11 +1271,11 @@ function renderDetails() {
       <span class="details-summary-item">عدد الصفوف: <b>${fmtInt(rows.length)}</b></span>
       <span class="details-summary-item">عدد الأوردرات: <b>${fmtInt(orderCount)}</b></span>
       <span class="details-summary-item">إجمالي الكمية: <b>${fmtInt(totalQty)}</b></span>
-      <span class="details-summary-item">إجمالي القيمة: <b>${fmtMoney(totalValue)}</b></span>
+      <span class="details-summary-item">إجمالي المبيعات: <b>${fmtMoney(totalValue)}</b></span>
     </div>`;
 
   if (!rows.length) {
-    body.innerHTML = summary + `<div class="details-empty">مفيش صفوف ضمن الفلتر ده في الفترة المختارة.</div>`;
+    wrap.innerHTML = summary + `<div class="details-empty">مفيش صفوف مطابقة${state.detailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.</div>`;
     return;
   }
 
@@ -1121,9 +1295,13 @@ function renderDetails() {
       <td>${esc(r.s2 || '—')}</td>
     </tr>`).join('');
 
-  body.innerHTML = summary + `
+  wrap.innerHTML = summary + `
     <div class="details-scroll">
       <table class="details-table">
+        <colgroup>
+          <col class="c-order"><col class="c-pieces"><col class="c-date"><col class="c-sku">
+          <col class="c-qty"><col class="c-value"><col class="c-bucket"><col class="c-s1"><col class="c-s2">
+        </colgroup>
         <thead>
           <tr>
             <th>رقم الأوردر</th>
