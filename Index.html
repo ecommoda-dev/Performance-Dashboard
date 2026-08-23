@@ -647,7 +647,7 @@
         <span class="freshness-text">جاري التحميل…</span>
       </div>
       <button class="hbtn" onclick="openAbout()">ℹ️ عن الأداة</button>
-      <button class="hbtn ver-btn" id="verBtn" onclick="openChangelog()">v2.1.3 📋</button>
+      <button class="hbtn ver-btn" id="verBtn" onclick="openChangelog()">v3.0.0 📋</button>
       <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
       <button class="hbtn" id="logoutBtn" onclick="doLogout()">🚪 خروج</button>
     </div>
@@ -808,20 +808,34 @@
     <div class="eco-modal-hdr"><span>📋 سجل التحديثات</span><button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="eco-modal-body">
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v2.1.3</span><span class="cl-ver-date">05-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge">v3.0.0</span><span class="cl-ver-date">23-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>شاشة تسجيل دخول</b> (اختيار الموظف + PIN من 4 أرقام) — نفس النمط الموحّد في باقي الأدوات: تسجيل أول مرة بإنشاء PIN، لوحة أرقام، دعم الكيبورد، وزرار <b>🚪 خروج</b> في الهيدر. كل دخول/خروج بيتسجّل في D1 (<code>tool = performance_dashboard</code>). ⚠️ محتاج D1 Binding اسمه <code>DB</code> على الـ Worker.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>زرار "عرض التفاصيل" في تاب الأوردرات مكانش بيفتح خالص.</b> السبب: <code>breakdownToggle()</code> كانت بتنادي <code>toggleBreakdown()</code> دايمًا حتى في تاب الأوردرات، فكانت بتكتب في state تاب المبيعات بينما الكروت بتقرا من state تاني — فالضغط مكانش بيعمل حاجة. الزرار بقى بياخد <code>scope</code> ('main' / 'orders') وبينادي الدالة الصح.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>"عرض التفاصيل" بقى بيفتح كل كروت التاب مرة واحدة</b> (والعكس) بدل كل كارت لوحده — في التابين. <code>state.openBreakdowns</code>/<code>openOrderBreakdowns</code> (Set) اتحوّلوا لـ <code>state.breakdownsOpen</code>/<code>orderBreakdownsOpen</code> (boolean). الوضع الافتراضي لسه: كله مطوي.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) حارس على ردود شوبيفاي</b> — <code>shopifyGQL()</code> كانت بترجّع <code>resp.json()</code> على طول من غير فحص، فأي فشل شبكة أو توكن منتهي كان ممكن يعدّي كـ"نجاح صامت" ببيانات فاضية ويطلّع رسالة خطأ مضلّلة. دلوقتي بيتفحص <code>resp.ok</code> + صلاحية الـ JSON + وجود <code>data</code>/<code>errors</code>.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) حراس قصّ بيانات المرتجعات</b> — <code>fetchStage2()</code> مكانش فيها أي فحص <code>hasNextPage</code> على <code>returns</code>/<code>returnLineItems</code>/<code>exchangeLineItems</code> (كان موجود بس على <code>lineItems</code> في المرحلة الأولى)، فأوردر بدورات أكتر من الحد كان ممكن يترجّع بأرقام ناقصة بصمت. دلوقتي الطلب بيقف برسالة فيها رقم الأوردر.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) حد حجم الكاش</b> — <code>writeCache()</code> بقى بيتحقق من حد الـ 25MB بتاع KV قبل الكتابة ويطلّع رسالة واضحة ("قصّر الفترة") بدل فشل صامت في الكتابة.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>تحديث الواجهة للمعيار الحالي:</b> شكل التابات الرئيسية (عرض كامل ومقسوم بالتساوي)، نوافذ "عن الأداة" و"سجل التحديثات" على الشِل الموحّد (عرض 90% + السطر الأول ثابت عند التمرير)، زرار الإغلاق ✕ بإطار أحمر، حقل <b>ADMIN WORKER URL</b> في الإعدادات، ورقم النسخة بقى من مصدر واحد (<code>TOOL_VERSION</code>).</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>توحيد الخطوط والألوان:</b> شيل بقايا خط IBM Plex Mono (بما فيها الأرقام المرسومة على الدونات والبار)، ولون "مؤكد (خرج للشحن)" في الرسوم اتغيّر للون المعتمد في البالتة.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>رقم الأوردر في جداول التفاصيل بقى بيعدّي على <code>orderLink()</code> — بيعرض الرقم كنص عادي لو الـ ID ناقص بدل لينك مكسور. ومربع البحث بيتلوّن طول ما فيه نص.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v2.1.3</span><span class="cl-ver-date">05-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>توسيط 100% لكل خلايا جدول التفاصيل</b> (التابين) — بدون أي استثناء، بما فيها أعمدة الأرقام (عدد قطع الأوردر، التاريخ، الكمية، القيمة) اللي كانت محاذية يمين في v2.1.2. صف العنوان بقى موسّط بالكامل هو كمان (مفيش عمود عنوانه مختلف عن بياناته).</span></li>
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v2.1.2</span><span class="cl-ver-date">05-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v2.1.2</span><span class="cl-ver-date">05-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>خطوط عمودية باهتة بين أعمدة جدول التفاصيل</b> (التابين) — نفس تنسيق الخط الأفقي الموجود بالظبط (لون وسمك)، بتفصل كل عمود عن اللي جنبه بشكل صريح.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>كل خلايا جدول التفاصيل بقت Centered افتراضيًا</b> (العنوان والبيانات، نص وبادجات) — إلا أعمدة الأرقام (عدد قطع الأوردر · التاريخ · الكمية · القيمة) بقت <b>محاذية يمين</b> (بدل شمال) بدل التوسيط، عشان تفضل خانات الآحاد/العشرات قابلة لمقارنة سريعة بالعين مع باقي الصفوف، مع الاتساق مع اتجاه قراءة باقي الجدول (يمين).</span></li>
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v2.1.1</span><span class="cl-ver-date">05-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v2.1.1</span><span class="cl-ver-date">05-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>تعارض حالة WhatsApp-Confirmed / WhatsApp-CANCELLED بين التابين</b> (مثال حي: أوردر #49660) — <code>normalBucket()</code> في الـ Worker بقى بيصنّفها صح "تحت التأكيد" بدل "مؤكد (تحت التجهيز)"، بنفس منطق تاب الأوردرات بالظبط. CACHE_VERSION v5→v6. التصحيح المؤقت client-side (<code>reclassifyMainRows</code> من v2.1.0) اتشال بعد ما بقى الإصلاح من الجذر في الـ Worker.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>قطع في دورة إرجاع وصلت فيزيائيًا (S2=Returned) لكن لسه مش مُقفلة رسميًا</b> كانت بتقع في "خارج التصنيف" بدل "مرتجع/خرج للشحن" (مثال حي: أوردر #46975) — <code>stageFromS2()</code> بقى يتعرّف على 'Returned' كمرحلة SHIPPED، بنفس معاملة 'In-Return'.</span></li>
@@ -829,7 +843,7 @@
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v2.1.0</span><span class="cl-ver-date">04-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v2.1.0</span><span class="cl-ver-date">04-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>تسمية التاب الأول من "الرئيسية" إلى <b>"المبيعات"</b> في كل مكان في الواجهة.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الـ 6 مربعات الرئيسية في صف واحد</b> بدل صفين (في التابين) — الدونات والبار نزلوا تحت في صف منفصل خاص بيهم.</span></li>
@@ -841,7 +855,7 @@
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v2.0.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v2.0.0</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تاب "الأوردرات"</b> جنب "الرئيسية" — صفحة كاملة تعدّ الأوردرات (مش الجنيه/القطعة) في كل مرحلة: تحت التأكيد · مؤكد/استبدال/مرتجع (تحت التجهيز) · مؤكد/استبدال/مرتجع (خرج للشحن) · خسائر (إلغاء قبل الشحن/مرتجع رفض استلام/مرتجع كامل بعد الاستلام) · تسليمات (أساسي/استبدال/استرجاع جزئي).</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>نفس نداء <code>get_data</code> بيرجّع دلوقتي <code>orderBoxes</code> + <code>orderRows</code> جنب <code>boxes</code>/<code>rows</code> الأصليين — من نفس بيانات شوبيفاي المجابة أصلاً، <b>صفر</b> نداء GraphQL إضافي وصفر تغيير في الصفحة الرئيسية. التبديل بين التابين فوري (بيانات محمّلة مسبقاً)، مفيش أي fetch جديد.</span></li>
@@ -850,21 +864,21 @@
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v1.4.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v1.4.0</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مفتاح "طريقة العرض" (💰 قيمة / 🔢 عدد القطع)</b> بجانب فلتر التاريخ. نفس المربعات بالظبط (الرئيسية والفرعية + الدونات + بطاقة الهوية) بس الأرقام بتتحول من إجمالي القيمة (جنيه) لإجمالي عدد القطع — بدون أي نداء إضافي للـ Worker: الحساب كله client-side من نفس <code>rows[]</code> اللي أصلاً محمّلة (كل سطر فيه bucket + qty + value).</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>الفترة السابقة (اللي بتتحسب منها الـ Δ%) بقت بتحتفظ بـ <code>rows</code> بتاعتها كمان (<code>state.prevRows</code>) — كانت بتتجاب من الـ Worker أصلاً وبتترمى، دلوقتي بتتستخدم لحساب مقارنة عدد القطع.</span></li>
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v1.3.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v1.3.0</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>شيل النسب المئوية من المربعات الأساسية</b> (تحت التأكيد · مؤكد تحت التجهيز · مؤكد خرج للشحن · الخسائر · صافي المبيعات). النسب في المربعات الفرعية بقيت زي ما هي.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>Donut chart</b> (Chart.js) في المساحة الفاضية — بيوزّع "إجمالي المبيعات" على المربعات الأساسية الخمسة بنفس ألوانها. الليجند والشرائح قابلين للضغط ويفتحوا نفس تفاصيل المربع في الجدول تحت.</span></li>
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v1.2.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v1.2.0</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>مربع "إجمالي القيمة" اتسمّى "إجمالي المبيعات"</b> في كل مكان في الأداة.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>مربع "قيد التنفيذ" اتلغى وانقسم لـ 3 مربعات رئيسية مستقلة:</b> "تحت التأكيد" (مفرد)، "مؤكد (تحت التجهيز)" (3 فروع: مؤكد/استبدال/مرتجع)، "مؤكد (خرج للشحن)" (3 فروع: مؤكد/استبدال/مرتجع). القطعة "خارج التصنيف" ظاهرة كفرع تحذيري داخل "مؤكد (تحت التجهيز)".</span></li>
@@ -878,14 +892,14 @@
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v1.1.1</span><span class="cl-ver-date">03-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v1.1.1</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>شيل تأكيد حالة الشحن عن مربعي "مرتجع / تحت التجهيز" و"مرتجع / خرج للشحن" — القطعة المرتجعة Fulfilled دايماً بحكم إنها وصلت العميل قبل ما ترجع، فالتوقع كان بيولّد تحذير كاذب على كل صف مرتجع (اتأكد على #49572)</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>CACHE_VERSION → v4</span></li>
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v1.1.0</span><span class="cl-ver-date">03-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v1.1.0</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>تصحيح في الأرقام مش تسمية:</b> القطع اللي في دورة إرجاع/استبدال مفتوحة كانت بتتحسب "صافي مبيعات" لمجرد إن S1=Delivered — دلوقتي بقت "قيد التنفيذ". مثال حي: #49572 قطعة MRX155/Green/43</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>"قيد التنفيذ" اتقسم لـ 7 مربعات فرعية: تحت التأكيد · مؤكد/تحت التجهيز · استبدال/تحت التجهيز · مرتجع/تحت التجهيز · مؤكد/خرج للشحن · استبدال/خرج للشحن · مرتجع/خرج للشحن (+ مربع ثامن للحالات الشاذة)</span></li>
@@ -897,14 +911,14 @@
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v1.0.1</span><span class="cl-ver-date">03-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v1.0.1</span><span class="cl-ver-date">03-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>Drill-down: الضغط على أي مربع بيفتح جدول تفصيلي (رقم الأوردر كهايبرلينك لشوبيفاي أدمن، التاريخ، SKU، القيمة، حالة القطعة، حالة الأوردر)</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>الـ Worker بقى يرجّع rows[] جنب boxes — CACHE_VERSION اترفع لـ v2</span></li>
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v1.0.0</span><span class="cl-ver-date">02-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v1.0.0</span><span class="cl-ver-date">02-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>إطلاق أول نسخة — الشاشة الرئيسية، مبنية على sales-dashboard-overview-data-contract-v2.md (نموذج القطعة Q/C/P)</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>4 مربعات بالهوية الحسابية المضمونة (مربع 1 = مجموع 2+3+4) + بطاقة تحقق الهوية</span></li>
@@ -1051,10 +1065,11 @@ Bar chart مقارنة المربعات الأساسية + أرقام على ا�
 تصنيف الأوردر بالكامل (bucket واحد)│ Worker │ §AGGREGATE-ORDERS │ classifyOrderForCounts
 تجميع الأوردرات → orderBoxes     │ Worker │ §AGGREGATE-ORDERS │ computeOrderBoxes
 صف تفصيل واحد لكل أوردر          │ Worker │ §AGGREGATE-ORDERS │ pushOrderRow
-──────────────── v2.2.0 — تسجيل الدخول (D1 Auth) ──────────────
-شاشة الدخول (اختيار موظف + PIN)  │ HTML   │ §LOGIN-JS  │ showLoginScreen / doLogin
-تسجيل الخروج + رجوع لشاشة الدخول │ HTML   │ §LOGIN-JS  │ doLogout
-التحقق من PIN + تسجيل دخول/خروج  │ Worker │ §AUTH      │ verifyEmployee / checkEmployee / writeLog
+──────────────── v3.0.0 — تسجيل الدخول (D1 Auth) ──────────────
+شاشة الدخول (اختيار موظف + PIN)  │ HTML   │ §AUTH-JS   │ loadEmployeesList / handlePrimaryLoginAction / finishLogin
+تسجيل الخروج + رجوع لشاشة الدخول │ HTML   │ §AUTH-JS   │ doLogout
+التحقق من PIN + تسجيل دخول/خروج  │ Worker │ §HANDLER   │ verifyEmployee / checkEmployee / writeLog
+طيّ/فتح كل كروت التاب مرة واحدة   │ HTML   │ §TOOL-JS   │ breakdownToggle(isOpen, scope) / toggleBreakdown / toggleOrderBreakdown
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1082,13 +1097,16 @@ state.orderDetailsKey / orderDetailsBuckets / orderDetailsSearch / orderDetailsL
   نفس نمط state.details* بالظبط بس لصفحة الأوردرات — مستقلة عشان فتح تفاصيل في
   تاب معين ما يأثرش على تظليل/فلترة التاب التاني
 
-v2.1.0 — KEY VARIABLES (Collapsible sub-boxes)
-state.openBreakdowns / state.openOrderBreakdowns = Set() بمفاتيح المربعات الرئيسية
-  المفتوحة حالياً (IP_PREP, IP_SHIP, LOST, NET) / (OB_PREP, OB_SHIP, OB_LOST, OB_DELIV)
-  — فاضي افتراضياً (كل حاجة مطوية). toggleBreakdown(key) / toggleOrderBreakdown(key)
-  بيضيفوا/يشيلوا من الـ Set وبيعيدوا الرندر.
+v3.0.0 — KEY VARIABLES (Collapsible sub-boxes — مفتاح واحد لكل تاب)
+state.breakdownsOpen / state.orderBreakdownsOpen = boolean لكل تاب — الضغط على
+  "عرض التفاصيل" في أي كارت بيفتح **كل** كروت التاب مرة واحدة، والعكس.
+  false افتراضياً (كله مطوي). toggleBreakdown() / toggleOrderBreakdown()
+  بيقلبوا القيمة وبيعيدوا الرندر.
+  ⚠️ كان قبل كده Set() لكل كارت لوحده (v2.1.0) — واتغيّر بقرار أحمد 23-08-2026.
+breakdownToggle(isOpen, scope) — scope = 'main' | 'orders'. الـ scope إلزامي:
+  من غيره الزرار بينادي دالة تاب المبيعات حتى في تاب الأوردرات (سبب باج v3.0.0).
 
-v2.2.0 — KEY VARIABLES (تسجيل الدخول)
+v3.0.0 — KEY VARIABLES (تسجيل الدخول)
 currentEmployee = username الموظف الحالي — في الذاكرة فقط (JS variable)، مش
   localStorage ولا sessionStorage. بيتصفّر برجوع شاشة الدخول عند أي reload.
 TOOL_NAME = 'performance_dashboard' — قيمة tool في جدول logs (D1)
@@ -1142,7 +1160,7 @@ NOTES
 const LS_URL       = 'perfdash_worker_url';
 const LS_SECRET    = 'perfdash_worker_secret';
 const LS_ADMIN_URL = 'admin_worker_url';       // shared across all tools — never rename
-const TOOL_VERSION = 'v2.1.3';
+const TOOL_VERSION = 'v3.0.0';
 const CURRENCY_SUFFIX = 'ج.م';
 const QTY_SUFFIX = 'قطعة';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
@@ -1328,18 +1346,22 @@ const state = {
   orderDetailsLimit: DETAILS_ROW_LIMIT,
   orderDetailsSearch: '',
 
-  // ══ v2.1.0 — المربعات الفرعية Collapsible (الوضع الافتراضي: كله مطوي) ══
-  openBreakdowns: new Set(),       // مفاتيح المربعات الرئيسية المفتوحة في تاب المبيعات (IP_PREP، IP_SHIP, LOST، NET)
-  openOrderBreakdowns: new Set(),  // نفس الفكرة لتاب الأوردرات (OB_PREP، OB_SHIP، OB_LOST، OB_DELIV)
+  // ══ v3.0.0 — المربعات الفرعية Collapsible: مفتاح واحد لكل تاب (كله بيتفتح/بيتقفل مع بعض) ══
+  // كان قبل كده Set() بمفاتيح المربعات المفتوحة (كل كارت لوحده) — اتغيّر بقرار
+  // أحمد 23-08-2026: الضغط على "عرض التفاصيل" في أي كارت بيفتح كل كروت التاب
+  // مرة واحدة، والعكس. الوضع الافتراضي: كله مطوي.
+  breakdownsOpen: false,       // تاب المبيعات — كل الكروت (IP_PREP · IP_SHIP · LOST · NET)
+  orderBreakdownsOpen: false,  // تاب الأوردرات — كل الكروت (OB_PREP · OB_SHIP · OB_LOST · OB_DELIV)
 };
 
-// §TOOL-JS::toggleBreakdown — يطوي/يفتح مربع فرعي واحد بدون فتح تفاصيل الكارت (stopPropagation في الاستدعاء)
-function toggleBreakdown(key) {
-  if (state.openBreakdowns.has(key)) state.openBreakdowns.delete(key); else state.openBreakdowns.add(key);
+// §TOOL-JS::toggleBreakdown — يطوي/يفتح **كل** كروت التاب مرة واحدة
+// (stopPropagation في الاستدعاء عشان مايفتحش تفاصيل الكارت بالغلط)
+function toggleBreakdown() {
+  state.breakdownsOpen = !state.breakdownsOpen;
   renderBoxes();
 }
-function toggleOrderBreakdown(key) {
-  if (state.openOrderBreakdowns.has(key)) state.openOrderBreakdowns.delete(key); else state.openOrderBreakdowns.add(key);
+function toggleOrderBreakdown() {
+  state.orderBreakdownsOpen = !state.orderBreakdownsOpen;
   renderOrderBoxes();
 }
 
@@ -1711,8 +1733,13 @@ function pctBadge(value, total) {
 }
 
 // ─── §TOOL-JS::breakdownToggle — زرار طيّ/فتح المربعات الفرعية (Collapsed افتراضياً) ───
-function breakdownToggle(key, isOpen) {
-  return `<button type="button" class="breakdown-toggle${isOpen ? ' open' : ''}" onclick="event.stopPropagation(); toggleBreakdown('${key}')">
+// v3.0.0: بياخد scope ('main' | 'orders') بدل مفتاح الكارت — الزرار بقى بيفتح/يقفل
+// كل كروت التاب مرة واحدة. ⚠️ قبل كده كان بينادي toggleBreakdown() دايمًا حتى في
+// تاب الأوردرات، فكان بيكتب في state الخاص بتاب المبيعات وكروت الأوردرات
+// مابتفتحش خالص (باج مبلّغ من أحمد 23-08-2026).
+function breakdownToggle(isOpen, scope = 'main') {
+  const fn = scope === 'orders' ? 'toggleOrderBreakdown()' : 'toggleBreakdown()';
+  return `<button type="button" class="breakdown-toggle${isOpen ? ' open' : ''}" onclick="event.stopPropagation(); ${fn}">
     <span class="bt-caret">▶</span><span>${isOpen ? 'إخفاء التفاصيل' : 'عرض التفاصيل'}</span>
   </button>`;
 }
@@ -1721,7 +1748,7 @@ function breakdownToggle(key, isOpen) {
 function renderBoxes() {
   const b = activeBoxes(), pb = activePrevBoxes();
   const cardActive = key => state.detailsKey === key ? ' drill-active' : '';
-  const ob = key => state.openBreakdowns.has(key);
+  const isOpen = state.breakdownsOpen;   // v3.0.0 — مفتاح واحد لكل كروت التاب
 
   // مجاميع المربعات الجديدة (نفس أرقام b — بس مقسّمة بصرياً على 3 مربعات بدل مربع واحد)
   const confirmedPrepTotal    = (b.ipConfirmedPrep || 0) + (b.ipExchangePrep || 0) + (b.ipReturnPrep || 0) + (b.ipUnclassified || 0);
@@ -1755,8 +1782,8 @@ function renderBoxes() {
       </div>
       <div class="kpi-value-row"><div class="kpi-value">${fmtAmt(confirmedPrepTotal)}</div>${pctBadge(confirmedPrepTotal, b.totalValue)}</div>
       ${delta(confirmedPrepTotal, prevConfirmedPrepTotal, 'lower_better')}
-      ${breakdownToggle('IP_PREP', ob('IP_PREP'))}
-      <div class="kpi-breakdown${ob('IP_PREP') ? ' open' : ''}">
+      ${breakdownToggle(isOpen, 'main')}
+      <div class="kpi-breakdown${isOpen ? ' open' : ''}">
         ${sub({ key:'IP2', label:'أساسي',    icon:'🧾', value:b.ipConfirmedPrep, buckets:['IP_CONFIRMED_PREP'], parentTotal:confirmedPrepTotal })}
         ${sub({ key:'IP3', label:'استبدال', icon:'🔁', value:b.ipExchangePrep,  buckets:['IP_EXCHANGE_PREP'],  parentTotal:confirmedPrepTotal })}
         ${sub({ key:'IP4', label:'مرتجع',   icon:'↩️', value:b.ipReturnPrep,    buckets:['IP_RETURN_PREP'],    parentTotal:confirmedPrepTotal, colorClass:'clr-red' })}
@@ -1771,8 +1798,8 @@ function renderBoxes() {
       </div>
       <div class="kpi-value-row"><div class="kpi-value">${fmtAmt(confirmedShippedTotal)}</div>${pctBadge(confirmedShippedTotal, b.totalValue)}</div>
       ${delta(confirmedShippedTotal, prevConfirmedShippedTotal, 'lower_better')}
-      ${breakdownToggle('IP_SHIP', ob('IP_SHIP'))}
-      <div class="kpi-breakdown${ob('IP_SHIP') ? ' open' : ''}">
+      ${breakdownToggle(isOpen, 'main')}
+      <div class="kpi-breakdown${isOpen ? ' open' : ''}">
         ${sub({ key:'IP5', label:'أساسي',    icon:'🚚', value:b.ipConfirmedShipped, buckets:['IP_CONFIRMED_SHIPPED'], parentTotal:confirmedShippedTotal })}
         ${sub({ key:'IP6', label:'استبدال', icon:'🔁', value:b.ipExchangeShipped,  buckets:['IP_EXCHANGE_SHIPPED'],  parentTotal:confirmedShippedTotal })}
         ${sub({ key:'IP7', label:'مرتجع',   icon:'↩️', value:b.ipReturnShipped,    buckets:['IP_RETURN_SHIPPED'],    parentTotal:confirmedShippedTotal, colorClass:'clr-red' })}
@@ -1786,8 +1813,8 @@ function renderBoxes() {
       </div>
       <div class="kpi-value-row"><div class="kpi-value clr-red">${fmtAmt(b.lost)}</div>${pctBadge(b.lost, b.totalValue)}</div>
       ${delta(b.lost, pb.lost, 'lower_better')}
-      ${breakdownToggle('LOST', ob('LOST'))}
-      <div class="kpi-breakdown${ob('LOST') ? ' open' : ''}">
+      ${breakdownToggle(isOpen, 'main')}
+      <div class="kpi-breakdown${isOpen ? ' open' : ''}">
         ${sub({ key:'L3', label:'محذوف قبل الشحن',    icon:'🗑️', value:b.lostRemoved,        buckets:['REMOVED'],         parentTotal:b.lost, colorClass:'clr-red' })}
         ${sub({ key:'L1', label:'إلغاء قبل الشحن',    icon:'❌', value:b.lostCancelled,      buckets:['CANCELLED'],      parentTotal:b.lost, colorClass:'clr-red' })}
         ${sub({ key:'L2', label:'مرتجع رفض الاستلام', icon:'🚫', value:b.lostRTO,            buckets:['RTO'],            parentTotal:b.lost, colorClass:'clr-red' })}
@@ -1803,8 +1830,8 @@ function renderBoxes() {
       </div>
       <div class="kpi-value-row"><div class="kpi-value clr-green">${fmtAmt(b.netSales)}</div>${pctBadge(b.netSales, b.totalValue)}</div>
       ${delta(b.netSales, pb.netSales)}
-      ${breakdownToggle('NET', ob('NET'))}
-      <div class="kpi-breakdown${ob('NET') ? ' open' : ''}">
+      ${breakdownToggle(isOpen, 'main')}
+      <div class="kpi-breakdown${isOpen ? ' open' : ''}">
         ${sub({ key:'N1', label:'تسليم أساسي',  icon:'✅', value:b.netSales - b.netSalesReplacement, buckets:['NET_SALES_NORMAL'],      parentTotal:b.netSales, colorClass:'clr-green' })}
         ${sub({ key:'N2', label:'تسليم استبدال', icon:'🔁', value:b.netSalesReplacement,               buckets:['NET_SALES_REPLACEMENT'], parentTotal:b.netSales, colorClass:'clr-green' })}
       </div>
@@ -2268,7 +2295,7 @@ function renderOrderBoxes() {
   const b  = state.orderBoxes || {};
   const pb = state.prevOrderBoxes || {};
   const cardActive = key => state.orderDetailsKey === key ? ' drill-active' : '';
-  const ob = key => state.openOrderBreakdowns.has(key);
+  const isOpen = state.orderBreakdownsOpen;   // v3.0.0 — مفتاح واحد لكل كروت التاب
 
   const prepTotal     = (b.prepConfirmed||0) + (b.prepExchange||0) + (b.prepReturn||0) + (b.unclassified||0);
   const shippedTotal  = (b.shippedConfirmed||0) + (b.shippedExchange||0) + (b.shippedReturn||0);
@@ -2309,8 +2336,8 @@ function renderOrderBoxes() {
       </div>
       <div class="kpi-value-row"><div class="kpi-value">${fmtInt(prepTotal)}</div>${pctBadge(prepTotal, b.totalOrders)}</div>
       ${delta(prepTotal, prevPrepTotal, 'lower_better')}
-      ${breakdownToggle('OB_PREP', ob('OB_PREP'))}
-      <div class="kpi-breakdown${ob('OB_PREP') ? ' open' : ''}">
+      ${breakdownToggle(isOpen, 'orders')}
+      <div class="kpi-breakdown${isOpen ? ' open' : ''}">
         ${orderSub({ key:'OB2', label:'أساسي',   icon:'🧾', value:b.prepConfirmed, buckets:['PREP_CONFIRMED'], parentTotal:prepTotal })}
         ${orderSub({ key:'OB3', label:'استبدال', icon:'🔁', value:b.prepExchange,  buckets:['PREP_EXCHANGE'],  parentTotal:prepTotal })}
         ${orderSub({ key:'OB4', label:'مرتجع',   icon:'↩️', value:b.prepReturn,    buckets:['PREP_RETURN'],    parentTotal:prepTotal, colorClass:'clr-red' })}
@@ -2325,8 +2352,8 @@ function renderOrderBoxes() {
       </div>
       <div class="kpi-value-row"><div class="kpi-value">${fmtInt(shippedTotal)}</div>${pctBadge(shippedTotal, b.totalOrders)}</div>
       ${delta(shippedTotal, prevShippedTotal, 'lower_better')}
-      ${breakdownToggle('OB_SHIP', ob('OB_SHIP'))}
-      <div class="kpi-breakdown${ob('OB_SHIP') ? ' open' : ''}">
+      ${breakdownToggle(isOpen, 'orders')}
+      <div class="kpi-breakdown${isOpen ? ' open' : ''}">
         ${orderSub({ key:'OB5', label:'أساسي',   icon:'🚚', value:b.shippedConfirmed, buckets:['SHIPPED_CONFIRMED'], parentTotal:shippedTotal })}
         ${orderSub({ key:'OB6', label:'استبدال', icon:'🔁', value:b.shippedExchange,  buckets:['SHIPPED_EXCHANGE'],  parentTotal:shippedTotal })}
         ${orderSub({ key:'OB7', label:'مرتجع',   icon:'↩️', value:b.shippedReturn,    buckets:['SHIPPED_RETURN'],    parentTotal:shippedTotal, colorClass:'clr-red' })}
@@ -2340,8 +2367,8 @@ function renderOrderBoxes() {
       </div>
       <div class="kpi-value-row"><div class="kpi-value clr-red">${fmtInt(lostTotal)}</div>${pctBadge(lostTotal, b.totalOrders)}</div>
       ${delta(lostTotal, prevLostTotal, 'lower_better')}
-      ${breakdownToggle('OB_LOST', ob('OB_LOST'))}
-      <div class="kpi-breakdown${ob('OB_LOST') ? ' open' : ''}">
+      ${breakdownToggle(isOpen, 'orders')}
+      <div class="kpi-breakdown${isOpen ? ' open' : ''}">
         ${orderSub({ key:'OL1', label:'إلغاء قبل الشحن',         icon:'❌', value:b.lostCancelled,  buckets:['LOST_CANCELLED'],   parentTotal:lostTotal, colorClass:'clr-red' })}
         ${orderSub({ key:'OL2', label:'مرتجع رفض الاستلام',      icon:'🚫', value:b.lostRTO,        buckets:['LOST_RTO'],         parentTotal:lostTotal, colorClass:'clr-red' })}
         ${orderSub({ key:'OL3', label:'مرتجع كامل بعد الاستلام', icon:'↩️', value:b.lostFullReturn, buckets:['LOST_FULL_RETURN'], parentTotal:lostTotal, colorClass:'clr-red' })}
@@ -2355,8 +2382,8 @@ function renderOrderBoxes() {
       </div>
       <div class="kpi-value-row"><div class="kpi-value clr-green">${fmtInt(deliveryTotal)}</div>${pctBadge(deliveryTotal, b.totalOrders)}</div>
       ${delta(deliveryTotal, prevDeliveryTotal)}
-      ${breakdownToggle('OB_DELIV', ob('OB_DELIV'))}
-      <div class="kpi-breakdown${ob('OB_DELIV') ? ' open' : ''}">
+      ${breakdownToggle(isOpen, 'orders')}
+      <div class="kpi-breakdown${isOpen ? ' open' : ''}">
         ${orderSub({ key:'OD1', label:'تسليم أساسي',          icon:'✅', value:b.deliveryBasic,         buckets:['DELIVERY_BASIC'],          parentTotal:deliveryTotal, colorClass:'clr-green' })}
         ${orderSub({ key:'OD2', label:'تسليم + استبدال',      icon:'🔁', value:b.deliveryExchange,      buckets:['DELIVERY_EXCHANGE'],       parentTotal:deliveryTotal, colorClass:'clr-green' })}
         ${orderSub({ key:'OD3', label:'تسليم + استرجاع جزئي', icon:'↩️', value:b.deliveryPartialReturn, buckets:['DELIVERY_PARTIAL_RETURN'], parentTotal:deliveryTotal, colorClass:'clr-green' })}
