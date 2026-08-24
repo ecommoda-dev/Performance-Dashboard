@@ -1,1 +1,56 @@
-# Performance-Dashboard
+<div dir="rtl" style="text-align: right;">
+
+# لوحة الأداء — Performance Dashboard
+
+![version](https://img.shields.io/badge/version-v1.0.0-blue)
+
+داشبورد **قراءة فقط** بيجمّع بيانات أوردرات شوبيفاي لفترة زمنية محددة على
+مستويين مستقلين تمامًا — تقييم بالقطعة (فلوس) وعدّ الأوردرات — مع كاش على
+Cloudflare KV.
+
+## الروابط
+
+| | |
+|---|---|
+| الواجهة | <https://ecommoda-dev.github.io/Performance-Dashboard/> |
+| الـ Worker | `https://performance-dashboard-worker.ecommoda-dev.workers.dev` |
+
+## محتويات الريبو
+
+| الملف | إيه هو |
+|---|---|
+| `index.js` | كود الـ Worker — `v3.0.0` |
+| `wrangler.toml` | إعدادات النشر — الاسم و الـ bindings و الـ vars |
+| `index.html` | الواجهة — `v3.0.0` |
+| `Index.html` | صفحة تحويل للرابط القديم (بحرف كبير) — مفيهاش أي منطق |
+| `CLAUDE.md` | قواعد الأداة — بتتحمّل في كل جلسة Claude |
+| `.gitignore` | القياسي |
+
+> **نسخة الـ Worker ≠ نسخة الواجهة.** قطعتين منفصلتين، طبيعي يختلفوا.
+> في النسخة دي الاتنين `v3.0.0` لأنهم اتحرّكوا مع بعض.
+
+## النشر
+
+الاتنين بينشروا **أوتوماتيك** من `main` — مفيش أي رفع يدوي:
+
+```
+push على main ─┬─→ Cloudflare Workers Builds → الـ Worker لايف (~٢٣ ثانية)
+               └─→ GitHub Pages              → الواجهة لايف (دقيقة–اتنين)
+```
+
+> ⚠️ **ممنوع نسخ/لصق كود في داشبورد Cloudflare بعد ربط الريبو.** أول push جاي
+> بيمسحه. الريبو هو المصدر الوحيد.
+
+## الإعداد عند الموظف
+
+الواجهة مبتعرفش عنوان الـ Worker من نفسها — الموظف بيدخله مرة واحدة من زرار
+**الإعدادات** (بيتحفظ في `localStorage`)، هو و `WORKER_SECRET`.
+
+## التفاصيل
+
+كل حاجة تانية — الـ endpoints، الـ D1، الـ CORS، الثوابت المقفولة، الفخاخ،
+والمسائل المفتوحة — في [`CLAUDE.md`](./CLAUDE.md).
+
+آخر تحديث: 24-08-2026 — 19:30
+
+</div>
