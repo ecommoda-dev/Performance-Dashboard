@@ -1,9 +1,13 @@
+<div dir="rtl" style="text-align: right;">
+
 # لوحة الأداء (`Performance-Dashboard`)
+
+![version](https://img.shields.io/badge/version-v1.1.0-blue)
 
 **بتعمل إيه:** داشبورد قراءة فقط بيجمّع بيانات أوردرات شوبيفاي على مستويين مستقلين —
 تقييم بالقطعة (فلوس) وعدّ الأوردرات — لفترة زمنية محددة، مع كاش على KV.
 **مين بيستخدمها:** إدارة · حسابات
-**الإصدار:** Worker `v3.0.0` · الواجهة `v3.0` ← الاتنين مستقلين، طبيعي يختلفوا
+**الإصدار:** Worker `v3.0.0` · الواجهة `v3.0.0` ← الاتنين مستقلين، طبيعي يختلفوا
 
 ## الروابط
 
@@ -12,6 +16,9 @@
 الـ Worker : https://performance-dashboard-worker.ecommoda-dev.workers.dev
 اسم الـ Worker في الداشبورد: performance-dashboard-worker   ← لازم يطابق name في wrangler.toml
 ```
+
+> عنوان الـ Worker **مش hardcoded في الواجهة** — الموظف بيدخله من الإعدادات
+> وبيتحفظ في `localStorage` (`perfdash_worker_url`)، هو و `WORKER_SECRET`.
 
 ## الـ Endpoints
 
@@ -44,8 +51,8 @@ type  : login · logout          ← دول بس، مفيش أي type تاني �
 ## المضبوط فعليًا في الداشبورد
 
 ```
-Bindings : DB       → ecommoda-dev-logs        (من wrangler.toml)
-           DASH_KV  → KV namespace (الكاش)     ⚠️ اقرا "فخاخ الأداة دي" تحت
+Bindings : DB       → ecommoda-dev-logs                       (من wrangler.toml)
+           DASH_KV  → d38bb41fa5a74f7b9ce116b23f5446e7        (من wrangler.toml)
 Secrets  : WORKER_SECRET · CLIENT_ID · CLIENT_SECRET     ← في الداشبورد، مش في الريبو
 Vars     : SHOP_DOMAIN · LOCATION_ID                     ← من [vars] في wrangler.toml
 Build watch paths : * (الافتراضي) — لسه متضيّقتش
@@ -78,18 +85,28 @@ CACHE_VERSION v6 · MAX_CACHE_BYTES 25MB
 (فاضي)
 ```
 
+## إثبات إن النقل نضيف
+
+```
+index.js    md5 b9cb0839cff7387091fa252e1a14decf   ← مطابق لنسخة كلاودفلير بايت ببايت
+index.html  blob SHA 15e3af845754036eb42875c594c1c6f127eff405
+            ← نفس الـ blob SHA بتاع Index.html القديم قبل الرينيم = صفر تعديل
+```
+
 ## فخاخ الأداة دي
 
 - **`DASH_KV` هو أخطر حاجة في النقل ده.** `wrangler deploy` تعريفي: أي binding مش
   مكتوب في `wrangler.toml` **بيتشال** عند أول نشر من git، حتى لو كان متضاف يدويًا
   في الداشبورد. لو `DASH_KV` اتشال → `env.DASH_KV` = `undefined` → `get_data`
-  بيرمي على كل نداء. الـ binding معرّف في `wrangler.toml`، بس **الـ id لسه
-  `REPLACE_WITH_DASH_KV_NAMESPACE_ID`** — لازم يتملا بالقيمة الحقيقية من
-  Cloudflare → Storage & Databases → KV **قبل** ربط الريبو بالـ Worker.
-  (الـ id مش موجود في `ecommoda-constants` — ضيفه هناك لما تجيبه.)
+  بيرمي على كل نداء. الـ binding والـ id الحقيقي متكتبين في `wrangler.toml` —
+  **ما تشيلهمش ولا تعدّلهم**.
 - **`clear_cache` من غير `dateFrom`/`dateTo` بيمسح كاش الأداة كله** (`list` بـ prefix
   `dash:performance_dashboard:` ثم `delete` على كل مفتاح). مش destructive — بيعاد
   حسابه — بس بيكلّف نداءات GraphQL كاملة لكل فترة بعدها.
+- **`index.html` بحروف صغيرة إجباري.** GitHub Pages بيدوّر على `index.html` كملف
+  افتراضي للمجلد — `Index.html` بحرف كبير بيدي **404** على الرابط المختصر.
+  الـ `Index.html` الموجود دلوقتي **صفحة تحويل بس** (`meta refresh`، صفر منطق) —
+  متحطش فيه أي كود.
 - **الأسرار متتكتبش في الريبو أبدًا.** `CLIENT_ID` · `CLIENT_SECRET` · `WORKER_SECRET`
   موجودين في الداشبورد وهيفضلوا. وبعد أي سر جديد → **Promote**.
 
@@ -98,10 +115,14 @@ CACHE_VERSION v6 · MAX_CACHE_BYTES 25MB
 > ده بديل الـ tags — دفع الـ tags ممنوع من جلسات Claude Code السحابية.
 
 ```
-النسخ المرقّمة القديمة (2.0 · 2.1.0 · 2.1.1 · 2.1.2 · 2.1.3 · Index.html) محفوظة
+النسخ المرقّمة (2.0 · 2.1.0 · 2.1.1 · 2.1.2 · 2.1.3) و Index.html الأصلي محفوظين
 في commit: 30ce4b2
 git show 30ce4b2:2.1.3.html
+git show 30ce4b2:Index.html
 ```
+
+الملفات المرقّمة **اتمسحت من `main`** — كانت صفحات لايف مفتوحة للعالم على
+`.../Performance-Dashboard/2.1.3.html` بمنطق قديم بيضرب نفس الـ Worker الحالي.
 
 ## مسائل مفتوحة
 
@@ -117,6 +138,12 @@ git show 30ce4b2:2.1.3.html
   `hasSettledClosed` في نفس الدالة فوق بيتحسبوا Any عبر كل الدورات مجمّعة مش لكل
   دورة لوحدها. يحتاج Data Contract جديد لتتبّع كل دورة لوحدها.
 - **Build watch paths لسه `*`** — أي تعديل HTML بينشر الـ Worker تاني بلا داعي.
-  التضييق لـ `index.js` + `wrangler.toml` مؤجَّل لمرحلة الواجهة (PR #2).
-- **الواجهة لسه متنقلتش** (§4-ح في `ecommoda-tool-migration-playbook`) — ملفات
-  `2.0.html` … `2.1.3.html` و `Index.html` لسه في الريبو زي ما هي، متلمستش في PR ده.
+  التضييق لـ `index.js` + `wrangler.toml` (§13-ب في `ecommoda-tool-migration-playbook`)
+  مستني تأكيد إن الأداة شغالة بعد النقل. **لو اتضيّقت، أي ملف جديد يعتمد عليه الـ
+  Worker لازم يتضاف للـ paths** وإلا هيفضل على نسخة قديمة من غير أي رسالة.
+- **تعليق في `wrangler.toml`** فيه نقطتين `..` بدل نقطة — تجميلي بحت، متلمسش الملف
+  عشانه لوحده.
+
+آخر تحديث: 24-08-2026 — 19:30
+
+</div>
