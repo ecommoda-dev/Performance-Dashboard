@@ -11,7 +11,7 @@ binding       = "DB"
 database_name = "ecommoda-dev-logs"
 database_id   = "90db62d3-bd7e-4d92-912b-10fc78eeb565"
 
-# ⚠️ الكود بيستخدم env.DASH_KV (الكاش — §CACHE في index.js)..
+# ⚠️ الكود بيستخدم env.DASH_KV (الكاش — §CACHE في index.js)...
 # الـ binding ده كان متضاف يدويًا في الداشبورد. `wrangler deploy` تعريفي:
 # لو الـ binding مش هنا، أول نشر من git بيشيله → env.DASH_KV = undefined
 # → get_data بيرمي على كل نداء. لازم يفضل معرّف هنا.
