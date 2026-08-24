@@ -76,9 +76,9 @@ const CACHE_VERSION = 'v6'; // v2(rows) → v3(buckets) → v4(fix assertion) �
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
 const LINE_ITEMS_PAGE     = 25;   // lineItems(first: 25) — absolute max
-const RETURNS_PAGE        = 5;    // returns(first: 5)
+const RETURNS_PAGE        = 10;    // returns(first: 10)
 const RETURN_LINES_PAGE   = 25;   // returnLineItems(first: 25)
-const EXCHANGE_LINES_PAGE = 10;   // exchangeLineItems(first: 10)
+const EXCHANGE_LINES_PAGE = 20;   // exchangeLineItems(first: 20)
 const STAGE1_PAGE_SIZE    = 250;  // orders(first: 250) — مرحلة 1
 const STAGE2_BATCH_SIZE   = 10;   // نداءات nodes(ids:) — مرحلة 2، دفعات 10
 
