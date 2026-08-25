@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════════════════════════════
-// Performance Dashboard Worker — لوحة الأداء (v3.0.1)
+// Performance Dashboard Worker — لوحة الأداء (v3.0.2)
 // المرجع: docs/performance-dashboard-data-contract-v2.1.0.md (v2.1.0 — معتمد)
 //         + ecommoda-order-lifecycle / references/piece-level-valuation.md (v1.1.0)
 //         + ecommoda-order-lifecycle / references/classification-rules.md (عدّ الأوردرات)
@@ -58,11 +58,6 @@
 //   ⚠️ صفر تغيير في computeBoxes/computeOrderBoxes/classifyOrderForCounts —
 //      CACHE_VERSION فضلت v6 لأن مفيش تغيير سلوكي في التصنيف نفسه في النسخة دي.
 //      انظر ملاحظات التسليم لبقين معروفين (لسه محتاجين قرار قبل التنفيذ):
-//      - classifyOrderForCounts(): S1=In-Return بيتحسب حاليًا "مؤكد خرج للشحن"
-//        بدل bucket مستقل — مخالف صراحة لـ Rule 12 (ecommoda-order-lifecycle
-//        SKILL.md: "s1=In-Return folded into Shipped for money KPIs only —
-//        never for order counts"). التصحيح محتاج مربع UI جديد ("قيد الإرجاع")
-//        في صفحة الأوردرات — قرار تصميم يحتاج موافقة قبل التنفيذ.
 //      - classifyOrderForCounts(): hasExchange/hasSettledClosed بيتحسبوا Any
 //        عبر كل دورات الأوردر مجمّعة، مش لكل دورة لوحدها — أوردر بأكتر من دورة
 //        R/E ممكن يتصنّف غلط. يحتاج Data Contract جديد لتتبّع كل دورة لوحدها.
@@ -74,6 +69,14 @@
 //   رفع CACHE_VERSION اللي بيروح جنب أي تغيير في شكل استعلام GraphQL
 //   (caching-model.md §3). صفر تغيير في منطق التصنيف (أقسام 1–5 في العقد).
 //   CACHE_VERSION → v7.
+// v3.0.2 (25-08-2026): تصحيح توثيق فقط — صفر تغيير سلوكي، صفر CACHE_VERSION bump:
+//   الملاحظة اللي فوق (v3.0.1) عن classifyOrderForCounts() و S1=In-Return كانت
+//   بتقول إن السلوك مخالف لـ Rule 12 في ecommoda-order-lifecycle. بعد قراءة
+//   كاملة اتضح العكس: الكود كان مطبّق صح من الأصل، والـ Rule 12 هي اللي
+//   اتوسّعت (قرار أحمد 25-08-2026) لتغطي S2 وعدّ الأوردرات كمان — مش S1 وفلوس
+//   بس. مفيش مربع "قيد الإرجاع"، مفيش IN_TRANSIT_BACK، ومفيش تعديل في
+//   classifyOrderForCounts() ولا stageFromS2(). التعليق على normalBucket()
+//   تحت (كان بيقول "S1 فقط، مش S2") اتحدّث ليعكس نفس القرار.
 // ══════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════
@@ -508,8 +511,9 @@ function stageFromS2(s2) {
 }
 
 // §AGGREGATE::normalBucket — تصنيف القطع الحيّة اللي مش مرتبطة بأي استبدال ولا إرجاع
-// ⚠️ S1 = 'In-Return' تُعامل معاملة 'Shipped' بالظبط (قرار Ahmed 03-08-2026 — S1 فقط،
-//    مش S2). موثّق في piece-level-valuation.md §3.4.
+// ⚠️ 'In-Return' تُعامل معاملة 'Shipped' في S1 و S2 معًا، للعدّ وللفلوس
+//    (قرار Ahmed 03-08-2026، اتوسّع 25-08-2026 — ecommoda-order-lifecycle Rule 12).
+//    موثّق في piece-level-valuation.md §3.4.
 // ⚠️ S1 = 'Returned' / 'Cancelled' من غير cancelledAt في شوبيفاي → خارج التصنيف
 //    (مش فاقد، لأن §3.1 بيقول الفاقد بييجي من حدث شوبيفاي مش من الميتافيلد).
 //    ⚠️ ده تحذير مقصود، مش باج: لو شايف صفوف كتير هنا بـ S1=Returned، ده معناه
