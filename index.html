@@ -206,9 +206,18 @@
   .kpi-card[data-state="bad"]     .kpi-value-pct { background: var(--red-light);   color: var(--red); }
   .kpi-card[data-state="warning"] .kpi-value-pct { background: var(--amber-light); color: var(--amber); }
   .kpi-delta { font-size: 11px; margin-top: 4px; }
-  .kpi-delta.up   { color: var(--green); }
-  .kpi-delta.down { color: var(--red); }
+  .kpi-delta.up      { color: var(--green); }
+  .kpi-delta.down    { color: var(--red); }
+  .kpi-delta.neutral { color: var(--text-muted); }
   .kpi-pct { font-size: 11.5px; color: var(--text-muted); margin-top: 3px; }
+
+  /* ── صف "توقّع اكتمال الفترة" — Rule 11 (ecommoda-dashboard-builder)، تاب الأوردرات ── */
+  .forecast-hdr { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 800; color: var(--text-secondary); margin-bottom: 10px; }
+  .forecast-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; max-width: 640px; margin-bottom: 20px; }
+  @media (max-width: 560px) { .forecast-grid { grid-template-columns: 1fr; } }
+  .kpi-card.forecast { border-style: dashed; border-width: 2px; cursor: default; }
+  .kpi-card.forecast:hover { box-shadow: none; transform: none; }
+  .forecast-note { font-size: 11.5px; color: var(--text-muted); }
 
   /* ── زرار طيّ/فتح المربعات الفرعية — Collapsed افتراضياً (v2.1.0) ── */
   .breakdown-toggle {
@@ -808,6 +817,15 @@
     <div class="eco-modal-hdr"><span>📋 سجل التحديثات</span><button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="eco-modal-body">
       <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge">v3.1.0</span><span class="cl-ver-date">25-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>صف "توقّع اكتمال الفترة"</b> تحت مربعات تاب الأوردرات — تسليمات/خسائر متوقّعة محسوبة بمعدلات نجاح مقاسة لكل مرحلة (Rule 11 في <code>ecommoda-dashboard-builder</code>)، مش بافتراض 100% نجاح. شحنات المرتجع الجارية محسوبة خسارة كاملة، و"خارج التصنيف" مستبعد تمامًا من الحساب. <b>HTML-only</b> — صفر تعديل في الـ Worker، صفر <code>CACHE_VERSION</code> bump.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>شيل كلمة <b>"مؤكد"</b> من اسمي مربعي "مؤكد (تحت التجهيز)" و"مؤكد (خرج للشحن)" في التابين — بقيا <b>"تحت التجهيز"</b> و<b>"خرج للشحن"</b>. تسمية بس — مفاتيح <code>BUCKET</code>/<code>ORDER_BUCKET</code> الإنجليزية زي ما هي.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>نسبة Δ% غير منطقية (▲10200%)</b> على مربعات بقيمة سابقة صغيرة جدًا (مربع "تحت التأكيد" مثال حي) — <code>delta()</code> بقى فيها <code>MIN_DELTA_BASE = 5</code>: تحت العتبة بيتعرض الانتقال نفسه ("1 ← 103 عن الفترة السابقة") بدل نسبة بلا معنى.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>تصحيح توثيق: ملاحظة <b>In-Return</b> في الأداة (تعليق الـ Worker + شرح "عن الأداة") كانت بتقول إن السلوك محصور في S1 بس — <code>ecommoda-order-lifecycle</code> Rule 12 اتوسّعت 25-08-2026 (قرار أحمد) لتغطي S2 وعدّ الأوردرات كمان، والكود كان مطبّقها صح من الأصل. صفر تغيير في التصنيف نفسه.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge">v3.0.0</span><span class="cl-ver-date">23-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>شاشة تسجيل دخول</b> (اختيار الموظف + PIN من 4 أرقام) — نفس النمط الموحّد في باقي الأدوات: تسجيل أول مرة بإنشاء PIN، لوحة أرقام، دعم الكيبورد، وزرار <b>🚪 خروج</b> في الهيدر. كل دخول/خروج بيتسجّل في D1 (<code>tool = performance_dashboard</code>). ⚠️ محتاج D1 Binding اسمه <code>DB</code> على الـ Worker.</span></li>
@@ -941,7 +959,7 @@
           <h4>المستخدمون</h4>
           <p>المدير العام وفريق التحليل.</p>
           <h4>النموذج (Data Contract v2.0.0)</h4>
-          <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي المبيعات = (تحت التأكيد + مؤكد تحت التجهيز + مؤكد خرج للشحن) + الخسائر + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
+          <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي المبيعات = (تحت التأكيد + تحت التجهيز + خرج للشحن) + الخسائر + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
 
           <h4>طريقة العرض (v1.4.0 — قيمة / عدد قطع)</h4>
           <p>مفتاح "طريقة العرض" بجانب فلتر التاريخ بيبدّل كل الأرقام في المربعات (الرئيسية والفرعية) والدونات وبطاقة الهوية من <b>إجمالي القيمة (جنيه)</b> لـ <b>إجمالي عدد القطع</b> — نفس التصنيف بالظبط (نفس الـ buckets)، بس وحدة القياس بتتغيّر. الحساب في وضع "عدد القطع" client-side بالكامل: تجميع <code>qty</code> لكل bucket من <code>state.rows</code> (الفترة الحالية) و <code>state.prevRows</code> (الفترة السابقة، لحساب الـ Δ%) — مفيش أي نداء إضافي للـ Worker ومفيش تغيير في الـ Data Contract.</p>
@@ -951,16 +969,16 @@
             <thead><tr><th>#</th><th>المربع الرئيسي</th><th>الفرع</th><th>الشرط</th></tr></thead>
             <tbody>
               <tr><td>1</td><td>تحت التأكيد</td><td>—</td><td>مش مرتبط باستبدال/إرجاع · S1 = New Order</td></tr>
-              <tr><td>2</td><td rowspan="4">مؤكد (تحت التجهيز)</td><td>مؤكد / تحت التجهيز</td><td>مش مرتبط · S1 غير (New Order · Shipped · In-Return · Delivered · Returned · Cancelled)</td></tr>
+              <tr><td>2</td><td rowspan="4">تحت التجهيز</td><td>أساسي / تحت التجهيز</td><td>مش مرتبط · S1 غير (New Order · Shipped · In-Return · Delivered · Returned · Cancelled)</td></tr>
               <tr><td>3</td><td>استبدال / تحت التجهيز</td><td>سطر بديل · دورة مفتوحة · S2 ∈ (Confirmed + RETURN · Confirmed + EXCHANGE · Ready)</td></tr>
               <tr><td>4</td><td>مرتجع / تحت التجهيز</td><td>القطعة المرتجعة · دورة مفتوحة · نفس قيم S2 السابقة (بدون شرط حالة شحن — المرتجع Fulfilled دايماً)</td></tr>
               <tr><td>8</td><td>خارج التصنيف ⚠️ (فرع تحذيري)</td><td>حالات شاذة (مثل S1 = Returned من غير إلغاء فعلي في شوبيفاي) — ظاهر عمداً عشان مايضيعش بصمت</td></tr>
-              <tr><td>5</td><td rowspan="3">مؤكد (خرج للشحن)</td><td>مؤكد / خرج للشحن</td><td>مش مرتبط · S1 = Shipped أو In-Return</td></tr>
+              <tr><td>5</td><td rowspan="3">خرج للشحن</td><td>أساسي / خرج للشحن</td><td>مش مرتبط · S1 = Shipped أو In-Return</td></tr>
               <tr><td>6</td><td>استبدال / خرج للشحن</td><td>سطر بديل · دورة مفتوحة · S2 ∈ (Shipped · In-Return)</td></tr>
               <tr><td>7</td><td>مرتجع / خرج للشحن</td><td>القطعة المرتجعة · دورة مفتوحة · S2 ∈ (Shipped · In-Return) (بدون شرط حالة شحن)</td></tr>
             </tbody>
           </table>
-          <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">ملاحظة: <b>S1 = In-Return</b> تُعامل معاملة <b>Shipped</b> بالظبط (قرار 03-08-2026 — في S1 فقط، مش S2). و<b>S1 = Ready مع Fulfilled</b> (محاولة تسليم مكررة) موجودة مؤقتاً تحت "مؤكد (تحت التجهيز)" ومعلّمة بملاحظة على الصف. الفروع الملوّنة بالأحمر (مرتجع/تحت التجهيز · مرتجع/خرج للشحن) هي القطعة الراجعة نفسها داخل دورة استبدال/إرجاع مفتوحة.</p>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">ملاحظة: <b>In-Return</b> تُعامل معاملة <b>Shipped</b> بالظبط في S1 و S2 معًا (قرار 03-08-2026، اتوسّع 25-08-2026 — <code>ecommoda-order-lifecycle</code> Rule 12). و<b>S1 = Ready مع Fulfilled</b> (محاولة تسليم مكررة) موجودة مؤقتاً تحت "تحت التجهيز" ومعلّمة بملاحظة على الصف. الفروع الملوّنة بالأحمر (مرتجع/تحت التجهيز · مرتجع/خرج للشحن) هي القطعة الراجعة نفسها داخل دورة استبدال/إرجاع مفتوحة.</p>
 
           <h4>مربع "الخسائر" — الفروع بعد إعادة التسمية (v1.2.0)</h4>
           <table>
@@ -992,10 +1010,10 @@
             <thead><tr><th>المربع</th><th>الفرع</th><th>الشرط المختصر</th></tr></thead>
             <tbody>
               <tr><td>تحت التأكيد</td><td>—</td><td>S1 ∈ (New Order · Pending Edit · WhatsApp-CANCELLED · WhatsApp-Confirmed)</td></tr>
-              <tr><td rowspan="3">مؤكد (تحت التجهيز)</td><td>مؤكد</td><td>S1 ∈ (Confirmed · Confirmed+Edit · Ready) بدون دورة R/E مفتوحة</td></tr>
+              <tr><td rowspan="3">تحت التجهيز</td><td>أساسي</td><td>S1 ∈ (Confirmed · Confirmed+Edit · Ready) بدون دورة R/E مفتوحة</td></tr>
               <tr><td>مرتجع</td><td>S1=Delivered + دورة PREP مفتوحة + بدون exchangeLineItems</td></tr>
               <tr><td>استبدال</td><td>S1=Delivered + دورة PREP مفتوحة + فيها exchangeLineItems</td></tr>
-              <tr><td rowspan="3">مؤكد (خرج للشحن)</td><td>مؤكد</td><td>S1 ∈ (Shipped · In-Return)</td></tr>
+              <tr><td rowspan="3">خرج للشحن</td><td>أساسي</td><td>S1 ∈ (Shipped · In-Return)</td></tr>
               <tr><td>مرتجع</td><td>S1=Delivered + دورة SHIPPED مفتوحة + بدون exchangeLineItems</td></tr>
               <tr><td>استبدال</td><td>S1=Delivered + دورة SHIPPED مفتوحة + فيها exchangeLineItems</td></tr>
               <tr><td rowspan="3">خسائر</td><td>إلغاء قبل الشحن</td><td><code>cancelledAt</code> + FulfillmentStatus=UNFULFILLED (نفس isCancelledOrRTO)</td></tr>
@@ -1008,6 +1026,11 @@
             </tbody>
           </table>
           <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">⚠️ الإلغاء/مرتجع رفض الاستلام بيُحسبوا من <code>cancelledAt</code> (حدث شوبيفاي الفعلي) — مش من <code>manual_status</code> — تفاديًا لباج قديم (أوردر #49472) كان فيه Flow بيكتب "Cancelled" في manual_status على أوردر RTO حقيقي. "دورة مفتوحة" = أي Return حالته مش CLOSED (بعد استبعاد CANCELED/DECLINED بالكامل).</p>
+
+          <h4>صف "توقّع اكتمال الفترة" (v3.1.0 — Rule 11 في <code>ecommoda-dashboard-builder</code>)</h4>
+          <p>صف مستقل تحت مربعات تاب الأوردرات — بيتوقّع تسليمات/خسائر الفترة لو قفلت دلوقتي. <b>HTML-only بالكامل</b>: مشتق من <code>orderBoxes</code> اللي راجع أصلاً من <code>get_data</code> — صفر حقل جديد من الـ Worker، صفر fetch إضافي، صفر <code>CACHE_VERSION</code> bump.</p>
+          <p>المعدلات بتتحسب <b>لكل مرحلة لوحدها</b> من نفس الفترة المعروضة (قرار أحمد 25-08-2026): <code>pDeliver</code> = نسبة الأوردرات المشحونة اللي وصلت فعلاً (من غير RTO/مرتجع كامل)، و<code>pShip</code> = نسبة الأوردرات اللي عدّت نقطة قرار ما قبل الشحن (من غير إلغاء). الحساب بعد كده <b>لكل sub-bucket لوحده</b> — أوردر مؤكد/استبدال لسه في الطريق بيتقدّم بمعدل النجاح (<code>pDeliver</code>/<code>pFull</code>)، لكن <b>شحنة المرتجع الجارية (<code>*_RETURN</code>) بتتحسب خسارة كاملة دايمًا</b> — نجاحها فيزيائيًا (وصلت المخزن) هو بالظبط الخسارة، مش تسليم. <code>UNCLASSIFIED</code> مستبعد تمامًا من الحساب (نتيجته مجهولة أصلاً) وعدده معروض في ⓘ.</p>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">العرض دايمًا بكلمة <b>"متوقّعة"</b> (ممنوع "نهائية") + <code>~</code> قبل كل رقم + إطار مقطّع (dashed) + نفس ألوان <code>--green</code>/<code>--red</code>. المقارنة (Δ%) vs <b>الفعلي</b> (مش المتوقّع) للفترة السابقة — الفترة السابقة ناضجة فعليها = نهائيها. لو مفيش أوردر مكتمل واحد في الفترة (<code>pDeliver</code> أو <code>pShip</code> = null) الصف بيختفي تمامًا بدل ما يعرض توقّع بلا أساس.</p>
 
           <h4>كيف تعمل</h4>
           <ol>
@@ -1070,6 +1093,9 @@ Bar chart مقارنة المربعات الأساسية + أرقام على ا�
 تسجيل الخروج + رجوع لشاشة الدخول │ HTML   │ §AUTH-JS   │ doLogout
 التحقق من PIN + تسجيل دخول/خروج  │ Worker │ §HANDLER   │ verifyEmployee / checkEmployee / writeLog
 طيّ/فتح كل كروت التاب مرة واحدة   │ HTML   │ §TOOL-JS   │ breakdownToggle(isOpen, scope) / toggleBreakdown / toggleOrderBreakdown
+──────────────── v3.1.0 (25-08-2026) ───────────────────────────
+صف "توقّع اكتمال الفترة" (Rule 11) │ HTML   │ §ORDERS-JS │ computeOrderForecast / renderOrderForecast
+حارس نسبة Δ% غير منطقية           │ HTML   │ §TOOL-JS   │ delta (MIN_DELTA_BASE)
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1111,6 +1137,13 @@ currentEmployee = username الموظف الحالي — في الذاكرة ف�
   localStorage ولا sessionStorage. بيتصفّر برجوع شاشة الدخول عند أي reload.
 TOOL_NAME = 'performance_dashboard' — قيمة tool في جدول logs (D1)
 
+v3.1.0 — KEY VARIABLES (توقّع الأوردرات + حارس Δ%)
+computeOrderForecast(b) — بيرجع { delivered, lost, base, pShip, pDeliver,
+  resolvedCount, excludedUnclassified } أو null لو مفيش أوردر مكتمل واحد في
+  الفترة. مشتق بالكامل من state.orderBoxes — صفر state جديد.
+MIN_DELTA_BASE = 5 — العتبة اللي تحتها delta() بتعرض الانتقال الخام
+  (curVal ← prevVal) بدل نسبة مئوية بلا معنى.
+
 NOTES
 - CACHE_VERSION في الـ Worker = v6 (بعد إصلاحي v2.1.1: normalBucket + stageFromS2).
   أي فترة اتكاشت بنسخة أقدم هتتحسب من جديد تلقائياً أول مرة تتفتح. (تغييرات العرض
@@ -1120,14 +1153,14 @@ NOTES
   الباقية، عشان يتطابق مع أساس التقييم.
 - unfulfilledQuantity بيتستخدم كـ assertion بس — لو اتعارض مع المربع، الصف
   بيتعلّم بملاحظة والقيمة بتفضل مكانها (مفيش جنيه بيختفي من التصنيف).
-- مربع "قيد التنفيذ" القديم بقى 3 مربعات رئيسية (تحت التأكيد · مؤكد تحت
-  التجهيز · مؤكد خرج للشحن) — بيانات b.ipXxx زي ما هي من الـ Worker، بس
+- مربع "قيد التنفيذ" القديم بقى 3 مربعات رئيسية (تحت التأكيد · تحت
+  التجهيز · خرج للشحن) — بيانات b.ipXxx زي ما هي من الـ Worker، بس
   الجمع والعرض بقى في renderBoxes على مستوى العميل (client-side)، مفيش أي
   حقل جديد اتطلب من الـ Worker.
 - نسبة كل مربع فرعي بتتحسب بالنسبة لإجمالي المربع الرئيسي اللي هو جواه
   (parentTotal في sub())، مش بالنسبة لإجمالي المبيعات الكامل.
 - الدونات (renderMainPie) بيوزّع إجمالي المبيعات على الـ 5 مربعات الأساسية
-  (تحت التأكيد · مؤكد تحت التجهيز · مؤكد خرج للشحن · الخسائر · صافي المبيعات) —
+  (تحت التأكيد · تحت التجهيز · خرج للشحن · الخسائر · صافي المبيعات) —
   مجموع الشرائح = إجمالي المبيعات (نفس الهوية الحسابية). الليجند والشرائح
   بيفتحوا نفس تفاصيل المربع. Chart.js 4.4.1 من CDN.
 - المربعات الأساسية مبقاش فيها نسبة مئوية (اتشالت في v1.3.0 لصالح الدونات) —
@@ -1146,7 +1179,14 @@ NOTES
   القيمة والكمية مع بعض دايماً.
 - الصف التاني (معدلات بالعدد زي نسبة RTO) متعمّد إنه مش موجود — Data Contract
   مستقل لسه ما اتعملش.
-- كل الأرقام en-US، والتوقيت بتوقيت القاهرة عبر toCairo().</pre>
+- كل الأرقام en-US، والتوقيت بتوقيت القاهرة عبر toCairo().
+- v3.1.0: قرار "In-Return ≡ Shipped" (S1 و S2 معًا، عدّ وفلوس) اتأكد نهائيًا —
+  ecommoda-order-lifecycle Rule 12 اتوسّعت لتغطيته، مش عكس ذلك. مفيش مربع
+  "قيد الإرجاع" ومفيش IN_TRANSIT_BACK — راجع CLAUDE.md § قرارات معتمدة.
+- v3.1.0: توقّع الأوردرات (computeOrderForecast) بيحسب معدلاته من نفس الفترة
+  المعروضة عمدًا (قرار أحمد) — مش من نافذة مرجعية ناضجة. في فترة حديثة العينة
+  متحيزة (الإلغاء بيحسم بسرعة، الـ RTO بياخد وقت أطول)، وده حد معروف مقبول
+  مش باج. مفيش حد أدنى للعيّنة حاليًا (مؤجل بقرار أحمد).</pre>
         </div>
       </details>
     </div>
@@ -1160,7 +1200,7 @@ NOTES
 const LS_URL       = 'perfdash_worker_url';
 const LS_SECRET    = 'perfdash_worker_secret';
 const LS_ADMIN_URL = 'admin_worker_url';       // shared across all tools — never rename
-const TOOL_VERSION = 'v3.0.0';
+const TOOL_VERSION = 'v3.1.0';
 const CURRENCY_SUFFIX = 'ج.م';
 const QTY_SUFFIX = 'قطعة';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
@@ -1600,6 +1640,7 @@ function renderShell() {
     <div id="ordersPageContent" class="${state.activePage === 'orders' ? '' : 'hidden'}">
       ${orderWarnBits.length ? `<div class="warn-note">⚠️ ${orderWarnBits.join(' · ')} — اضغط على المربع المعني لمراجعة الأوردرات.</div>` : ''}
       <div class="kpi-grid" id="orderOverviewKpis"></div>
+      <div id="orderForecastKpis"></div>
       <div class="chart-grid" id="orderOverviewCharts"></div>
       <div class="identity-card" id="orderIdentityCard"></div>
       <div class="details-section${state.orderDetailsOpen ? ' open' : ''}" id="orderDetailsSection">
@@ -1644,8 +1685,17 @@ function switchMainTab(page) {
 // ══════════════════════════════════════════════════════
 // §TOOL-JS
 // ══════════════════════════════════════════════════════
+// v3.1.0: MIN_DELTA_BASE — الحارس القديم (if (!prevVal) return '') بيمنع القسمة
+// على صفر بس. مربع بقيمة سابقة صغيرة جدًا (مثلاً 1) كان بيطلّع نسبة بلا معنى
+// زي ▲ 10200.0% (حصل فعليًا على مربع "تحت التأكيد"). تحت العتبة بيتعرض
+// الانتقال نفسه بدل النسبة.
+const MIN_DELTA_BASE = 5;
+
 function delta(curVal, prevVal, direction = 'higher_better') {
   if (!prevVal) return '';
+  if (prevVal < MIN_DELTA_BASE) {
+    return `<div class="kpi-delta neutral">${fmtInt(prevVal)} ← ${fmtInt(curVal)} عن الفترة السابقة</div>`;
+  }
   const pct = ((curVal - prevVal) / prevVal) * 100;
   const isGood = direction === 'higher_better' ? pct >= 0 : pct <= 0;
   const cls = isGood ? 'up' : 'down';
@@ -1775,9 +1825,9 @@ function renderBoxes() {
       ${delta(b.ipPendingConfirm, pb.ipPendingConfirm, 'lower_better')}
     </div>
 
-    <div class="kpi-card${cardActive('IP_PREP')}" data-state="neutral" onclick="showDetails(['IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP','IP_UNCLASSIFIED'], 'مؤكد (تحت التجهيز)', 'IP_PREP')">
+    <div class="kpi-card${cardActive('IP_PREP')}" data-state="neutral" onclick="showDetails(['IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP','IP_UNCLASSIFIED'], 'تحت التجهيز', 'IP_PREP')">
       <div class="kpi-label-row">
-        <span class="kpi-label"><span class="kpi-icon">📦</span>مؤكد (تحت التجهيز)</span>
+        <span class="kpi-label"><span class="kpi-icon">📦</span>تحت التجهيز</span>
         ${infoIcon('أوردرات مؤكدة لسه في مرحلة الطباعة/التجهيز — بيشمل البديل الخارج والقطعة الراجعة من دورات إرجاع/استبدال مفتوحة.')}
       </div>
       <div class="kpi-value-row"><div class="kpi-value">${fmtAmt(confirmedPrepTotal)}</div>${pctBadge(confirmedPrepTotal, b.totalValue)}</div>
@@ -1791,9 +1841,9 @@ function renderBoxes() {
       </div>
     </div>
 
-    <div class="kpi-card${cardActive('IP_SHIP')}" data-state="neutral" onclick="showDetails(['IP_CONFIRMED_SHIPPED','IP_EXCHANGE_SHIPPED','IP_RETURN_SHIPPED'], 'مؤكد (خرج للشحن)', 'IP_SHIP')">
+    <div class="kpi-card${cardActive('IP_SHIP')}" data-state="neutral" onclick="showDetails(['IP_CONFIRMED_SHIPPED','IP_EXCHANGE_SHIPPED','IP_RETURN_SHIPPED'], 'خرج للشحن', 'IP_SHIP')">
       <div class="kpi-label-row">
-        <span class="kpi-label"><span class="kpi-icon">🚚</span>مؤكد (خرج للشحن)</span>
+        <span class="kpi-label"><span class="kpi-icon">🚚</span>خرج للشحن</span>
         ${infoIcon('أوردرات خرجت مع الكوريير ولسه في الطريق — بيشمل البديل الخارج والقطعة الراجعة من دورات إرجاع/استبدال مفتوحة.')}
       </div>
       <div class="kpi-value-row"><div class="kpi-value">${fmtAmt(confirmedShippedTotal)}</div>${pctBadge(confirmedShippedTotal, b.totalValue)}</div>
@@ -1872,10 +1922,10 @@ function renderMainPie(b) {
   const segments = [
     { key:'IP1',     label:'تحت التأكيد',        value:b.ipPendingConfirm, colour:'#7c3aed',
       buckets:['IP_PENDING_CONFIRM'], title:'تحت التأكيد' },
-    { key:'IP_PREP', label:'مؤكد (تحت التجهيز)', value:confirmedPrepTotal, colour:'#2563eb',
-      buckets:['IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP','IP_UNCLASSIFIED'], title:'مؤكد (تحت التجهيز)' },
-    { key:'IP_SHIP', label:'مؤكد (خرج للشحن)',   value:confirmedShippedTotal, colour:'#d97706',
-      buckets:['IP_CONFIRMED_SHIPPED','IP_EXCHANGE_SHIPPED','IP_RETURN_SHIPPED'], title:'مؤكد (خرج للشحن)' },
+    { key:'IP_PREP', label:'تحت التجهيز', value:confirmedPrepTotal, colour:'#2563eb',
+      buckets:['IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP','IP_UNCLASSIFIED'], title:'تحت التجهيز' },
+    { key:'IP_SHIP', label:'خرج للشحن',   value:confirmedShippedTotal, colour:'#d97706',
+      buckets:['IP_CONFIRMED_SHIPPED','IP_EXCHANGE_SHIPPED','IP_RETURN_SHIPPED'], title:'خرج للشحن' },
     { key:'LOST',    label:'الخسائر',            value:b.lost, colour:'#dc2626',
       buckets:['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], title:'الخسائر' },
     { key:'NET',     label:'صافي المبيعات',      value:b.netSales, colour:'#16a34a',
@@ -2013,8 +2063,8 @@ function renderMainBar(b) {
 
   const segments = [
     { label:'تحت التأكيد',        value:b.ipPendingConfirm,   colour:'#7c3aed' },
-    { label:'مؤكد (تحت التجهيز)', value:confirmedPrepTotal,   colour:'#2563eb' },
-    { label:'مؤكد (خرج للشحن)',   value:confirmedShippedTotal,colour:'#d97706' },
+    { label:'تحت التجهيز',        value:confirmedPrepTotal,   colour:'#2563eb' },
+    { label:'خرج للشحن',          value:confirmedShippedTotal,colour:'#d97706' },
     { label:'الخسائر',            value:b.lost,               colour:'#dc2626' },
     { label:'صافي المبيعات',      value:b.netSales,           colour:'#16a34a' },
   ];
@@ -2098,10 +2148,10 @@ const BUCKET_LABELS = {
   NET_SALES_NORMAL:        { label: 'تسليم أساسي',          colour: 'var(--green)' },
   NET_SALES_REPLACEMENT:   { label: 'تسليم استبدال',        colour: 'var(--green)' },
   IP_PENDING_CONFIRM:      { label: 'تحت التأكيد',          colour: 'var(--purple)' },
-  IP_CONFIRMED_PREP:       { label: 'مؤكد / تحت التجهيز',    colour: 'var(--accent)' },
+  IP_CONFIRMED_PREP:       { label: 'أساسي / تحت التجهيز',   colour: 'var(--accent)' },
   IP_EXCHANGE_PREP:        { label: 'استبدال / تحت التجهيز', colour: 'var(--accent)' },
   IP_RETURN_PREP:          { label: 'مرتجع / تحت التجهيز',   colour: 'var(--amber)' },
-  IP_CONFIRMED_SHIPPED:    { label: 'مؤكد / خرج للشحن',      colour: 'var(--accent)' },
+  IP_CONFIRMED_SHIPPED:    { label: 'أساسي / خرج للشحن',     colour: 'var(--accent)' },
   IP_EXCHANGE_SHIPPED:     { label: 'استبدال / خرج للشحن',   colour: 'var(--accent)' },
   IP_RETURN_SHIPPED:       { label: 'مرتجع / خرج للشحن',     colour: 'var(--amber)' },
   IP_UNCLASSIFIED:         { label: 'خارج التصنيف',         colour: 'var(--red)' },
@@ -2329,9 +2379,9 @@ function renderOrderBoxes() {
       ${delta(b.pendingConfirm, pb.pendingConfirm, 'lower_better')}
     </div>
 
-    <div class="kpi-card${cardActive('OB_PREP')}" data-state="neutral" onclick="showOrderDetails(['PREP_CONFIRMED','PREP_EXCHANGE','PREP_RETURN','UNCLASSIFIED'], 'مؤكد (تحت التجهيز)', 'OB_PREP')">
+    <div class="kpi-card${cardActive('OB_PREP')}" data-state="neutral" onclick="showOrderDetails(['PREP_CONFIRMED','PREP_EXCHANGE','PREP_RETURN','UNCLASSIFIED'], 'تحت التجهيز', 'OB_PREP')">
       <div class="kpi-label-row">
-        <span class="kpi-label"><span class="kpi-icon">📦</span>مؤكد (تحت التجهيز)</span>
+        <span class="kpi-label"><span class="kpi-icon">📦</span>تحت التجهيز</span>
         ${infoIcon('أوردرات مؤكدة لسه في مرحلة الطباعة/التجهيز — بيشمل أوردرات فيها دورة استبدال أو إرجاع مفتوحة في نفس المرحلة.')}
       </div>
       <div class="kpi-value-row"><div class="kpi-value">${fmtInt(prepTotal)}</div>${pctBadge(prepTotal, b.totalOrders)}</div>
@@ -2345,9 +2395,9 @@ function renderOrderBoxes() {
       </div>
     </div>
 
-    <div class="kpi-card${cardActive('OB_SHIP')}" data-state="neutral" onclick="showOrderDetails(['SHIPPED_CONFIRMED','SHIPPED_EXCHANGE','SHIPPED_RETURN'], 'مؤكد (خرج للشحن)', 'OB_SHIP')">
+    <div class="kpi-card${cardActive('OB_SHIP')}" data-state="neutral" onclick="showOrderDetails(['SHIPPED_CONFIRMED','SHIPPED_EXCHANGE','SHIPPED_RETURN'], 'خرج للشحن', 'OB_SHIP')">
       <div class="kpi-label-row">
-        <span class="kpi-label"><span class="kpi-icon">🚚</span>مؤكد (خرج للشحن)</span>
+        <span class="kpi-label"><span class="kpi-icon">🚚</span>خرج للشحن</span>
         ${infoIcon('أوردرات خرجت مع الكوريير ولسه في الطريق — بيشمل أوردرات فيها دورة استبدال أو إرجاع مفتوحة في نفس المرحلة.')}
       </div>
       <div class="kpi-value-row"><div class="kpi-value">${fmtInt(shippedTotal)}</div>${pctBadge(shippedTotal, b.totalOrders)}</div>
@@ -2415,6 +2465,104 @@ function renderOrderBoxes() {
   renderOrderIdentityCheck(b);
   renderOrdersPie(b);
   renderOrdersBar(b);
+  renderOrderForecast();
+}
+
+// §ORDERS-JS::computeOrderForecast — "توقّع اكتمال الفترة" — Rule 11 في
+// ecommoda-dashboard-builder (قرار أحمد 25-08-2026). مشتق بالكامل من orderBoxes
+// اللي راجع أصلاً من get_data — HTML-only، صفر fetch إضافي، صفر تعديل في الـ
+// Worker، صفر CACHE_VERSION bump. بيرجع null لو مفيش أساس كافٍ للتوقّع (مفيش
+// أوردرات مكتملة في الفترة لسه).
+function computeOrderForecast(b) {
+  const n = k => b[k] || 0;
+
+  const resolvedDelivered = n('deliveryBasic') + n('deliveryExchange') + n('deliveryPartialReturn');
+  const resolvedLost      = n('lostCancelled') + n('lostRTO') + n('lostFullReturn');
+
+  // ① نجا من محاولة التسليم، بشرط إنه اتشحن
+  const shippedResolved = resolvedDelivered + n('lostRTO') + n('lostFullReturn');
+  const pDeliver = shippedResolved ? resolvedDelivered / shippedResolved : null;
+
+  // ② وصل مرحلة الشحن، بشرط إنه عدّى نقطة قرار ما قبل الشحن
+  const shippedOpen     = n('shippedConfirmed') + n('shippedExchange') + n('shippedReturn');
+  const reachedShipping = shippedResolved + shippedOpen;
+  const preShipResolved = reachedShipping + n('lostCancelled');
+  const pShip = preShipResolved ? reachedShipping / preShipResolved : null;
+
+  if (pDeliver === null || pShip === null) return null;   // مفيش أساس — مفيش توقّع
+
+  const pFull = pShip * pDeliver;   // لسه ما اتشحنش: لازم يعدّي المرحلتين
+
+  // 🔴 Rule 11-ب — النوع بيقلب اتجاه "النجاح". شحنة المرتجع اللي "بتنجح" = خسارة.
+  //    ملهاش معدل أصلاً: هي خسارة سواء وصلت المخزن أو لأ.
+  let toDelivered = resolvedDelivered, toLost = resolvedLost;
+  const fwd = (count, p) => { toDelivered += count * p; toLost += count * (1 - p); };
+
+  fwd(n('shippedConfirmed'), pDeliver);
+  fwd(n('shippedExchange'),  pDeliver);
+  toLost += n('shippedReturn');                    // ← مرتجع جاري = خسارة كاملة
+
+  fwd(n('prepConfirmed'), pFull);
+  fwd(n('prepExchange'),  pFull);
+  toLost += n('prepReturn');                       // ← نفس القاعدة
+
+  fwd(n('pendingConfirm'), pFull);
+
+  // ⚠️ UNCLASSIFIED مستبعد تمامًا — إسناد احتمال لحاجة نتيجتها مجهولة = اختلاق
+  return {
+    delivered: Math.round(toDelivered),
+    lost:      Math.round(toLost),
+    base:      (b.totalOrders || 0) - n('unclassified'),   // المقام بتاع صف التوقّع
+    pShip, pDeliver,
+    resolvedCount: resolvedDelivered + resolvedLost,
+    excludedUnclassified: n('unclassified'),
+  };
+}
+
+// §ORDERS-JS::renderOrderForecast — صف "توقّع اكتمال الفترة" تحت صف المربعات
+// الرئيسية. المقارنة vs الفعلي (مش المتوقّع) للفترة السابقة — الفترة السابقة
+// ناضجة، ففعليها = نهائيها.
+function renderOrderForecast() {
+  const el = document.getElementById('orderForecastKpis');
+  if (!el) return;
+
+  const b = state.orderBoxes || {};
+  const f = computeOrderForecast(b);
+  if (!f) { el.innerHTML = ''; return; }
+
+  const pb = state.prevOrderBoxes || {};
+  const prevDelivered = (pb.deliveryBasic || 0) + (pb.deliveryExchange || 0) + (pb.deliveryPartialReturn || 0);
+  const prevLost       = (pb.lostCancelled || 0) + (pb.lostRTO || 0) + (pb.lostFullReturn || 0);
+
+  const assumptions = `
+    رقم تقديري — بيفترض إن الأوردرات اللي لسه في الطريق هتكمّل بنفس معدلات
+    الفترة دي، مش إن كلها هتنجح.<br><br>
+    محسوب من ${fmtInt(f.resolvedCount)} أوردر مكتمل في نفس الفترة<br>
+    نسبة الوصول لمرحلة الشحن : ${fmtPct(f.pShip * 100)}<br>
+    نسبة نجاح التسليم        : ${fmtPct(f.pDeliver * 100)}<br>
+    شحنات المرتجع الجارية محسوبة خسارة كاملة (مش بمعدل)<br>
+    مستبعد من الحساب — خارج التصنيف: ${fmtInt(f.excludedUnclassified)}
+  `;
+
+  el.innerHTML = `
+    <div class="forecast-hdr"><span class="kpi-icon">📈</span>توقّع اكتمال الفترة${infoIcon(assumptions)}</div>
+    <div class="forecast-grid">
+      <div class="kpi-card forecast" data-state="good">
+        <div class="kpi-label-row">
+          <span class="kpi-label"><span class="kpi-icon">✅</span>تسليمات متوقّعة</span>
+        </div>
+        <div class="kpi-value-row"><div class="kpi-value clr-green">~${fmtInt(f.delivered)}</div>${pctBadge(f.delivered, f.base)}</div>
+        ${delta(f.delivered, prevDelivered)}
+      </div>
+      <div class="kpi-card forecast" data-state="bad">
+        <div class="kpi-label-row">
+          <span class="kpi-label"><span class="kpi-icon">📉</span>خسائر متوقّعة</span>
+        </div>
+        <div class="kpi-value-row"><div class="kpi-value clr-red">~${fmtInt(f.lost)}</div>${pctBadge(f.lost, f.base)}</div>
+        ${delta(f.lost, prevLost, 'lower_better')}
+      </div>
+    </div>
+  `;
 }
 
 // §ORDERS-JS::renderOrdersPie — دونات توزيع إجمالي الأوردرات على المربعات الأساسية الـ5
@@ -2429,10 +2577,10 @@ function renderOrdersPie(b) {
   const segments = [
     { key:'OB1',     label:'تحت التأكيد',        value:b.pendingConfirm || 0, colour:'#7c3aed',
       buckets:['PENDING_CONFIRM'], title:'تحت التأكيد' },
-    { key:'OB_PREP', label:'مؤكد (تحت التجهيز)', value:prepTotal, colour:'#2563eb',
-      buckets:['PREP_CONFIRMED','PREP_EXCHANGE','PREP_RETURN','UNCLASSIFIED'], title:'مؤكد (تحت التجهيز)' },
-    { key:'OB_SHIP', label:'مؤكد (خرج للشحن)',   value:shippedTotal, colour:'#d97706',
-      buckets:['SHIPPED_CONFIRMED','SHIPPED_EXCHANGE','SHIPPED_RETURN'], title:'مؤكد (خرج للشحن)' },
+    { key:'OB_PREP', label:'تحت التجهيز', value:prepTotal, colour:'#2563eb',
+      buckets:['PREP_CONFIRMED','PREP_EXCHANGE','PREP_RETURN','UNCLASSIFIED'], title:'تحت التجهيز' },
+    { key:'OB_SHIP', label:'خرج للشحن',   value:shippedTotal, colour:'#d97706',
+      buckets:['SHIPPED_CONFIRMED','SHIPPED_EXCHANGE','SHIPPED_RETURN'], title:'خرج للشحن' },
     { key:'OB_LOST', label:'خسائر',              value:lostTotal, colour:'#dc2626',
       buckets:['LOST_CANCELLED','LOST_RTO','LOST_FULL_RETURN'], title:'خسائر' },
     { key:'OB_DELIV',label:'تسليمات',            value:deliveryTotal, colour:'#16a34a',
@@ -2513,8 +2661,8 @@ function renderOrdersBar(b) {
 
   const segments = [
     { label:'تحت التأكيد',        value:b.pendingConfirm || 0, colour:'#7c3aed' },
-    { label:'مؤكد (تحت التجهيز)', value:prepTotal,             colour:'#2563eb' },
-    { label:'مؤكد (خرج للشحن)',   value:shippedTotal,          colour:'#d97706' },
+    { label:'تحت التجهيز',        value:prepTotal,             colour:'#2563eb' },
+    { label:'خرج للشحن',          value:shippedTotal,          colour:'#d97706' },
     { label:'خسائر',              value:lostTotal,             colour:'#dc2626' },
     { label:'تسليمات',            value:deliveryTotal,         colour:'#16a34a' },
   ];
@@ -2599,10 +2747,10 @@ function renderOrderIdentityCheck(b) {
 // عن BUCKET_LABELS (دي لمستوى القطعة، دي لمستوى الأوردر بالكامل).
 const ORDER_BUCKET_LABELS = {
   PENDING_CONFIRM:          { label: 'تحت التأكيد',            colour: 'var(--purple)' },
-  PREP_CONFIRMED:           { label: 'مؤكد / تحت التجهيز',      colour: 'var(--accent)' },
+  PREP_CONFIRMED:           { label: 'أساسي / تحت التجهيز',     colour: 'var(--accent)' },
   PREP_EXCHANGE:            { label: 'استبدال / تحت التجهيز',   colour: 'var(--accent)' },
   PREP_RETURN:              { label: 'مرتجع / تحت التجهيز',     colour: 'var(--amber)' },
-  SHIPPED_CONFIRMED:        { label: 'مؤكد / خرج للشحن',        colour: 'var(--accent)' },
+  SHIPPED_CONFIRMED:        { label: 'أساسي / خرج للشحن',       colour: 'var(--accent)' },
   SHIPPED_EXCHANGE:         { label: 'استبدال / خرج للشحن',     colour: 'var(--accent)' },
   SHIPPED_RETURN:           { label: 'مرتجع / خرج للشحن',       colour: 'var(--amber)' },
   LOST_CANCELLED:           { label: 'إلغاء قبل الشحن',         colour: 'var(--red)' },

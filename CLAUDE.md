@@ -2,12 +2,12 @@
 
 # لوحة الأداء (`Performance-Dashboard`)
 
-![version](https://img.shields.io/badge/version-v1.1.0-blue)
+![version](https://img.shields.io/badge/version-v1.2.0-blue)
 
 **بتعمل إيه:** داشبورد قراءة فقط بيجمّع بيانات أوردرات شوبيفاي على مستويين مستقلين —
 تقييم بالقطعة (فلوس) وعدّ الأوردرات — لفترة زمنية محددة، مع كاش على KV.
 **مين بيستخدمها:** إدارة · حسابات
-**الإصدار:** Worker `v3.0.1` · الواجهة `v3.0.0` ← الاتنين مستقلين، طبيعي يختلفوا
+**الإصدار:** Worker `v3.0.2` · الواجهة `v3.1.0` ← الاتنين مستقلين، طبيعي يختلفوا
 
 ## الروابط
 
@@ -81,6 +81,19 @@ CACHE_VERSION v7 · MAX_CACHE_BYTES 25MB
 > من أحمد. CACHE_VERSION اترفع لـ v7 بالتبعية (قاعدة ecommoda-dashboard-builder).
 > التفاصيل والدليل → `docs/performance-dashboard-data-contract-v2.1.0.md` §6.
 
+## قرارات معتمدة
+
+- **`In-Return` ≡ `Shipped` في S1 و S2 — قرار أحمد 25-08-2026.** الكود كان
+  مطبّقها صح من الأصل؛ Rule 12 في `ecommoda-order-lifecycle` هي اللي اتوسّعت
+  لتغطي S2 وعدّ الأوردرات كمان (كانت قبل كده S1 وفلوس بس). **مفيش مربع
+  "قيد الإرجاع" ومفيش `IN_TRANSIT_BACK`** — أي اقتراح بإضافة واحد مرفوض بقرار.
+- **صف "توقّع اكتمال الفترة" (تاب الأوردرات) — Rule 11 في
+  `ecommoda-dashboard-builder`، 25-08-2026.** توقّع HTML-only مشتق بالكامل من
+  `orderBoxes` الموجود أصلاً في `get_data` — صفر تعديل في الـ Worker، صفر
+  `CACHE_VERSION` bump. المعدلات (`pShip`/`pDeliver`) بتتحسب من نفس الفترة
+  المعروضة (قرار أحمد — حد معروف مقبول، مش باج). مفيش حد أدنى للعيّنة حاليًا
+  (مؤجل بقرار أحمد).
+
 ## خط الأساس بعد النقل
 
 > ⚠️ **لسه متسجّلش.** أول ما الأداة تتأكد إنها شغالة بعد أول نشر من git، سجّل هنا
@@ -134,14 +147,9 @@ git show 30ce4b2:Index.html
 - **تسجيل `performance_dashboard` في `ecommoda-constants` §7.** الأداة مش في جدول
   D1 دلوقتي. القيم المطلوب تسجيلها: `tool` = `performance_dashboard`،
   `type` = `login` · `logout`. **ده بيتم من عند أحمد، مش من هنا.**
-- **`classifyOrderForCounts()`: `S1=In-Return` بيتحسب "مؤكد" في تاب الأوردرات** —
-  مخالف صراحةً لـ Rule 12 في `ecommoda-order-lifecycle`
-  (*"s1=In-Return folded into Shipped for money KPIs only — never for order counts"*).
-  التصحيح محتاج مربع UI جديد ("قيد الإرجاع"). **قرار تصميم مفتوح، مش جزء من النقل —
-  ما تلمسهوش.**
 - **حد معروف:** تصنيف أوردر بأكتر من دورة R/E واحدة مش دقيق — `hasExchange` /
-  `hasSettledClosed` في نفس الدالة فوق بيتحسبوا Any عبر كل الدورات مجمّعة مش لكل
-  دورة لوحدها. يحتاج Data Contract جديد لتتبّع كل دورة لوحدها.
+  `hasSettledClosed` في `classifyOrderForCounts()` بيتحسبوا Any عبر كل الدورات
+  مجمّعة مش لكل دورة لوحدها. يحتاج Data Contract جديد لتتبّع كل دورة لوحدها.
 - **Build watch paths لسه `*`** — أي تعديل HTML بينشر الـ Worker تاني بلا داعي.
   التضييق لـ `index.js` + `wrangler.toml` (§13-ب في `ecommoda-tool-migration-playbook`)
   مستني تأكيد إن الأداة شغالة بعد النقل. **لو اتضيّقت، أي ملف جديد يعتمد عليه الـ
