@@ -1,6 +1,6 @@
 // ══════════════════════════════════════════════════════════════════
-// Performance Dashboard Worker — لوحة الأداء (v3.0.0)
-// المرجع: sales-dashboard-overview-data-contract-v2.md (v2.0.0 — معتمد)
+// Performance Dashboard Worker — لوحة الأداء (v3.0.1)
+// المرجع: docs/performance-dashboard-data-contract-v2.1.0.md (v2.1.0 — معتمد)
 //         + ecommoda-order-lifecycle / references/piece-level-valuation.md (v1.1.0)
 //         + ecommoda-order-lifecycle / references/classification-rules.md (عدّ الأوردرات)
 //
@@ -66,13 +66,21 @@
 //      - classifyOrderForCounts(): hasExchange/hasSettledClosed بيتحسبوا Any
 //        عبر كل دورات الأوردر مجمّعة، مش لكل دورة لوحدها — أوردر بأكتر من دورة
 //        R/E ممكن يتصنّف غلط. يحتاج Data Contract جديد لتتبّع كل دورة لوحدها.
+// v3.0.1 (25-08-2026): RETURNS_PAGE (5→10) و EXCHANGE_LINES_PAGE (10→20) —
+//   الحد القديم كان بيوقف الطلب كله (حارس truncation فوق) على أوردرات حقيقية
+//   وصلت لأكتر من ٥ دورات إرجاع/استبدال، أو دورة فيها أكتر من ١٠ سطر بديل
+//   (مؤكَّد من أحمد 25-08-2026 — Data Contract v2.1.0 §6). التعديل نفسه اتعمل
+//   يدويًا ونُشر قبل الالتزام ده (commit ec9af6c) — هنا استكمال التوثيق +
+//   رفع CACHE_VERSION اللي بيروح جنب أي تغيير في شكل استعلام GraphQL
+//   (caching-model.md §3). صفر تغيير في منطق التصنيف (أقسام 1–5 في العقد).
+//   CACHE_VERSION → v7.
 // ══════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════
 // §CONSTANTS
 // ══════════════════════════════════════════════════════
 const TOOL_NAME  = 'performance_dashboard';
-const CACHE_VERSION = 'v6'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2)
+const CACHE_VERSION = 'v7'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
 const LINE_ITEMS_PAGE     = 25;   // lineItems(first: 25) — absolute max

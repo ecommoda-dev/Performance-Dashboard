@@ -7,7 +7,7 @@
 **بتعمل إيه:** داشبورد قراءة فقط بيجمّع بيانات أوردرات شوبيفاي على مستويين مستقلين —
 تقييم بالقطعة (فلوس) وعدّ الأوردرات — لفترة زمنية محددة، مع كاش على KV.
 **مين بيستخدمها:** إدارة · حسابات
-**الإصدار:** Worker `v3.0.0` · الواجهة `v3.0.0` ← الاتنين مستقلين، طبيعي يختلفوا
+**الإصدار:** Worker `v3.0.1` · الواجهة `v3.0.0` ← الاتنين مستقلين، طبيعي يختلفوا
 
 ## الروابط
 
@@ -66,15 +66,20 @@ Build watch paths : * (الافتراضي) — لسه متضيّقتش
 `wildcard *` — الأداة قراءة فقط (`get_data`/`get_meta`/`clear_cache`) + auth endpoints،
 وكلها ورا `WORKER_SECRET`. الهيدرز في `CORS_HEADERS` والـ preflight أول حاجة في `fetch`.
 
-## الثوابت المقفولة (من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد)
+## الثوابت المقفولة (من Data Contract v2.1.0 §6 — ممنوع تتغير من غير Data Contract جديد)
 
 ```
-LINE_ITEMS_PAGE 25 · RETURNS_PAGE 5 · RETURN_LINES_PAGE 25
-EXCHANGE_LINES_PAGE 10 · STAGE1_PAGE_SIZE 250 · STAGE2_BATCH_SIZE 10
-CACHE_VERSION v6 · MAX_CACHE_BYTES 25MB
+LINE_ITEMS_PAGE 25 · RETURNS_PAGE 10 · RETURN_LINES_PAGE 25
+EXCHANGE_LINES_PAGE 20 · STAGE1_PAGE_SIZE 250 · STAGE2_BATCH_SIZE 10
+CACHE_VERSION v7 · MAX_CACHE_BYTES 25MB
 كاش: نطاق مغلق (dateTo قبل النهاردة) = دائم · نطاق مفتوح = 900 ثانية
-مفاتيح KV: dash:performance_dashboard:v6:data|meta:<from>:<to>
+مفاتيح KV: dash:performance_dashboard:v7:data|meta:<from>:<to>
 ```
+
+> **تحديث 25-08-2026:** RETURNS_PAGE و EXCHANGE_LINES_PAGE اتضاعفوا (5→10،
+> 10→20) — كان فيه أوردرات حقيقية بتوقف الطلب كله بسبب الحد القديم. القرار
+> من أحمد. CACHE_VERSION اترفع لـ v7 بالتبعية (قاعدة ecommoda-dashboard-builder).
+> التفاصيل والدليل → `docs/performance-dashboard-data-contract-v2.1.0.md` §6.
 
 ## خط الأساس بعد النقل
 
@@ -144,6 +149,6 @@ git show 30ce4b2:Index.html
 - **تعليق في `wrangler.toml`** فيه نقطتين `..` بدل نقطة — تجميلي بحت، متلمسش الملف
   عشانه لوحده.
 
-آخر تحديث: 24-08-2026 — 19:30
+آخر تحديث: 25-08-2026
 
 </div>
