@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════════════════════════════
-// Performance Dashboard Worker — لوحة الأداء (v3.0.2)
+// Performance Dashboard Worker — لوحة الأداء (v3.0.2).
 // المرجع: docs/performance-dashboard-data-contract-v2.1.0.md (v2.1.0 — معتمد)
 //         + ecommoda-order-lifecycle / references/piece-level-valuation.md (v1.1.0)
 //         + ecommoda-order-lifecycle / references/classification-rules.md (عدّ الأوردرات)
