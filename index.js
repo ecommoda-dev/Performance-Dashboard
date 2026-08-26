@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════════════════════════════
-// Performance Dashboard Worker — لوحة الأداء (v3.0.2).
+// Performance Dashboard Worker — لوحة الأداء (v3.1.0).
 // المرجع: docs/performance-dashboard-data-contract-v2.1.0.md (v2.1.0 — معتمد)
 //         + ecommoda-order-lifecycle / references/piece-level-valuation.md (v1.1.0)
 //         + ecommoda-order-lifecycle / references/classification-rules.md (عدّ الأوردرات)
@@ -61,6 +61,9 @@
 //      - classifyOrderForCounts(): hasExchange/hasSettledClosed بيتحسبوا Any
 //        عبر كل دورات الأوردر مجمّعة، مش لكل دورة لوحدها — أوردر بأكتر من دورة
 //        R/E ممكن يتصنّف غلط. يحتاج Data Contract جديد لتتبّع كل دورة لوحدها.
+//        ✅ اتقفلت في v3.1.0 تحت (G-13 خطوة أ + ب) — من غير Data Contract جديد:
+//        returns[].createdAt/closedAt سكالر على نود بيتجاب أصلاً. الباقي المؤجّل
+//        هو خطوة (ج) بس: orderCycleRows[] (classification-rules.md §9-ب).
 // v3.0.1 (25-08-2026): RETURNS_PAGE (5→10) و EXCHANGE_LINES_PAGE (10→20) —
 //   الحد القديم كان بيوقف الطلب كله (حارس truncation فوق) على أوردرات حقيقية
 //   وصلت لأكتر من ٥ دورات إرجاع/استبدال، أو دورة فيها أكتر من ١٠ سطر بديل
@@ -78,14 +81,37 @@
 //   classifyOrderForCounts() ولا stageFromS2(). التعليق على normalBucket()
 //   تحت (كان بيقول "S1 فقط، مش S2") اتحدّث ليعكس نفس القرار.
 //
-// skills: worker-builder v1.0.0 · constants v1.0.0 · dashboard-builder v1.0.0 — 26-08-2026
+// v3.1.0 (26-08-2026): دورات R/E المتعددة — gap G-13 خطوة (أ) + (ب).
+//   القديم كان بيقرا تاريخ دورات الأوردر كأنه دورة واحدة، من بابين:
+//   ① hasExchange = .some() على كل الدورات → دورة استبدال قديمة مقفولة بتخلي
+//     إرجاع جديد يتقرا "استبدال"، وده بيقلب إشارة التوقّع (رجل مرتجع "بينجح"
+//     = خسارة مش تسليم — dashboard-builder Rule 11-ب).
+//   ② شرط التسوية s2 ∈ {In-Return, Returned} كان بيتطبّق على كل الدورات، و s2
+//     قيمة واحدة على مستوى الأوردر بتوصف أحدث دورة بس → فتح دورة جديدة كان
+//     بيلغي تسوية كل الدورات اللي قبلها **بأثر رجعي**.
+//   التصحيح (order-lifecycle Rule 15 ② + Rule 7 · classification-rules §2-C):
+//   - orderCycles() — مصدر واحد لفلترة وترتيب الدورات، بتستخدمه المكنتان.
+//   - الفرع الانتقالي ("إيه اللي ماشي دلوقتي؟") → أحدث دورة بس.
+//   - الفرع النهائي ("الأوردر ده شاف استبدال أصلاً؟") → .some() وده الصح.
+//     ⚠️ التمييز ده مقصود: تطبيق "أحدث دورة" على الفرعين بيحرّك ٩ أوردرات بدل
+//     واحد، تمنية منهم لمربع مش أصح من اللي هم فيه.
+//   - computeBoxes(): التسوية بقت لكل دورة بفهرسها — أحدث دورة محتاجة الشرطين،
+//     والدورة الأقدم CLOSED لوحده يكفيها.
+//   - وسمان تشخيصيان (cycleNote): CYCLE_OVERLAP و MULTI_CYCLE — منفصلان،
+//     وبيتعدّوا في warnings و orderWarnings. ⛔ الوسم مبيحركش ولا رقم (Rule 13).
+//   الأثر المقيس على الـ ١١ أوردر متعدد الدورات في الريبو: أوردر واحد بس
+//   اتحرّك (#50091: SHIPPED_EXCHANGE → SHIPPED_RETURN)، والباقي وسم بس.
+//   CACHE_VERSION → v8 (شكل الصفوف + التصنيف الاتنين اتغيّروا).
+//
+// skills: worker-builder v1.0.0 · constants v1.0.0 · dashboard-builder v1.1.0 ·
+//         order-lifecycle v1.0.0 — 26-08-2026
 // ══════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════
 // §CONSTANTS
 // ══════════════════════════════════════════════════════
 const TOOL_NAME  = 'performance_dashboard';
-const CACHE_VERSION = 'v7'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية)
+const CACHE_VERSION = 'v8'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
 const LINE_ITEMS_PAGE     = 25;   // lineItems(first: 25) — absolute max
@@ -178,6 +204,13 @@ const ORDER_BUCKET = {
 const NOTE = {
   REDELIVERY:  'REDELIVERY',   // S1=Ready + Fulfilled → محاولة تسليم مكررة (lifecycle Rule 5)
   FULFIL_MISM: 'FULFIL_MISM',  // حالة الشحن الفعلية للسطر ما طابقتش توقع المربع
+  // §CYCLE — وسمان على مستوى الأوردر (مش السطر) — state-machines.md §2.4.
+  // ⚠️ ممنوع دمجهم: بيروحوا لناس مختلفة. CYCLE_OVERLAP مخالفة تشغيلية بتتصلح
+  // في شوبيفاي (خدمة العملاء)، و MULTI_CYCLE حد في الكود (مربع واحد مش كفاية
+  // لدورتين — الحل النهائي orderCycleRows[] في classification-rules.md §9-ب).
+  // تحذير مدموج بـ overlap بس بيمسك ١١% بس من الصفوف المحتاجة مراجعة.
+  CYCLE_OVERLAP: 'CYCLE_OVERLAP', // دورة اتفتحت وسابقتها لسه مفتوحة (Rule 15 ①)
+  MULTI_CYCLE:   'MULTI_CYCLE',   // دورتين متتاليتين شرعيتين — المربع ناقص مش غلط
 };
 
 // ══════════════════════════════════════════════════════
@@ -403,7 +436,10 @@ async function fetchStage2(env, token, candidateIds) {
           returns(first: ${RETURNS_PAGE}) {
             pageInfo { hasNextPage }
             nodes {
+              name
               status
+              createdAt
+              closedAt
               returnLineItems(first: ${RETURN_LINES_PAGE}) {
                 pageInfo { hasNextPage }
                 nodes {
@@ -512,6 +548,29 @@ function stageFromS2(s2) {
   return null;
 }
 
+// §AGGREGATE::orderCycles — دورات الـ R/E الفعّالة للأوردر، مرتّبة زمنيًا
+// المصدر الوحيد لترتيب الدورات — المكنتان (الفلوس والعدّ) لازم تستخدما نفس
+// الترتيب، وإلا "أحدث دورة" بتبقى دورتين مختلفتين في نفس الطلب.
+// ⚠️ الفلترة قبل الترتيب إجباري: دورة CANCELED/DECLINED بـ closedAt = null
+//    بتفبرك تداخل كاذب لو فضلت في المصفوفة (state-machines.md §2.4).
+// ⚠️ ممنوع الاعتماد على ترتيب المصفوفة الراجعة من شوبيفاي — createdAt هو الترتيب.
+function orderCycles(stage2Order) {
+  return (stage2Order?.returns?.nodes || [])
+    .filter(r => !RETURN_IGNORED.includes(r.status))
+    .sort((a, b) => (a.createdAt || '').localeCompare(b.createdAt || ''));
+}
+
+// §AGGREGATE::cycleNote — وسم تشخيصي على مستوى الأوردر (مش بيغيّر أي مربع أبدًا)
+// بيرجع CYCLE_OVERLAP (مخالفة قاعدة "دورة مفتوحة واحدة" — Rule 15 ①) أو
+// MULTI_CYCLE (دورات متتالية شرعية، بس المربع الواحد مش بيوصف غير أحدثها) أو null.
+// closedAt فاضية ⇒ ∞: دورة لسه مفتوحة وبعدها دورة تانية = تداخل من غير أي مقارنة.
+function cycleNote(cycles) {
+  if (cycles.length < 2) return null;
+  const overlap = cycles.some((c, i) =>
+    i > 0 && (!cycles[i - 1].closedAt || c.createdAt < cycles[i - 1].closedAt));
+  return overlap ? NOTE.CYCLE_OVERLAP : NOTE.MULTI_CYCLE;
+}
+
 // §AGGREGATE::normalBucket — تصنيف القطع الحيّة اللي مش مرتبطة بأي استبدال ولا إرجاع
 // ⚠️ 'In-Return' تُعامل معاملة 'Shipped' في S1 و S2 معًا، للعدّ وللفلوس
 //    (قرار Ahmed 03-08-2026، اتوسّع 25-08-2026 — ecommoda-order-lifecycle Rule 12).
@@ -568,6 +627,10 @@ function pushRow(rows, ctx, li, qty, value, bucket, note = null) {
     s1:               ctx.s1,
     s2:               ctx.s2,
     note,
+    // §CYCLE — حقل منفصل عن note عن قصد: note تشخيص السطر (FULFIL_MISM/REDELIVERY)
+    // و cycleNote تشخيص الأوردر. الفصل بيمنع الوسم الجديد من إخفاء القديم،
+    // وبيخلي العرض يقدر يفصل الوسمين زي ما القاعدة بتطلب.
+    cycleNote:        ctx.cycleNote,
   });
 }
 
@@ -587,7 +650,9 @@ function computeBoxes(stage1Orders, stage2Map) {
     netSales: 0, netSalesReplacement: 0,
   };
   const rows = [];
-  const warnings = { fulfilmentMismatch: 0, redelivery: 0, unclassified: 0 };
+  // ⚠️ cycleOverlap/multiCycle بيتعدّوا مرة واحدة لكل **أوردر** (مش لكل صف) —
+  // خاصية على مستوى الأوردر، وبالتالي الرقم هنا لازم يطابق نظيره في orderWarnings.
+  const warnings = { fulfilmentMismatch: 0, redelivery: 0, unclassified: 0, cycleOverlap: 0, multiCycle: 0 };
 
   // مفتاح تجميع الـ bucket → الحقل المقابل في b
   const IP_FIELD = {
@@ -606,6 +671,12 @@ function computeBoxes(stage1Orders, stage2Map) {
     const s1Val = order.s1?.value || null;
     const s2Val = order.s2?.value || null;
 
+    // §CYCLE — نفس الهيلبر المشترك المستخدم في مكنة العدّ (ترتيب واحد للمكنتين)
+    const cycles   = orderCycles(stage2Map.get(order.id));
+    const cycNote  = cycleNote(cycles);
+    if (cycNote === NOTE.CYCLE_OVERLAP) warnings.cycleOverlap++;
+    else if (cycNote === NOTE.MULTI_CYCLE) warnings.multiCycle++;
+
     const ctx = {
       orderId:          numericIdFromGid(order.id),
       orderName:        order.name || null,
@@ -613,6 +684,7 @@ function computeBoxes(stage1Orders, stage2Map) {
       createdAt:        order.createdAt || null,
       s1: s1Val,
       s2: s2Val,
+      cycleNote:        cycNote,
     };
 
     // §4.1 — ملغي/RTO: كل قيمة السطر (Q×P) بتروح للفاقد، مش بس الفرق (Q−C)
@@ -630,20 +702,24 @@ function computeBoxes(stage1Orders, stage2Map) {
       continue;
     }
 
-    const stage2Order = stage2Map.get(order.id);
-    const returns = stage2Order?.returns?.nodes || [];
-
     // §4.2 + §4.3 — تسوية الدورات وربط الأسطر تراكمياً بالكمية (مش one-to-one)
     const settledByLineId     = new Map(); // lineId -> { finalQty, exchangeQty }
     const unsettledByLineId   = new Map(); // lineId -> qty (دورة مفتوحة على السطر الأصلي)
     const replacementByLineId = new Map(); // lineId -> 'settled' | 'unsettled' (سطر البديل)
 
-    for (const ret of returns) {
-      if (RETURN_IGNORED.includes(ret.status)) continue; // §4.2 — تُتجاهل بالكامل
+    // ⚠️ اللفّة على cycles (مفلترة + مرتّبة) مش على المصفوفة الخام — الترتيب
+    //    load-bearing هنا لأن نطاق شرط الـ s2 بيعتمد على الفهرس.
+    const lastIdx = cycles.length - 1;
 
-      // §4.2 — الشرطان مع بعض: status بيقول أنهي دورة قفلت، s2 بيقول وضع الدورة
-      // المفتوحة حالياً فيزيائياً. الاتنين لازم.
-      const isSettled = ret.status === 'CLOSED' && (s2Val === 'In-Return' || s2Val === 'Returned');
+    cycles.forEach((ret, i) => {
+      // §4.2 — نطاق شرط الـ s2 = أحدث دورة بس (lifecycle Rule 7):
+      //   أحدث دورة  → CLOSED **و** s2 وصل فيزيائيًا (In-Return/Returned)
+      //   دورة أقدم  → CLOSED لوحده يكفي
+      // s2 قيمة واحدة على مستوى الأوردر بتوصف أحدث دورة بس؛ تطبيقها على دورة
+      // أقدم بيلغي تسويتها **بأثر رجعي** أول ما دورة جديدة تتفتح — وده بالظبط
+      // اللي كان بيرمي ٣٬٥٠٠ من ٤٬٧٥٠ في الكارت الغلط على #50091.
+      const isSettled = ret.status === 'CLOSED'
+                     && (i < lastIdx || s2Val === 'In-Return' || s2Val === 'Returned');
       const exchangeLines = ret.exchangeLineItems?.nodes || [];
       const isExchange = exchangeLines.length > 0;
 
@@ -675,7 +751,7 @@ function computeBoxes(stage1Orders, stage2Map) {
           unsettledByLineId.set(lid, (unsettledByLineId.get(lid) || 0) + qty);
         }
       }
-    }
+    });
 
     // ── تسجيل كل قطعة في مربع واحد بالظبط ──
     const addIP = (bucket, value) => {
@@ -803,12 +879,23 @@ function classifyOrderForCounts(order, stage2Order) {
   const lineItems = order.lineItems?.nodes || [];
   const sumC = lineItems.reduce((s, li) => s + (li.currentQuantity || 0), 0);
 
-  // نفس منطق تجاهل الدورات الملغية (RETURN_IGNORED) وتعريف "مفتوحة" (isOpenReturn)
-  // المستخدمين في computeBoxes — مصدر واحد للحقيقة.
-  const returns = (stage2Order?.returns?.nodes || []).filter(r => !RETURN_IGNORED.includes(r.status));
-  const hasExchange      = returns.some(r => (r.exchangeLineItems?.nodes || []).length > 0);
-  // "مُسوّاة" = نفس شرط §4.2 بالظبط: status=CLOSED **و** S2 وصل فيزيائيًا In-Return/Returned
-  const hasSettledClosed = returns.some(r => r.status === 'CLOSED' && (s2 === 'In-Return' || s2 === 'Returned'));
+  // §CYCLE — نفس الهيلبر المشترك المستخدم في computeBoxes (ترتيب واحد للمكنتين)
+  const cycles  = orderCycles(stage2Order);
+  const current = cycles[cycles.length - 1] || null;
+
+  // "هل الأوردر نهائي؟" — أحدث دورة لوحدها بتجاوب. دورة قديمة مسوّاة مينفعش
+  // تخلي الأوردر نهائي وفيه دورة أحدث لسه مفتوحة (lifecycle Rule 7).
+  const currentSettled = current
+    ? current.status === 'CLOSED' && (s2 === 'In-Return' || s2 === 'Returned')
+    : false;
+
+  // 🔴 السؤالان مختلفان — والخلط بينهم هو الفخ كله (Rule 15 ② · §2-C):
+  //   الفرع الانتقالي "إيه اللي ماشي دلوقتي؟"  → أحدث دورة بس
+  //   الفرع النهائي   "الأوردر ده شاف استبدال؟" → .some() على كل الدورات، وده الصح
+  // تطبيق "أحدث دورة" على الفرعين بيحرّك ٩ أوردرات بدل واحد — تمنية منهم
+  // لمربع مش أصح من اللي هم فيه (مقيس 26-08-2026).
+  const currentIsExchange = (current?.exchangeLineItems?.nodes || []).length > 0;
+  const everExchange      = cycles.some(c => (c.exchangeLineItems?.nodes || []).length > 0);
 
   // ─── S1 = Delivered (terminal) — كل نشاط R/E بعد كده يتقرأ من S2 ───
   if (s1 === S1.DELIVERED) {
@@ -816,17 +903,17 @@ function classifyOrderForCounts(order, stage2Order) {
 
     const stage = stageFromS2(s2); // 'PREP' | 'SHIPPED' | null
 
-    // دورة لسه مفتوحة فيزيائيًا (مش مُسوّاة) → تصنيف حسب مرحلتها ونوعها
-    if (stage && !hasSettledClosed) {
-      if (stage === 'PREP') return hasExchange ? ORDER_BUCKET.PREP_EXCHANGE : ORDER_BUCKET.PREP_RETURN;
-      return                       hasExchange ? ORDER_BUCKET.SHIPPED_EXCHANGE : ORDER_BUCKET.SHIPPED_RETURN;
+    // ─── الفرع الانتقالي: دورة لسه ماشية → نوعها ومرحلتها من أحدث دورة بس ───
+    if (stage && !currentSettled) {
+      if (stage === 'PREP') return currentIsExchange ? ORDER_BUCKET.PREP_EXCHANGE : ORDER_BUCKET.PREP_RETURN;
+      return                       currentIsExchange ? ORDER_BUCKET.SHIPPED_EXCHANGE : ORDER_BUCKET.SHIPPED_RETURN;
     }
 
-    // دورة مُسوّاة (S2 = Returned + status CLOSED) — النتيجة النهائية
-    if (s2 === 'Returned' && hasSettledClosed) {
-      if (!hasExchange && sumC === 0) return ORDER_BUCKET.LOST_FULL_RETURN;        // مرتجع كامل بعد الاستلام
-      if (hasExchange  && sumC > 0)   return ORDER_BUCKET.DELIVERY_EXCHANGE;       // تسليم + استبدال
-      if (!hasExchange && sumC > 0)   return ORDER_BUCKET.DELIVERY_PARTIAL_RETURN; // تسليم + استرجاع جزئي
+    // ─── الفرع النهائي: المربع ملخّص لتاريخ الأوردر → .some() هو الصح هنا ───
+    if (s2 === 'Returned' && currentSettled) {
+      if (!everExchange && sumC === 0) return ORDER_BUCKET.LOST_FULL_RETURN;        // مرتجع كامل بعد الاستلام
+      if ( everExchange && sumC > 0)   return ORDER_BUCKET.DELIVERY_EXCHANGE;       // تسليم + استبدال
+      if (!everExchange && sumC > 0)   return ORDER_BUCKET.DELIVERY_PARTIAL_RETURN; // تسليم + استرجاع جزئي
     }
 
     // s2 موجود بقيمة غير متوقعة، أو تعارض بين status و S2 — خارج التصنيف (نادر، للمراجعة)
@@ -850,7 +937,7 @@ function classifyOrderForCounts(order, stage2Order) {
 }
 
 // §AGGREGATE-ORDERS::pushOrderRow — صف drill-down واحد لكل أوردر (مش لكل سطر/SKU)
-function pushOrderRow(rows, order, bucket) {
+function pushOrderRow(rows, order, bucket, cycNote = null) {
   const lineItems = order.lineItems?.nodes || [];
   rows.push({
     orderId:          numericIdFromGid(order.id),
@@ -860,6 +947,8 @@ function pushOrderRow(rows, order, bucket) {
     s1:               order.s1?.value || null,
     s2:               order.s2?.value || null,
     bucket,
+    // §CYCLE — تشخيص، مش تصنيف: الصف بيفضل في مربعه (Rule 13)
+    cycleNote:        cycNote,
   });
 }
 
@@ -875,7 +964,9 @@ function computeOrderBoxes(stage1Orders, stage2Map) {
     unclassified: 0,
   };
   const rows = [];
-  const warnings = { unclassified: 0 };
+  // ⚠️ cycleOverlap/multiCycle خاصية على مستوى الأوردر — الرقم هنا لازم يطابق
+  //    نظيره في warnings بتاعة computeBoxes (نفس الأوردرات، نفس الهيلبر).
+  const warnings = { unclassified: 0, cycleOverlap: 0, multiCycle: 0 };
 
   const FIELD = {
     [ORDER_BUCKET.PENDING_CONFIRM]:         'pendingConfirm',
@@ -898,11 +989,17 @@ function computeOrderBoxes(stage1Orders, stage2Map) {
     const stage2Order = stage2Map.get(order.id);
     const bucket = classifyOrderForCounts(order, stage2Order);
 
+    // §CYCLE — الوسم بيتحسب لكل أوردر مهما كان مربعه (حتى الملغي/RTO) عشان
+    // الرقم يطابق نظيره في computeBoxes، واللي بيوسم كل أوردر كذلك.
+    const cycNote = cycleNote(orderCycles(stage2Order));
+    if (cycNote === NOTE.CYCLE_OVERLAP) warnings.cycleOverlap++;
+    else if (cycNote === NOTE.MULTI_CYCLE) warnings.multiCycle++;
+
     ob.totalOrders++;
     ob[FIELD[bucket]]++;
     if (bucket === ORDER_BUCKET.UNCLASSIFIED) warnings.unclassified++;
 
-    pushOrderRow(rows, order, bucket);
+    pushOrderRow(rows, order, bucket, cycNote);
   }
 
   return { orderBoxes: ob, orderRows: rows, orderWarnings: warnings };
