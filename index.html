@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- skills: html-builder v1.0.0 · dashboard-builder v1.0.0 — 26-08-2026 -->
+<!-- skills: html-builder v1.0.0 · dashboard-builder v1.1.0 · order-lifecycle v1.0.0 — 26-08-2026 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة الأداء — EcomModa</title>
@@ -467,6 +467,22 @@
   .order-num { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; font-weight: 600; } /* fallback بدون لينك — orderLink() لو مفيش orderId */
   .pill { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; display: inline-block; }
   .note-pill { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--amber-light); color: #92400e; border: 1px solid #fde68a; white-space: nowrap; margin-inline-start: 5px; }
+  /* ── شارات دورات الإرجاع/الاستبدال ──
+     ⚠️ الوسمان منفصلان بصريًا عن بعض وعن note-pill عن قصد:
+     CYCLE_OVERLAP مخالفة تشغيلية تروح لخدمة العملاء (كهرماني)، و MULTI_CYCLE
+     حد معروف في الكود والصف محسوب صح (أزرق هادي — مش لون غلط). */
+  .cycle-pill { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; white-space: nowrap; margin-inline-start: 5px; border: 1px solid transparent; }
+  .cycle-pill.overlap { background: var(--amber-light); color: #92400e; border-color: #fde68a; }
+  .cycle-pill.multi   { background: var(--accent-light); color: #1d4ed8; border-color: #bfdbfe; }
+  .cycle-pill.unknown { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+  .details-table tbody tr.has-cycle-overlap { background: #fffdf5; }
+  .details-table tbody tr.has-cycle-overlap:hover { background: var(--amber-light); }
+  /* مفتاح الأسباب — فوق الجدول، مش في الـ title بس */
+  .legend-row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 8px 12px; margin-bottom: 10px; border: 1px dashed var(--border); border-radius: 10px; background: var(--bg-soft, #fafafa); font-size: 11.5px; }
+  .legend-title { font-weight: 700; color: var(--text-muted); }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .legend-desc { color: var(--text-muted); }
+  .legend-desc b { color: var(--text); }
   .details-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
   .details-placeholder { padding: 30px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
   .details-more { padding: 10px; text-align: center; }
@@ -818,7 +834,17 @@
     <div class="eco-modal-hdr"><span>📋 سجل التحديثات</span><button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="eco-modal-body">
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v3.1.0</span><span class="cl-ver-date">25-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge">v3.2.0</span><span class="cl-ver-date">26-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>وسمان للأوردرات اللي فيها أكتر من دورة إرجاع/استبدال</b> — <code>تداخل دورات</code> (دورة اتفتحت وسابقتها لسه مفتوحة → إجراء خدمة العملاء) و<code>أكتر من دورة</code> (دورات متتالية شرعية، بس المربع بيوصف أحدث دورة بس → حد معروف في الكود). الوسمان <b>منفصلان</b> في البانر وفي الجدولين وفي مفتاح الأسباب الجديد فوق الجدول — ممنوع دمجهم لأنهم بيروحوا لناس مختلفة. <b>الوسم مبيحركش أي رقم</b> — الصف بيفضل في مربعه.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>أوردر بدورتين كان بياخد مربع غلط.</b> نوع الدورة كان بيتحسب بـ <code>.some()</code> على كل الدورات، فدورة استبدال قديمة مقفولة كانت بتخلي إرجاع جديد يتقرا "استبدال" — وده <b>بيقلب إشارة التوقّع</b> (رجل مرتجع "نجح" = خسارة، مش تسليم). دلوقتي الفرع الانتقالي ("إيه اللي ماشي دلوقتي؟") بيقرا <b>أحدث دورة بس</b>، والفرع النهائي ("الأوردر ده شاف استبدال أصلاً؟") فاضل <code>.some()</code> وده الصح. أثر مقيس: أوردر واحد بس اتحرّك (<code>#50091</code>).</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>دورة مقفولة كانت بترجع "قيد التنفيذ" بأثر رجعي.</b> شرط التسوية <code>S2 ∈ {In-Return, Returned}</code> كان بيتطبّق على كل الدورات، مع إن <code>S2</code> قيمة واحدة بتوصف أحدث دورة بس — فأول ما دورة جديدة تتفتح كانت بتلغي تسوية كل الدورات اللي قبلها. دلوقتي الشرط ده على <b>أحدث دورة بس</b>، والدورة الأقدم <code>CLOSED</code> لوحده يكفيها. على <code>#50091</code> ده رجّع ٣٬٥٠٠ ج من كارت غلط لكارتين صح.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><code>CACHE_VERSION</code> اترفع من <code>v7</code> لـ <code>v8</code> — شكل الصفوف اتغيّر (حقل <code>cycleNote</code> جديد) والتصنيف اتغيّر. أي فترة متكاشة بنسخة أقدم هتتحسب من الأول تلقائي.</span></li>
+        </ul>
+      </div>
+
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.1.0</span><span class="cl-ver-date">25-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>صف "توقّع اكتمال الفترة"</b> تحت مربعات تاب الأوردرات — تسليمات/خسائر متوقّعة محسوبة بمعدلات نجاح مقاسة لكل مرحلة (Rule 11 في <code>ecommoda-dashboard-builder</code>)، مش بافتراض 100% نجاح. شحنات المرتجع الجارية محسوبة خسارة كاملة، و"خارج التصنيف" مستبعد تمامًا من الحساب. <b>HTML-only</b> — صفر تعديل في الـ Worker، صفر <code>CACHE_VERSION</code> bump.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>شيل كلمة <b>"مؤكد"</b> من اسمي مربعي "مؤكد (تحت التجهيز)" و"مؤكد (خرج للشحن)" في التابين — بقيا <b>"تحت التجهيز"</b> و<b>"خرج للشحن"</b>. تسمية بس — مفاتيح <code>BUCKET</code>/<code>ORDER_BUCKET</code> الإنجليزية زي ما هي.</span></li>
@@ -827,7 +853,7 @@
         </ul>
       </div>
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v3.0.0</span><span class="cl-ver-date">23-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.0.0</span><span class="cl-ver-date">23-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>شاشة تسجيل دخول</b> (اختيار الموظف + PIN من 4 أرقام) — نفس النمط الموحّد في باقي الأدوات: تسجيل أول مرة بإنشاء PIN، لوحة أرقام، دعم الكيبورد، وزرار <b>🚪 خروج</b> في الهيدر. كل دخول/خروج بيتسجّل في D1 (<code>tool = performance_dashboard</code>). ⚠️ محتاج D1 Binding اسمه <code>DB</code> على الـ Worker.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>زرار "عرض التفاصيل" في تاب الأوردرات مكانش بيفتح خالص.</b> السبب: <code>breakdownToggle()</code> كانت بتنادي <code>toggleBreakdown()</code> دايمًا حتى في تاب الأوردرات، فكانت بتكتب في state تاب المبيعات بينما الكروت بتقرا من state تاني — فالضغط مكانش بيعمل حاجة. الزرار بقى بياخد <code>scope</code> ('main' / 'orders') وبينادي الدالة الصح.</span></li>
@@ -1097,18 +1123,29 @@ Bar chart مقارنة المربعات الأساسية + أرقام على ا�
 ──────────────── v3.1.0 (25-08-2026) ───────────────────────────
 صف "توقّع اكتمال الفترة" (Rule 11) │ HTML   │ §ORDERS-JS │ computeOrderForecast / renderOrderForecast
 حارس نسبة Δ% غير منطقية           │ HTML   │ §TOOL-JS   │ delta (MIN_DELTA_BASE)
+──────────────── v3.2.0 (26-08-2026) — دورات R/E متعددة (G-13) ─
+ترتيب دورات الأوردر (مصدر واحد)   │ Worker │ §AGGREGATE │ orderCycles
+وسم تداخل/تعدد الدورات            │ Worker │ §AGGREGATE │ cycleNote
+شارة الوسم في الجدولين            │ HTML   │ §TOOL-JS   │ cyclePill
+مفتاح الأسباب فوق الجدول          │ HTML   │ §TOOL-JS   │ reasonLegend
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
 LS_URL    = 'perfdash_worker_url'
 LS_SECRET = 'perfdash_worker_secret'
 state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
-                qty, value, bucket, s1, s2, note }, ...]
+                qty, value, bucket, s1, s2, note, cycleNote }, ...]
+                note      = تشخيص السطر  (REDELIVERY / FULFIL_MISM)
+                cycleNote = تشخيص الأوردر (CYCLE_OVERLAP / MULTI_CYCLE) — حقل
+                            منفصل عن note عن قصد، عشان الجديد ما يخفيش القديم
 state.prevRows = نفس شكل state.rows بس للفترة السابقة (v1.4.0 — كانت بتتجاب
                  من الـ Worker وبتترمى، دلوقتي بتتخزن لحساب Δ% في وضع عدد القطع)
 state.viewMode = 'value' | 'qty' — يتحكم في activeBoxes() و fmtAmt()
 BUCKET_LABELS = خريطة bucket → التسمية العربية (لازم تطابق BUCKET في الـ Worker)
 NOTE_LABELS   = REDELIVERY (محاولة مكررة) · FULFIL_MISM (تعارض حالة شحن)
+CYCLE_NOTE_LABELS = CYCLE_OVERLAP (تداخل دورات → خدمة العملاء) ·
+                    MULTI_CYCLE (أكتر من دورة → حد معروف في الكود)
+                    ⛔ ممنوع دمجهم — بيروحوا لناس مختلفة
 DETAILS_ROW_LIMIT = 500 صف معروض دفعة واحدة، مع زرار "عرض المزيد"
 state.detailsSearch = نص البحث الحالي — بيتصفّر تلقائي عند اختيار مربع جديد
 SHOPIFY_ADMIN_ORDER_URL(id) = https://admin.shopify.com/store/6c7e1a-53/orders/{id}
@@ -1201,7 +1238,7 @@ NOTES
 const LS_URL       = 'perfdash_worker_url';
 const LS_SECRET    = 'perfdash_worker_secret';
 const LS_ADMIN_URL = 'admin_worker_url';       // shared across all tools — never rename
-const TOOL_VERSION = 'v3.1.0';
+const TOOL_VERSION = 'v3.2.0';
 const CURRENCY_SUFFIX = 'ج.م';
 const QTY_SUFFIX = 'قطعة';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
@@ -1609,11 +1646,16 @@ function renderShell() {
   if (w.unclassified)       warnBits.push(`${fmtInt(w.unclassified)} قطعة خارج التصنيف`);
   if (w.fulfilmentMismatch) warnBits.push(`${fmtInt(w.fulfilmentMismatch)} تعارض في حالة الشحن`);
   if (w.redelivery)         warnBits.push(`${fmtInt(w.redelivery)} محاولة تسليم مكررة (Ready + Fulfilled)`);
+  // §CYCLE — سببان منفصلان، كل واحد بإجراءه (ممنوع دمجهم في رقم واحد)
+  if (w.cycleOverlap)       warnBits.push(`${fmtInt(w.cycleOverlap)} أوردر فيه تداخل دورات (إجراء: خدمة العملاء)`);
+  if (w.multiCycle)         warnBits.push(`${fmtInt(w.multiCycle)} أوردر بأكتر من دورة (المربع بيوصف أحدث دورة)`);
 
   // v2.0.0 — تحذيرات مستوى الأوردر (مستقلة عن تحذيرات مستوى القطعة فوق)
   const ow = state.orderWarnings || {};
   const orderWarnBits = [];
   if (ow.unclassified) orderWarnBits.push(`${fmtInt(ow.unclassified)} أوردر خارج التصنيف`);
+  if (ow.cycleOverlap) orderWarnBits.push(`${fmtInt(ow.cycleOverlap)} أوردر فيه تداخل دورات (إجراء: خدمة العملاء)`);
+  if (ow.multiCycle)   orderWarnBits.push(`${fmtInt(ow.multiCycle)} أوردر بأكتر من دورة (المربع بيوصف أحدث دورة)`);
 
   wrap.innerHTML = `
     <div class="info-note">📊 تم فحص ${fmtInt(state.ordersScanned)} أوردر في الفترة المختارة — ${fmtInt(state.candidatesFetched)} منهم فيه نشاط إرجاع/استبدال (اتجابت بيانات مرتجعاتهم بالتفصيل).</div>
@@ -2163,6 +2205,48 @@ const NOTE_LABELS = {
   FULFIL_MISM: 'تعارض حالة الشحن',
 };
 
+// §CYCLE — وسمَا دورات الـ R/E. ⛔ ممنوع دمجهم في وسم واحد: بيروحوا لناس
+// مختلفة، وتحذير مدموج بالتداخل بس بيمسك ١١% من الصفوف المحتاجة مراجعة.
+// كل وسم بيقول السبب + الإجراء اللي بيقفله (Rule 10 — مش "في حاجة غلط" وبس).
+const CYCLE_NOTE_LABELS = {
+  CYCLE_OVERLAP: {
+    label: 'تداخل دورات', cls: 'overlap',
+    desc:  'دورة إرجاع/استبدال اتفتحت وسابقتها لسه مفتوحة',
+    action:'الإجراء: خدمة العملاء — تتقفل الدورة الأقدم في شوبيفاي',
+  },
+  MULTI_CYCLE: {
+    label: 'أكتر من دورة', cls: 'multi',
+    desc:  'دورتين متتاليتين شرعيتين — المربع بيوصف أحدث دورة بس',
+    action:'الإجراء: مفيش — حد معروف، العرض على مستوى الدورة لسه متأجل',
+  },
+};
+
+// شارة الوسم — كود مش معروف بيتعرض كنص خام، أبداً فاضي (Rule 10)
+function cyclePill(code) {
+  if (!code) return '';
+  const m = CYCLE_NOTE_LABELS[code];
+  if (!m) return `<span class="cycle-pill unknown" title="كود غير معروف — يحتاج مراجعة يدوية">${esc(code)}</span>`;
+  return `<span class="cycle-pill ${m.cls}" title="${esc(m.desc)} — ${esc(m.action)}">${esc(m.label)}</span>`;
+}
+
+// مفتاح الأسباب — بيتعرض فوق الجدول، وبيقتصر على الأكواد الموجودة فعلاً في الصفوف
+function reasonLegend(rows) {
+  const cycles = [...new Set(rows.map(r => r.cycleNote).filter(Boolean))];
+  const notes  = [...new Set(rows.map(r => r.note).filter(Boolean))];
+  if (!cycles.length && !notes.length) return '';
+  const cycleItems = cycles.map(c => {
+    const m = CYCLE_NOTE_LABELS[c];
+    const txt = m ? `${esc(m.desc)} · <b>${esc(m.action)}</b>`
+                  : 'كود غير معروف — يحتاج مراجعة يدوية';
+    return `<span class="legend-item">${cyclePill(c)}<span class="legend-desc">${txt}</span></span>`;
+  });
+  const noteItems = notes.map(n => {
+    const lbl = NOTE_LABELS[n] || n;
+    return `<span class="legend-item"><span class="note-pill">${esc(lbl)}</span></span>`;
+  });
+  return `<div class="legend-row"><span class="legend-title">مفتاح الأسباب:</span>${cycleItems.join('')}${noteItems.join('')}</div>`;
+}
+
 function bucketPill(bucketKey) {
   const meta = BUCKET_LABELS[bucketKey] || { label: bucketKey || '—', colour: 'var(--text-muted)' };
   return `<span class="pill" style="background:color-mix(in srgb, ${meta.colour} 14%, transparent); color:${meta.colour};">${esc(meta.label)}</span>`;
@@ -2285,19 +2369,19 @@ function renderDetailsTableWrap() {
   const shown  = sorted.slice(0, state.detailsLimit);
 
   const tbody = shown.map(r => `
-    <tr class="${r.note ? 'has-note' : ''}">
+    <tr class="${r.note ? 'has-note' : (r.cycleNote === 'CYCLE_OVERLAP' ? 'has-cycle-overlap' : '')}">
       <td>${orderLink(r.orderName || r.orderId, r.orderId)}</td>
       <td class="col-num">${fmtInt(r.orderTotalPieces)}</td>
       <td class="col-num">${fmtRowDate(r.createdAt)}</td>
       <td class="mono">${esc(r.sku || '—')}</td>
       <td class="col-num">${fmtInt(r.qty)}</td>
       <td class="col-num">${fmtMoney(r.value)}</td>
-      <td>${bucketPill(r.bucket)}${r.note ? `<span class="note-pill">${esc(NOTE_LABELS[r.note] || r.note)}</span>` : ''}</td>
+      <td>${bucketPill(r.bucket)}${r.note ? `<span class="note-pill">${esc(NOTE_LABELS[r.note] || r.note)}</span>` : ''}${cyclePill(r.cycleNote)}</td>
       <td>${esc(r.s1 || '—')}</td>
       <td>${esc(r.s2 || '—')}</td>
     </tr>`).join('');
 
-  wrap.innerHTML = summary + `
+  wrap.innerHTML = summary + reasonLegend(shown) + `
     <div class="details-scroll">
       <table class="details-table">
         <thead>
@@ -2867,16 +2951,16 @@ function renderOrderDetailsTableWrap() {
   const shown  = sorted.slice(0, state.orderDetailsLimit);
 
   const tbody = shown.map(r => `
-    <tr>
+    <tr class="${r.cycleNote === 'CYCLE_OVERLAP' ? 'has-cycle-overlap' : ''}">
       <td>${orderLink(r.orderName || r.orderId, r.orderId)}</td>
       <td class="col-num">${fmtInt(r.orderTotalPieces)}</td>
       <td class="col-num">${fmtRowDate(r.createdAt)}</td>
-      <td>${orderBucketPill(r.bucket)}</td>
+      <td>${orderBucketPill(r.bucket)}${cyclePill(r.cycleNote)}</td>
       <td>${esc(r.s1 || '—')}</td>
       <td>${esc(r.s2 || '—')}</td>
     </tr>`).join('');
 
-  wrap.innerHTML = summary + `
+  wrap.innerHTML = summary + reasonLegend(shown) + `
     <div class="details-scroll">
       <table class="details-table">
         <thead>
