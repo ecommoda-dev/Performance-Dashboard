@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- skills: html-builder v1.1.0 · dashboard-builder v2.0.0 · order-lifecycle v1.1.0 — 30-08-2026 -->
+<!-- skills: html-builder v2.1.0 · dashboard-builder v2.1.0 · order-lifecycle v1.1.0 — 30-08-2026 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة الأداء — EcomModa</title>
@@ -77,6 +77,9 @@
   .hbtn.settings-configured { border-color: var(--green); color: var(--green); background: var(--green-light); }
   .hbtn.ver-btn { border-color: #bfdbfe; color: #1d4ed8; background: #eff6ff; font-family: var(--font-mono); font-weight: 700; }
   .hbtn.ver-btn:hover { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
+  /* الموظف الحالي — أخضر عادي، أحمر عند الهوفر (إشارة إن الضغط = خروج) */
+  .hbtn.active-user       { border-color: var(--green); color: var(--green); background: var(--green-light); }
+  .hbtn.active-user:hover { border-color: var(--red);   color: var(--red);   background: var(--red-light); }
   .hbtn .ico { display: inline-block; }
   .hbtn.refreshing .ico { animation: hbtn-spin .7s linear infinite; }
   @keyframes hbtn-spin { to { transform: rotate(360deg); } }
@@ -160,10 +163,12 @@
   .tab-chip-item.active { background: var(--accent-light); color: var(--accent-dark); }
 
   /* ── Dash Controls (range + freshness) ── */
+  /* عمود مش صف: صف مربعات الشهور فوق، بعده صف الفلتر (بترتيبه الإلزامي
+     الداخلي زي ما هو)، وتحتهم كتلة الطزاجة — date-range-filter.md §1a. */
   .dash-controls {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-    padding: 10px 14px; margin-bottom: 14px; display: flex; align-items: center;
-    justify-content: space-between; flex-wrap: wrap; gap: 10px;
+    padding: 10px 14px; margin-bottom: 14px; display: flex; flex-direction: column;
+    align-items: stretch; gap: 10px;
   }
 
   /* ── Date Range Filter (shared component — ecommoda-html-builder/references/date-range-filter.md) ── */
@@ -230,11 +235,71 @@
   .btn { border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); padding: 7px 13px; border-radius: 9px; font-family: var(--font-body); font-size: 13px; cursor: pointer; }
   .btn:hover { background: var(--bg); }
 
-  .freshness { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+  /* ── Freshness + refresh buttons — كتلة واحدة، نفس الصف ونفس الحاوية (إلزامي:
+     dashboard-builder Step 7 · dashboard-ui-patterns.md §1). سطر تفصيل الشهور
+     (.freshness-months) بياخد flex-basis:100% فبينزل تحتهم في نفس الكتلة —
+     monthly-chunk-loading.md §6. ── */
+  .freshness { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted);
+    flex-wrap: wrap; padding-top: 10px; margin-top: 4px; border-top: 1px dashed var(--border); flex-basis: 100%; }
   .freshness-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); display: inline-block; flex-shrink: 0; }
   .freshness-dot.loading { background: var(--amber); animation: pulse 1s infinite; }
   .freshness-dot.error { background: var(--red); }
   @keyframes pulse { 50% { opacity: .3; } }
+
+  .refresh-btn {
+    display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 12px;
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface);
+    font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--text-secondary);
+    cursor: pointer; white-space: nowrap;
+  }
+  .refresh-btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .refresh-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .refresh-btn.alt { font-weight: 500; color: var(--text-muted); }
+  .refresh-btn .ico { display: inline-block; }
+  .refresh-btn.refreshing .ico { animation: hbtn-spin .7s linear infinite; }
+
+  /* سطر «طزاجة كل شهر» — إلزامي مع مؤشر أقدم شهر (monthly-chunk-loading.md §6):
+     الرقم الواحد فوق بيعرض أقدم شهر، والسطر ده بيفكّه لكل شهر عشان اللي لسه
+     ضغط تحديث ما يفقدش الثقة في الشريط كله. */
+  .freshness-months { flex-basis: 100%; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 2px; }
+  .freshness-months:empty { display: none; }
+  .fm-label { font-size: 10.5px; font-weight: 700; color: var(--text-secondary); }
+  .fm-chip { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; padding: 2px 8px;
+    border: 1px solid var(--border); border-radius: 10px; color: var(--text-muted); white-space: nowrap; }
+  .fm-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  .fm-age { font-family: var(--font-mono); font-weight: 700; }
+
+  /* ── مربعات الشهور — صف مستقل فوق صف الفلتر (date-range-filter.md §1a).
+     الأحدث أولاً: في RTL أول عنصر في الـ DOM بيظهر أقصى اليمين. ── */
+  .month-box-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .month-box {
+    height: 34px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    font-family: inherit; font-size: 12.5px; font-weight: 700; color: var(--text-secondary);
+    background: var(--surface); cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .month-box:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+  .month-box.active { border-color: var(--accent); color: #fff; background: var(--accent); }
+  .month-box:disabled { opacity: .5; cursor: not-allowed; }
+  .range-note { flex-basis: 100%; font-size: 11.5px; color: var(--amber); font-weight: 600; }
+  .range-note:empty { display: none; }
+
+  /* ── شريط التقدّم والبوابة (monthly-chunk-loading.md §7) ── */
+  .state-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 26px 20px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+  .state-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
+  .state-msg { font-size: 12.5px; color: var(--text-secondary); line-height: 1.8; max-width: 640px; }
+  .progress-wrap { width: 100%; max-width: 460px; height: 8px; background: var(--surface-2);
+    border: 1px solid var(--border); border-radius: 20px; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--accent); transition: width .3s; }
+  .progress-steps { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+  .pstep { font-size: 11px; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--border); color: var(--text-muted); }
+  .pstep.done { border-color: var(--green); color: var(--green); }
+  .pstep.now  { border-color: var(--accent); color: var(--accent); font-weight: 700; }
+  .loading-spinner { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--accent);
+    border-radius: 50%; animation: hbtn-spin .8s linear infinite; }
+  .btn-primary { border: 1px solid var(--accent); background: var(--accent); color: #fff; padding: 8px 18px;
+    border-radius: 9px; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer; }
+  .btn-primary:hover { background: var(--accent-dark); }
 
   /* ── Notes / warnings ── */
   .info-note { background: var(--accent-light); color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; padding: 8px 14px; font-size: 12px; margin-bottom: 10px; }
@@ -751,15 +816,12 @@
     </div>
 
     <div class="app-header-btns">
-      <button class="hbtn" id="refreshBtn" onclick="doRefresh()"><span class="ico">↺</span> تحديث</button>
-      <div class="freshness" id="freshnessBar">
-        <span class="freshness-dot loading"></span>
-        <span class="freshness-text">جاري التحميل…</span>
-      </div>
-      <button class="hbtn" onclick="openAbout()">ℹ️ عن الأداة</button>
-      <button class="hbtn ver-btn" id="verBtn" onclick="openChangelog()">v3.0.0 📋</button>
+      <button class="hbtn" id="verMismatchBtn" style="display:none;border-color:var(--amber);color:var(--amber);background:var(--amber-light);"
+              onclick="showVersionMismatch()">⚠️ نسخة الـ Worker مختلفة</button>
+      <button class="hbtn active-user" id="activeUserBtn" onclick="doLogout()">👤 —</button>
+      <button class="hbtn" id="aboutBtn" onclick="openAbout()">ℹ️ عن الأداة</button>
+      <button class="hbtn ver-btn" id="verBtn" onclick="openChangelog()"></button>
       <button class="hbtn" id="settingsBtn" onclick="openSettings()">⚙️ الإعدادات</button>
-      <button class="hbtn" id="logoutBtn" onclick="doLogout()">🚪 خروج</button>
     </div>
   </div>
 
@@ -777,6 +839,17 @@
        §DASH — date range filter (شكل موحّد) + طريقة العرض
        ══════════════════════════════════════════════════════ -->
   <div class="dash-controls">
+    <!-- ── صف مربعات الشهور — صف **مستقل فوق** صف الفلتر. الترتيب الإلزامي
+         الداخلي لصف الفلتر (فترة سريعة ← من ← إلى) ما اتغيّرش، ومربعات الشهور
+         مش بديل للفترة السريعة ولا عنصر جوّه صفها — date-range-filter.md §1a.
+         الاتنين بيمسحوا بعض عند الاختيار (selectMonthBox ↔ resetRangePresetUI). ── -->
+    <div class="range-frow" id="monthBoxFrow">
+      <div class="range-fg" style="flex:1;min-width:260px;">
+        <span class="range-flabel">شهر كامل (سحب مباشر)</span>
+        <div class="month-box-row" id="monthBoxRow"></div>
+      </div>
+    </div>
+
     <div class="range-frow">
       <div class="range-fg">
         <span class="range-flabel">فترة سريعة</span>
@@ -835,18 +908,37 @@
           <input type="date" id="rangeDateTo" onclick="this.showPicker&&this.showPicker();" onchange="onRangeDateChange()">
         </div>
       </div>
-      <div class="range-fg">
+      <div class="range-fg" id="viewToggleFg">
         <span class="range-flabel">طريقة العرض</span>
         <div class="view-toggle" id="viewToggleWrap">
           <button class="view-toggle-btn active" id="viewModeBtnValue" onclick="setViewMode('value')">💰 قيمة</button>
           <button class="view-toggle-btn" id="viewModeBtnQty" onclick="setViewMode('qty')">🔢 عدد القطع</button>
         </div>
       </div>
+      <div class="range-note" id="rangeNote"></div>
+    </div>
+
+    <!-- مؤشر الطزاجة وزرارا التحديث — نفس الصف ونفس الحاوية (إلزامي:
+         dashboard-ui-patterns.md §1) + سطر طزاجة كل شهر تحتهم
+         (monthly-chunk-loading.md §6/§8). -->
+    <div class="freshness" id="freshnessBar">
+      <span class="freshness-dot loading"></span>
+      <span class="freshness-text">جاري التحميل…</span>
+      <button class="refresh-btn" id="refreshBtn" onclick="refreshData()"
+              title="بيسحب الشهر اللي لسه بيتغيّر من شوبيفاي — باقي شهور الفترة بتيجي من الكاش">
+        <span class="ico">↺</span> <span id="refreshBtnLabel">تحديث</span></button>
+      <button class="refresh-btn alt" id="refreshAllBtn" onclick="refreshAllData()" style="display:none;"
+              title="بيسحب كل شهور الفترة من شوبيفاي من الأول — استخدمه بعد تصحيح بيانات في شهر قديم">
+        <span class="ico">⟳</span> تحديث كل الشهور</button>
+      <div class="freshness-months" id="freshnessMonths"></div>
     </div>
   </div>
 
+  <!-- شريط التقدّم / البوابة / حالة الخطأ — setLoadState() بيتحكم فيه -->
+  <div id="stateArea"></div>
+
   <div id="dashboardBody">
-    <!-- محتوى عادي أو error-state — renderShell() بيتحكم فيه -->
+    <!-- محتوى عادي — renderShell() بيتحكم فيه -->
   </div>
 </main>
 
@@ -927,6 +1019,11 @@
       <div class="settings-field"><label class="settings-label">WORKER URL</label><input type="text" class="settings-input" id="cfgUrl"></div>
       <div class="settings-field"><label class="settings-label">WORKER SECRET</label><input type="password" class="settings-input" id="cfgSecret"></div>
       <div class="settings-field"><label class="settings-label">ADMIN WORKER URL</label><input type="text" class="settings-input" id="cfgAdminUrl"></div>
+      <div class="settings-field" style="border-top:1.5px solid var(--border);padding-top:12px;">
+        <label class="settings-label">فحص النظام</label>
+        <button class="btn" id="diagBtn" onclick="runDiag()">🩺 افحص الأداة والاتصالات</button>
+        <div id="diagResult" style="margin-top:10px;font-size:12px;line-height:1.7;"></div>
+      </div>
     </div>
     <div class="settings-modal-ftr">
       <button class="btn-modal-cancel" onclick="closeSettings()">إلغاء</button>
@@ -941,7 +1038,22 @@
     <div class="eco-modal-hdr"><span>📋 سجل التحديثات</span><button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="eco-modal-body">
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v3.4.0</span><span class="cl-ver-date">30-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">30-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مربعات الشهور.</b> صف أزرار فوق فلتر التاريخ — زرار لكل شهر (الشهر الحالي + ٥ سابقين، الأحدث أقصى اليمين). الضغط على مربّع بيختار <b>الشهر التقويمي كامل</b> وبيسحب من شوبيفاي مباشرة، إلا لو الكاش أطزج من ٥ دقايق ساعتها بيقرا منه. المربّع وفلتر "الفترة السريعة" بيمسحوا بعض — مستحيل الاتنين يبانوا مختارين مع بعض.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>التحميل بقى شهر بشهر.</b> الفترة بتتقسّم على حدود الشهور التقويمية <b>الكاملة</b>، وكل شهر بمفتاح كاش مستقل بيتحمّل ورا التاني بشريط تقدّم بيسمّي الشهر. أطراف الفترة بتتفلتر في الواجهة — <b>الفترة المعروضة هي اختيارك بالظبط، ما اتغيّرتش</b>. المكسب: "آخر ٣٠ يوم" و"أغسطس" و"آخر ٧ أيام" بقوا بيقروا من <b>نفس</b> مفتاح أغسطس بدل ٣ مفاتيح منفصلة، وزرار التحديث بيسحب الشهر اللي لسه بيتغيّر بس.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>زرار "تحديث كل الشهور"</b> جنب "تحديث الشهر الحالي" (بيظهر لو الفترة أوسع من شهر، ومعاه تأكيد) — للاستخدام بعد تصحيح بيانات في شهر قديم.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>سطر "طزاجة كل شهر"</b> تحت مؤشر آخر تحديث. المؤشر الرئيسي بيعرض <b>أقدم</b> شهر في الفترة (الأكثر تحفّظًا)، والسطر ده بيفكّه لكل شهر — عشان "من ٦ ساعات" ما تتقريش على إنها كل البيانات وإنت لسه محدّث الشهر الحالي دلوقتي.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>قفل جدول التفاصيل فوق ٤٥ يوم اتشال</b> — ما بقاش له لزوم. كل نداء دلوقتي شهر واحد على الأكثر، فجدول التفاصيل ووضع "عدد القطع" شغّالين على أي فترة مهما طالت.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) الانتظار الثابت بين الصفحات اتشال.</b> كان فيه ثانية نوم بين كل صفحتين أوردرات ونص ثانية بين كل دفعتين مرتجعات — يعني مدة الطلب كانت دالة في <b>عدد الصفحات</b> مش في سرعة شوبيفاي (~٢٧ ثانية نوم مقصود لكل شهر). الانتظار الوحيد الباقي هو اللي شوبيفاي نفسها بتطلبه عند الـ throttle.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>كل رقم على الشاشة بقى محسوب من الصفوف المعروضة.</b> كروت الأوردرات والتحذيرات وسطر "تم فحص N أوردر" كانوا بيقروا ملخّصات جاهزة من الـ Worker — ومع التقسيم الشهري دي بتوصف الشهر كامل مش الفترة اللي إنت شايفها. دلوقتي كلها بتتحسب من نفس الصفوف اللي في الجدول، فالكارت والجدول مستحيل يفترقوا.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>البيانات بتتحمّل بعد تسجيل الدخول</b> مش قبله. قبل كده كانت دورة سحب كاملة بتشتغل ورا شاشة الدخول حتى لو محدش دخل.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>مؤشر آخر تحديث وزرارا التحديث اتنقلوا من الهيدر لصف الفلاتر</b> — كتلة واحدة في نفس الصف زي باقي الداشبوردات.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><code>CACHE_VERSION</code> اترفع من <code>v10</code> لـ <code>v11</code> — كل صف أوردر بقى بيحمل معاه "فيه نشاط إرجاع/استبدال؟". أي فترة متكاشة بنسخة أقدم هتتحسب من الأول تلقائي.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.4.0</span><span class="cl-ver-date">30-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) <code>clear_cache</code> الكامل كان بيمسح جزء ويرجّع "تم مسح الكل".</b> <code>DASH_KV.list()</code> سقفها ١٠٠٠ مفتاح لكل نداء — أي مفتاح بره الألف الأولى (وبالذات فترات مقفولة قديمة) كان بيفضل. دلوقتي بيلفّ على الـ <code>cursor</code> لحد ما يمسح كل المفاتيح فعلاً.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>فترة أوسع من ٤٥ يوم:</b> جدول التفاصيل (مش الكروت) بيتقفل صراحةً بدل ما ينتظر الطلب دورة سحب كاملة ويطلّع خطأ حجم الكاش في الآخر بصفر أرقام. الملخّصات (الكروت) فضلت كاملة دايمًا مهما كان طول الفترة. وضع "عدد القطع" (اللي محتاج جدول التفاصيل ليتحسب) بيتقفل مؤقتًا لنفس الفترة، وبانر بيوضّح السبب.</span></li>
@@ -1190,20 +1302,36 @@
           <p>المعدلات بتتحسب <b>لكل مرحلة لوحدها</b> من نفس الفترة المعروضة (قرار أحمد 25-08-2026): <code>pDeliver</code> = نسبة الأوردرات المشحونة اللي وصلت فعلاً (من غير RTO/مرتجع كامل)، و<code>pShip</code> = نسبة الأوردرات اللي عدّت نقطة قرار ما قبل الشحن (من غير إلغاء). الحساب بعد كده <b>لكل sub-bucket لوحده</b> — أوردر مؤكد/استبدال لسه في الطريق بيتقدّم بمعدل النجاح (<code>pDeliver</code>/<code>pFull</code>)، لكن <b>شحنة المرتجع الجارية (<code>*_RETURN</code>) بتتحسب خسارة كاملة دايمًا</b> — نجاحها فيزيائيًا (وصلت المخزن) هو بالظبط الخسارة، مش تسليم. <code>UNCLASSIFIED</code> مستبعد تمامًا من الحساب (نتيجته مجهولة أصلاً) وعدده معروض في ⓘ.</p>
           <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">العرض دايمًا بكلمة <b>"متوقّعة"</b> (ممنوع "نهائية") + <code>~</code> قبل كل رقم + إطار مقطّع (dashed) + نفس ألوان <code>--green</code>/<code>--red</code>. المقارنة (Δ%) vs <b>الفعلي</b> (مش المتوقّع) للفترة السابقة — الفترة السابقة ناضجة فعليها = نهائيها. لو مفيش أوردر مكتمل واحد في الفترة (<code>pDeliver</code> أو <code>pShip</code> = null) الصف بيختفي تمامًا بدل ما يعرض توقّع بلا أساس.</p>
 
+          <h4>اختيار الفترة — ٣ طرق (v3.5.0)</h4>
+          <table>
+            <thead><tr><th>الطريقة</th><th>الفترة</th><th>سلوك التحميل</th></tr></thead>
+            <tbody>
+              <tr><td><b>مربّع الشهر</b> (الصف الأول)</td><td>الشهر التقويمي كامل (‑01 → آخر يوم)، حتى الشهر الحالي</td><td><b>سحب مباشر من شوبيفاي</b> — إلا لو الكاش أطزج من ٥ دقايق ساعتها بيقرا منه (حارس حداثة)</td></tr>
+              <tr><td><b>فترة سريعة</b> (اليوم · آخر N يوم · 📅 شهر محدد · الشهر/الربع/العام)</td><td>زي ما هي بالظبط</td><td>كاش-أولاً</td></tr>
+              <tr><td><b>من/إلى تاريخ</b> يدوي</td><td>زي ما هي بالظبط</td><td>كاش-أولاً (بعد ٤٠٠ms debounce)</td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">مربّع الشهر وفلتر الفترة السريعة <b>بيمسحوا بعض</b> — مستحيل الاتنين يبانوا مختارين مع بعض. الافتراضي عند فتح الأداة هو <b>"اليوم"</b>.</p>
+
           <h4>كيف تعمل</h4>
           <ol>
-            <li>اختار فترة — preset أو تعديل يدوي على "من/إلى تاريخ" — بيتحمل من الكاش (KV) لو موجود.</li>
-            <li>الـ Worker بيجيب كل الأوردرات (مرحلة 1، first: 250)، وبعدين بيانات المرتجعات للأوردرات المرشّحة بس (مرحلة 2، دفعات 10).</li>
-            <li>زرار "تحديث" بيجبر Fetch جديد. تغيير الفترة بيقرا من الكاش (نطاق فيه النهارده = 15 دقيقة · قفل من ٤٥ يوم أو أقل = 6 ساعات · أقدم = 24 ساعة — TTL متدرّج، مش دائم، عشان حالة الأوردر ممكن تتحرك بعد ما الفترة تقفل).</li>
-            <li>لو أي أوردر فيه أكتر من 25 سطر، أو أي صفحة فشلت، الطلب كله بيفشل برسالة واضحة — مفيش أرقام ناقصة بصمت.</li>
+            <li>بعد تسجيل الدخول، الأداة بتقسّم الفترة على حدود <b>الشهور التقويمية الكاملة</b> وبتسأل <code>get_meta</code> عن كل شهر (نداء خفيف بيقرا الكاش بس، وكلهم بالتوازي).</li>
+            <li>كل الشهور متكاشة — أو شهر واحد ناقص — بتتحمّل على طول بشريط تقدّم. من <b>شهرين ناقصين</b> فما فوق بتظهر شاشة بتسمّي الشهور وبتسألك قبل السحب الطويل.</li>
+            <li>الشهور بتتحمّل <b>ورا بعض</b> (مش بالتوازي) — التوازي بيولّع throttle على شوبيفاي وبيخلي الأخطاء متشابكة. الـ Worker لكل شهر بيجيب كل الأوردرات (مرحلة 1، first: 250) وبعدين بيانات المرتجعات للأوردرات المرشّحة بس (مرحلة 2، دفعات 10).</li>
+            <li>الشهور بترجع كاملة، والواجهة <b>بتقصّ أطراف الفترة</b> بتاريخ الأوردر قبل العرض — <b>اللي إنت شايفه هو اختيارك بالظبط</b>. الفايدة إن "أغسطس" و"آخر ٣٠ يوم" و"آخر ٧ أيام" كلهم بيقروا نفس مفتاح الكاش بدل ٣ مفاتيح منفصلة.</li>
+            <li>فترة قصيرة (شهر أو أقل) شهرها مش متكاش أصلاً بتتسحب <b>بحدودها هي</b> بدل شهر كامل — مفيش سحب ٣٠ يوم عشان تعرض يوم.</li>
+            <li>زرار <b>"تحديث الشهر الحالي"</b> بيسحب الشهر اللي لسه بيتغيّر بس (أو أحدث شهر لو الفترة كلها في الماضي). زرار <b>"تحديث كل الشهور"</b> بيسحب الفترة كلها من الأول ومعاه تأكيد.</li>
+            <li>مؤشر آخر تحديث بيعرض <b>أقدم</b> شهر في الفترة، وتحته سطر بيفكّ الرقم لكل شهر على حدة.</li>
+            <li>لو أي أوردر فيه أكتر من 25 سطر، أو أي شهر فشل، <b>التحميل كله بيفشل</b> برسالة بتسمّي الشهر ومفيش أي رقم بيتعرض — مفيش أرقام ناقصة بصمت.</li>
             <li>الضغط على أي مربع بيفتح قسم التفاصيل تحت من نفس البيانات المحمّلة (rows[]).</li>
             <li>مفتاح "طريقة العرض" بيبدّل عرض المربعات فوق بين القيمة وعدد القطع فوراً من نفس البيانات المحمّلة — من غير أي إعادة تحميل.</li>
           </ol>
+          <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">الكاش TTL متدرّج بعمر الفترة: نطاق فيه النهارده = ١٥ دقيقة · قفل من ٤٥ يوم أو أقل = ٦ ساعات · أقدم = ٢٤ ساعة. <b>عمره ما يبقى دائم</b> — لأن حالة الأوردر ممكن تتحرك بعد ما الفترة تقفل.</p>
           <h4>الـ Endpoints الرئيسية</h4>
           <table>
             <tr><th>action</th><th>الوصف</th></tr>
             <tr><td><code>get_data</code></td><td>boxes/rows/warnings (الرئيسية) + orderBoxes/orderRows/orderWarnings (الأوردرات) معًا (POST — dateFrom/dateTo/forceRefresh)</td></tr>
-            <tr><td><code>get_meta</code></td><td>عمر بيانات الفترة من غير Shopify fetch (GET)</td></tr>
+            <tr><td><code>get_meta</code></td><td>عمر بيانات الفترة + عدد أوردراتها، من غير أي Shopify fetch (GET). وظيفتان: عرض عمر البيانات، و<b>probe</b> بيقول أنهي شهور متكاشة قبل ما التحميل يبدأ</td></tr>
             <tr><td><code>clear_cache</code></td><td>مسح كاش الفترة أو كل الكاش — للصيانة (مش متاح من الـ UI حالياً)</td></tr>
             <tr><td><code>check_employee</code></td><td>يتحقق هل اسم المستخدم موجود وله PIN مسجّل (GET)</td></tr>
             <tr><td><code>register_pin</code></td><td>تسجيل PIN لأول مرة لموظف (POST)</td></tr>
@@ -1268,14 +1396,32 @@ Bar chart مقارنة المربعات الأساسية + أرقام على ا�
 عمود "الوقت" منفصل في جداول التفاصيل│ HTML  │ §TOOL-JS   │ formatTimeOnly
 Freeze on Scroll (هيدر + تابات)   │ HTML   │ §STICKY-JS │ onPageScroll / updateTabChip / buildTabChipMenu
 ──────────────────────────────────────────────────────────────  v3.4.0 (30-08-2026)
-قفل جدول التفاصيل فوق 45 يوم       │ Worker │ §DATA      │ ROWS_MAX_DAYS / rowsIncluded / rowsOmittedReason
-فولباك الكروت لـ boxes بدون rows   │ HTML   │ §TOOL-JS   │ activeBoxes / activePrevBoxes / setViewMode
-جلب الفترتين تسلسلي مش متوازي      │ HTML   │ §DASH-JS   │ loadAll
+سقف صفوف الفترة (حارس في الـ Worker)│ Worker │ §DATA      │ ROWS_MAX_DAYS / rowsIncluded
+──────────────────────────────────────────────────────────────  v3.5.0 (30-08-2026)
+مربعات الشهور (شهر تقويمي كامل)    │ HTML   │ §DATERANGE │ computeMonthBoxes / monthBoxRange / renderMonthBoxes / selectMonthBox
+مسح متبادل: مربّع الشهر ↔ فترة سريعة│ HTML   │ §DATERANGE │ resetRangePresetUI / clearActiveMonthBox
+شبكة الكاش الشهرية (بلا قصّ)       │ HTML   │ §DASH-JS   │ monthChunks / exactChunk / planChunks / chunkKey
+فلترة أطراف الفترة المعروضة        │ HTML   │ §DASH-JS   │ visibleRows
+probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS   │ probeAndLoad / GATE_MIN_MISSING_MONTHS
+تحميل تسلسلي بشريط تقدّم           │ HTML   │ §DASH-JS   │ loadData / setLoadState / forcedChunkIdx
+زرارا التحديث (الشهر / كل الشهور)  │ HTML   │ §DASH-JS   │ refreshData / refreshAllData / setRefreshBusy / updateRangeMeta
+طزاجة = أقدم شهر + سطر تفصيل       │ HTML   │ §DASH-JS   │ oldestChunkUpdate / renderFreshness / renderFreshnessMonths
+كروت الأوردرات من الصفوف المعروضة  │ HTML   │ §TOOL-JS   │ computeOrderBoxesFromRows
+التحذيرات من الصفوف المعروضة       │ HTML   │ §TOOL-JS   │ computeWarningsFromRows / computeOrderWarningsFromRows
+حقل "فيه نشاط إرجاع/استبدال" للصف  │ Worker │ §AGGREGATE-ORDERS │ pushOrderRow (hasRE)
+مسح النوم الثابت بين الدفعات        │ Worker │ §SHOPIFY   │ fetchStage1 / fetchStage2
+زرار الفحص الذاتي 🩺                │ HTML   │ §SHELL-JS  │ runDiag (→ ?action=diag)
+تحذير اختلاف نسخة الـ Worker        │ HTML   │ §SHELL-JS  │ checkWorkerVersion / showVersionMismatch (→ ?action=get_config)
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
 LS_URL    = 'perfdash_worker_url'
 LS_SECRET = 'perfdash_worker_secret'
+TOOL_VERSION            = نسخة الواجهة (مصدر واحد — الهيدر + شاشة الدخول + الـ Changelog)
+EXPECTED_WORKER_VERSION = نسخة الـ Worker اللي الواجهة دي اتكتبت عليها.
+  ⚠️ **مش** نفس TOOL_VERSION — الاتنين مستقلين عن قصد في الأداة دي. تحذير
+  الهيدر بيقارن الـ Worker المنشور بالقيمة دي (بيكشف Promote ناقص)، مش
+  بـ TOOL_VERSION (اللي اختلافه عن الـ Worker طبيعي ومقصود).
 state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
                 qty, value, bucket, s1, s2, note, cycleNote }, ...]
                 note      = تشخيص السطر  (REDELIVERY / FULFIL_MISM)
@@ -1283,12 +1429,21 @@ state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
                             منفصل عن note عن قصد، عشان الجديد ما يخفيش القديم
 state.prevRows = نفس شكل state.rows بس للفترة السابقة (v1.4.0 — كانت بتتجاب
                  من الـ Worker وبتترمى، دلوقتي بتتخزن لحساب Δ% في وضع عدد القطع)
-state.rowsIncluded / state.rowsOmittedReason = من نفس get_data response (v3.4.0)
-                 — false + سبب لو الفترة أوسع من ROWS_MAX_DAYS (45 يوم). لما
-                 false: activeBoxes()/activePrevBoxes() بيرجعوا state.boxes/
-                 prevBoxes مباشرة بدل ما يحسبوا من rows الفاضية، ووضع "عدد
-                 القطع" بيتقفل مؤقتًا (setViewMode). الكروت (boxes/orderBoxes)
-                 فضلت كاملة دايمًا — القفل على جدول التفاصيل بس.
+v3.5.0 — KEY VARIABLES (التقسيم الشهري)
+GATE_MIN_MISSING_MONTHS = 1 — شهر واحد ناقص بيتحمّل تلقائيًا؛ البوابة من
+  شهرين فما فوق. البوابة **بالتكلفة مش بوجود نقص**: مفتاح الـ meta بياخد نفس
+  TTL الـ data، والشهر المفتوح ١٥ دقيقة — فـ"ناقص" هو الوضع الطبيعي.
+MONTH_BOX_FRESH_MINS = 5 — حارس حداثة الضغطة على مربّع الشهر: أقل من كده
+  بيقرا من الكاش بدل دورة GraphQL كاملة.
+SHORT_RANGE_MAX_DAYS = 31 — الشبكة **هجينة**: فترة أقصر من كده ومش على حدود
+  شهر وشهرها مش متكاش → بتتسحب بمفتاحها هي بدل شهر كامل (والبوابة ممنوعة
+  عليها). لو شهرها متكاش أصلاً → بتتقرا منه وتتفلتر محليًا.
+state.chunks / state.prevChunks = [{ ym, from, to, isOpen, exact, lastUpdated,
+  source, count }] — شبكة الكاش. ⚠️ **مستقلة تمامًا عن الفترة المعروضة**:
+  الـ chunks شهور تقويمية كاملة عشان المفاتيح تفضل ثابتة ومتشاركة، واللي
+  المستخدم شايفه هو اختياره بالظبط — visibleRows() هي اللي بتوفّق بينهم.
+activeMonthYm = الشهر المضيء في صف المربعات، أو null. بيتمسح بأي preset أو
+  تعديل يدوي للتاريخ (clearActiveMonthBox)، والعكس (resetRangePresetUI).
 state.viewMode = 'value' | 'qty' — يتحكم في activeBoxes() و fmtAmt()
 BUCKET_LABELS = خريطة bucket → التسمية العربية (لازم تطابق BUCKET في الـ Worker)
 NOTE_LABELS   = REDELIVERY (محاولة مكررة) · FULFIL_MISM (تعارض حالة شحن)
@@ -1301,9 +1456,17 @@ SHOPIFY_ADMIN_ORDER_URL(id) = https://admin.shopify.com/store/6c7e1a-53/orders/{
 
 v2.0.0 — KEY VARIABLES (تاب الأوردرات)
 state.activePage = 'main' | 'orders' — يتحكم فيه switchMainTab()، بدون أي fetch إضافي
-state.orderBoxes / state.prevOrderBoxes = من نفس get_data response (orderBoxes)
-state.orderRows = [{ orderId, orderName, orderTotalPieces, createdAt, s1, s2, bucket }, ...]
+state.orderBoxes / state.prevOrderBoxes = ⚠️ v3.5.0 — **محسوبة في الواجهة** من
+  الصفوف المعروضة (computeOrderBoxesFromRows)، مش مقروءة من رد الـ Worker.
+  السبب: مع التقسيم الشهري الـ chunk شهر تقويمي كامل، فملخّص الـ Worker بيوصف
+  الشهر كله — والمعروض هو اختيار المستخدم بعد فلترة الأطراف. قراءة الملخّص
+  الجاهز = كارت بيعدّ أوردرات مالهاش صف على الشاشة. نفس المنطق بالظبط على
+  state.warnings / state.orderWarnings / ordersScanned / candidatesFetched.
+state.orderRows = [{ orderId, orderName, orderTotalPieces, createdAt, s1, s2,
+                     bucket, cycleNote, hasRE }, ...]
                   (صف واحد لكل أوردر — مختلف عن state.rows اللي صف لكل سطر/SKU)
+                  hasRE = الأوردر ده كان مرشّح للمرحلة 2 (v3.5.0) — منه بيتحسب
+                  سطر "كام أوردر فيه نشاط إرجاع/استبدال" لأي جزء من الفترة
 ORDER_BUCKET_LABELS = خريطة bucket (مستوى الأوردر) → التسمية العربية — لازم تطابق
                       ORDER_BUCKET في الـ Worker حرفيًا (مستقلة تمامًا عن BUCKET_LABELS)
 state.orderDetailsKey / orderDetailsBuckets / orderDetailsSearch / orderDetailsLimit =
@@ -1332,10 +1495,25 @@ MIN_DELTA_BASE = 5 — العتبة اللي تحتها delta() بتعرض ال�
   (curVal ← prevVal) بدل نسبة مئوية بلا معنى.
 
 NOTES
-- CACHE_VERSION في الـ Worker = v6 (بعد إصلاحي v2.1.1: normalBucket + stageFromS2).
-  أي فترة اتكاشت بنسخة أقدم هتتحسب من جديد تلقائياً أول مرة تتفتح. (تغييرات العرض
-  البحتة زي v1.2.0/v1.3.0/v1.4.0/v2.1.0 مفيش فيها تغيير في شكل بيانات الـ Worker،
-  فـ CACHE_VERSION ميتغيّرش غير لما يبقى في تغيير سلوكي حقيقي في التصنيف.)
+- CACHE_VERSION في الـ Worker = v11 (v3.5.0 — حقل hasRE على صف الأوردر).
+  أي فترة اتكاشت بنسخة أقدم هتتحسب من جديد تلقائياً أول مرة تتفتح. تغييرات العرض
+  البحتة مفيش فيها تغيير في شكل بيانات الـ Worker، فـ CACHE_VERSION ميتغيّرش غير
+  لما يبقى في تغيير في شكل الصف أو في التصنيف.
+- ⚠️ **شبكة الكاش ≠ الفترة المعروضة** (v3.5.0). الـ chunks شهور تقويمية كاملة
+  عشان مفاتيح KV تفضل ثابتة ومتشاركة بين الفترات — "أغسطس" و"آخر ٣٠ يوم"
+  و"آخر ٧ أيام" كلهم بيقروا نفس المفتاح. الفترة المعروضة هي اختيار المستخدم
+  بالظبط، و visibleRows() هي اللي بتقصّ الأطراف بـ createdAt. أي رجوع لقصّ
+  الـ chunk على حدود الاختيار بيكسر ده ويولّد مفتاح يتيم جديد كل يوم.
+- ⚠️ **الضغط على مربّع الشهر بيسحب من شوبيفاي مباشرة** — الاستثناء الموثّق
+  الوحيد من قاعدة "التحديث بزرار أو تغيير فترة بس". ومعاه حارس حداثة
+  (MONTH_BOX_FRESH_MINS): كاش أطزج من ٥ دقايق بيتقرا بدل سحب جديد. أي مصدر
+  تاني لتغيير الفترة (preset · شهر محدد · تعديل يدوي) لسه كاش-أولاً.
+- ⚠️ **get_data بالتسلسل و get_meta بالتوازي** — مش تناقض: التاني قراءة KV
+  بحتة مبتلمسش شوبيفاي ومش بتتحسب في سقف الـ subrequests.
+- ⚠️ **شهر واحد بيفشل = التحميل كله بيفشل ومفيش أي رقم بيتعرض** — والرسالة
+  بتسمّي الشهر. شاشة فيها أرقام قديمة تحت بانر خطأ مش فارقة عن شاشة شغّالة.
+- ⚠️ **مفيش أي sleep ثابت في مسار الجلب** (Worker) — الانتظار الوحيد هو
+  backoff الـ THROTTLED. النوم الثابت بيخلي مدة الطلب دالة في عدد الصفحات.
 - "عدد قطع الأوردر" = مجموع الكميات الأصلية Σ(Q) لكل أسطر الأوردر — مش الكمية
   الباقية، عشان يتطابق مع أساس التقييم.
 - unfulfilledQuantity بيتستخدم كـ assertion بس — لو اتعارض مع المربع، الصف
@@ -1387,7 +1565,12 @@ NOTES
 const LS_URL       = 'perfdash_worker_url';
 const LS_SECRET    = 'perfdash_worker_secret';
 const LS_ADMIN_URL = 'admin_worker_url';       // shared across all tools — never rename
-const TOOL_VERSION = 'v3.4.0';
+const TOOL_VERSION = 'v3.5.0';
+// نسخة الـ Worker اللي الواجهة دي اتكتبت عليها — **مش** نفس TOOL_VERSION.
+// الاتنين مستقلين عن قصد في الأداة دي (CLAUDE.md)، فالمقارنة لازم تبقى مع
+// القيمة دي عشان تكشف Promote ناقص بدل ما تحذّر من اختلاف ترقيم مقصود.
+const EXPECTED_WORKER_VERSION = 'v3.5.0';
+let workerLiveVersion = '';
 const CURRENCY_SUFFIX = 'ج.م';
 const QTY_SUFFIX = 'قطعة';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
@@ -1434,9 +1617,13 @@ async function apiRequest(action, { method = 'GET', params = {}, body = null } =
 const apiGet  = (action, params = {}) => apiRequest(action, { method: 'GET', params });
 const apiPost = (action, body = {}) => apiRequest(action, { method: 'POST', body });
 
+// مصدر واحد لرقم النسخة — التلات أماكن بتتملّى من TOOL_VERSION
+// (header-conventions.md "Version — Single Source of Truth").
 function renderVersionUI() {
   const verBtn = document.getElementById('verBtn');
   if (verBtn) verBtn.textContent = `${TOOL_VERSION} 📋`;
+  const clBadge = document.getElementById('clLatestVerBadge');
+  if (clBadge) clBadge.textContent = TOOL_VERSION;
   const loginVer = document.getElementById('loginVersionText');
   if (loginVer) loginVer.textContent = TOOL_VERSION;
 }
@@ -1457,7 +1644,7 @@ function showToast(msg, type = 'neutral', duration = 3000) {
 
 function updateSettingsBtn() {
   document.getElementById('settingsBtn').classList.toggle('settings-configured', isConfigured());
-  updateLoginSettingsBtnState();
+  updateLoginSettingsBtn();
 }
 function openSettings() {
   const c = getConfig();
@@ -1479,7 +1666,49 @@ function saveSettings() {
   closeSettings();
   showToast('تم حفظ الإعدادات ✓', 'success');
   loadEmployeesList();
-  loadAll({ forceRefresh: false });
+  onRangeApplied();
+}
+
+// ─── §SHELL-JS::runDiag — worker-builder Step 5A ⑨ / html-builder Step 3C ───
+// الـ endpoint كان موجود في الـ Worker من v3.2.0 من غير أي مستهلك في الواجهة —
+// يعني الفحص اللي بيكشف binding ناقص (DASH_KV بيختفي بصمت عند أول نشر من git
+// لو مش مكتوب في wrangler.toml) مكانش حد يقدر يشغّله.
+// ⚠️ الـ Worker بيرجّع أسماء وأطوال الأسرار بس — عمره ما يرجّع قيمة سر.
+async function runDiag() {
+  const btn = document.getElementById('diagBtn');
+  const out = document.getElementById('diagResult');
+  btn.disabled = true; out.innerHTML = 'جاري الفحص…';
+  try {
+    const res = await apiGet('diag');
+    const rows = (res.checks || []).map(c =>
+      `<div>${c.ok ? '✅' : '❌'} <b>${esc(c.check)}</b> — ${esc(c.detail || '')}</div>`).join('');
+    out.innerHTML = `<div style="font-weight:700;margin-bottom:6px;color:${res.ok ? 'var(--green)' : 'var(--red)'};">
+        ${res.ok ? 'كل الفحوصات سليمة' : 'فيه فحوصات فاشلة — راجعها تحت'} · Worker ${esc(res.workerVersion || '—')}
+      </div>${rows}`;
+  } catch (e) {
+    out.innerHTML = `<div style="color:var(--red);">فشل الفحص: ${esc(e.message)}</div>`;
+  } finally { btn.disabled = false; }
+}
+
+// ─── §SHELL-JS::checkWorkerVersion ───
+// ⚠️ المقارنة مع EXPECTED_WORKER_VERSION **مش** مع TOOL_VERSION: نسخة الـ Worker
+// ونسخة الواجهة في الأداة دي مستقلتين عن قصد وطبيعي يختلفوا (CLAUDE.md). اللي
+// بيتفحص هنا هو "الـ Worker المنشور هو اللي الواجهة دي اتكتبت عليه؟" — بيكشف
+// Promote ناقص أو Worker شبح، مش اختلاف ترقيم مقصود.
+async function checkWorkerVersion() {
+  if (!isConfigured()) return;
+  try {
+    const res = await apiGet('get_config');
+    const live = res.workerVersion || '';
+    const btn  = document.getElementById('verMismatchBtn');
+    if (!btn) return;
+    workerLiveVersion = live;
+    btn.style.display = (live && live !== EXPECTED_WORKER_VERSION) ? '' : 'none';
+  } catch { /* الفحص ده مساعد — فشله ما يوقفش الأداة */ }
+}
+function showVersionMismatch() {
+  alert(`الـ Worker المنشور بيقول إنه ${workerLiveVersion || '—'}، والواجهة دي اتكتبت على ${EXPECTED_WORKER_VERSION}.\n\n`
+      + 'يعني على الأغلب فيه نشر ناقص (Promote) أو نسخة قديمة شغّالة. راجع Cloudflare → Workers → performance-dashboard-worker.');
 }
 
 function openChangelog()  { document.getElementById('changelogOverlay').classList.add('open'); }
@@ -1487,16 +1716,9 @@ function closeChangelog() { document.getElementById('changelogOverlay').classLis
 function openAbout()  { document.getElementById('aboutOverlay').classList.add('open'); }
 function closeAbout() { document.getElementById('aboutOverlay').classList.remove('open'); }
 
-function setRefreshing(active) {
-  const btn = document.getElementById('refreshBtn');
-  btn.disabled = active;
-  btn.classList.toggle('refreshing', active);
-}
-async function doRefresh() {
-  setRefreshing(true);
-  try { await loadAll({ forceRefresh: true }); }
-  finally { setRefreshing(false); }
-}
+// v3.5.0 — setRefreshing()/doRefresh() اتشالوا: الزرار الواحد في الهيدر بقى
+// زرارين جنب مؤشر الطزاجة (refreshData/refreshAllData في §DASH-JS)،
+// وتعطيلهم بقى مسؤولية setRefreshBusy().
 
 // ══════════════════════════════════════════════════════
 // §UTILS — en-US numbers + Cairo timezone
@@ -1548,8 +1770,11 @@ function formatTimeOnly(iso) {
 const state = {
   rangeMode: 'today',
   range: null,
-  boxes: null,
-  prevBoxes: null,
+  // v3.5.0 — شبكة الكاش الشهرية. chunks للفترة المعروضة و prevChunks لفترة
+  // المقارنة؛ الاتنين مستقلين عن **الفترة المعروضة** نفسها (Step 3-د-١).
+  chunks: null,
+  prevChunks: null,
+  loading: false,
   rows: [],
   prevRows: [],
   warnings: null,
@@ -1690,9 +1915,98 @@ function applySpecificMonth(year, month) {
   closeMonthSubmenu();
   document.getElementById('rangePresetMenu').classList.remove('open');
   document.getElementById('rangePresetBtn').classList.remove('open');
+  clearActiveMonthBox();
   state.rangeMode = 'specificMonth';
   state.range = { from, to };
-  loadAll({ forceRefresh: false });
+  onRangeApplied();
+}
+
+// ══════════════════════════════════════════════════════
+// §DATERANGE::monthBoxes — مربعات الشهور (نمط اختياري — dashboard-builder
+// Step 3-د-٣ · monthly-chunk-loading.md §9 · date-range-filter.md §1a)
+//
+// **مش بديل للفترة السريعة** ولا تعديل على ترتيبها الإلزامي — صف مستقل فوقها،
+// والاتنين بيمسحوا بعض عند الاختيار (من غير كده القائمتين بيعرضوا حالتين
+// متناقضتين، وده بالظبط مصدر "رقم غلط شكله سليم").
+//
+// ⚠️ المربّع بياخد **الشهر التقويمي كامل** (‑01 → آخر يوم)، حتى الشهر الحالي —
+// ده اللي بيخلي مفتاح الكاش بتاعه ثابت ومتكرر. "من أول الشهر لحد النهارده"
+// بيولّد مفتاح جديد كل يوم وبيلغي السبب الوحيد لوجود المربّع.
+// ══════════════════════════════════════════════════════
+const MONTH_BOX_COUNT = 6;
+let activeMonthYm = null;
+
+function computeMonthBoxes() {
+  const now = cairoNow(), out = [];
+  for (let i = 0; i < MONTH_BOX_COUNT; i++) {
+    const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
+    out.push(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`);
+  }
+  return out;   // الأحدث أولاً — في RTL أول عنصر في الـ DOM بيظهر أقصى اليمين
+}
+function monthBoxRange(ym) {
+  const [y, m]  = ym.split('-').map(Number);
+  const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return { from: `${ym}-01`, to: `${ym}-${String(lastDay).padStart(2, '0')}` };
+}
+function renderMonthBoxes() {
+  const row = document.getElementById('monthBoxRow');
+  if (!row) return;
+  row.innerHTML = computeMonthBoxes().map(ym =>
+    `<button type="button" class="month-box${ym === activeMonthYm ? ' active' : ''}" onclick="selectMonthBox('${ym}')">${esc(monthLabel(ym))}</button>`
+  ).join('');
+}
+function clearActiveMonthBox() {
+  if (activeMonthYm === null) return;
+  activeMonthYm = null;
+  renderMonthBoxes();
+}
+// بترجّع الفترة السريعة لحالتها المحايدة — بتتنادى من selectMonthBox عشان
+// القائمتين ما يفضلوش عارضين حالتين متناقضتين.
+function resetRangePresetUI() {
+  activeRangePreset = '';
+  document.querySelectorAll('.range-preset-item').forEach(el => el.classList.remove('active'));
+  const lbl = document.getElementById('rangePresetLabel');
+  if (lbl) lbl.textContent = '⚡ اختار فترة';
+  document.getElementById('rangePresetBtn')?.classList.remove('has-preset');
+  resetMonthSpecific();
+}
+
+// الضغط على مربّع = **سحب مباشر من شوبيفاي**، مش كاش-أولاً — الاستثناء الموثّق
+// الوحيد في الأداة ("الضغطة *هي* الزرار"، Data Contract).
+// ⚠️ ومعاه **حارس حداثة** (Step 3-د-٣): من غيره التنقّل بين الشهور للمقارنة
+// بيسحب الشهر كامل في كل ضغطة — أغسطس ← يوليو ← أغسطس = تلات دورات GraphQL
+// كاملة في دقيقة، الأخيرة بلا أي فايدة.
+async function selectMonthBox(ym) {
+  if (!currentEmployee || state.loading) return;
+  activeMonthYm = ym;
+  renderMonthBoxes();
+  resetRangePresetUI();
+  const range = monthBoxRange(ym);
+  document.getElementById('rangeDateFrom').value = range.from;
+  document.getElementById('rangeDateTo').value   = range.to;
+  state.rangeMode  = 'monthBox';
+  state.range      = range;
+  state.chunks     = null;
+  state.prevChunks = null;
+  updateRangeMeta();
+  setFreshnessLoading();
+  setLoadState('loading', `${monthLabel(ym)} — بنشوف الكاش…`);
+
+  let fresh = false;
+  try {
+    const mt = await apiGet('get_meta', { dateFrom: range.from, dateTo: range.to });
+    if (mt?.lastUpdated) fresh = (Date.now() - new Date(mt.lastUpdated)) / 60000 < MONTH_BOX_FRESH_MINS;
+  } catch { /* الـ probe فشل → اسحب، ما توقفش المستخدم على نداء ميتاداتا */ }
+
+  if (fresh) { await probeAndLoad(); return; }   // طازة → المسار العادي كاش-أولاً
+
+  // مش طازة → سحب مباشر للشهر ده. فترة المقارنة بتفضل كاش-أولاً دايمًا
+  // (loadData بتحطّها force:false مهما كان الـ mode) — الفورس للشهر المضغوط بس.
+  const prev = getPreviousRange(range);
+  state.chunks     = monthChunks(range.from, range.to);
+  state.prevChunks = monthChunks(prev.from, prev.to);
+  await loadData({ mode: 'all' });
 }
 
 function computePresetRange(preset) {
@@ -1737,9 +2051,10 @@ function applyRangePreset(preset) {
   document.querySelectorAll('.range-preset-item').forEach(el => el.classList.toggle('active', el.dataset.preset === preset));
   document.getElementById('rangePresetLabel').textContent = `⚡ ${RANGE_PRESET_LABELS[preset]}`;
   document.getElementById('rangePresetBtn').classList.add('has-preset');
+  clearActiveMonthBox();
   state.rangeMode = preset;
   state.range = range;
-  loadAll({ forceRefresh: false });
+  onRangeApplied();
 }
 
 function onRangeDateChange() {
@@ -1753,13 +2068,17 @@ function onRangeDateChange() {
   const toVal   = document.getElementById('rangeDateTo').value;
   if (!fromVal || !toVal || fromVal > toVal) return;
 
+  clearActiveMonthBox();
   state.rangeMode = 'custom';
   state.range = { from: fromVal, to: toVal };
 
   clearTimeout(rangeDebounce);
-  rangeDebounce = setTimeout(() => loadAll({ forceRefresh: false }), 400);
+  rangeDebounce = setTimeout(() => onRangeApplied(), 400);
 }
 
+// الافتراضي على أول تحميل = **"اليوم"** — إلزامي لكل داشبورد
+// (dashboard-ui-patterns.md §9 · date-range-filter.md §5). مربّع الشهر
+// كافتراضي = قرار صريح من صاحب الأداة، مش اتخذناه هنا.
 function initDateRange() {
   const DEFAULT_PRESET = 'today';
   const range = computePresetRange(DEFAULT_PRESET);
@@ -1771,17 +2090,398 @@ function initDateRange() {
   document.querySelectorAll('.range-preset-item').forEach(el => el.classList.toggle('active', el.dataset.preset === DEFAULT_PRESET));
   document.getElementById('rangePresetLabel').textContent = `⚡ ${RANGE_PRESET_LABELS[DEFAULT_PRESET]}`;
   document.getElementById('rangePresetBtn').classList.add('has-preset');
+  activeMonthYm = null;
+  renderMonthBoxes();
+  updateRangeMeta();
 }
 
 // ══════════════════════════════════════════════════════
-// §DASH-JS — freshness, load, error state
+// §DASH-JS — التحميل المقسّم شهريًا · مؤشر الطزاجة · حالات التقدّم/البوابة/الخطأ
+// النموذج الكامل: ecommoda-html-builder/references/monthly-chunk-loading.md
+// القواعد مملوكة لـ ecommoda-dashboard-builder Step 3-د.
 // ══════════════════════════════════════════════════════
+
+// البوابة بتتحدد **بالتكلفة، مش بوجود نقص** (Step 3-د-٢): مفتاح الـ meta بياخد
+// نفس TTL الـ data، والشهر المفتوح TTL بتاعه ١٥ دقيقة — يعني الشهر الحالي بيبان
+// "ناقص" بعد أي ربع ساعة سكون وده **الوضع الطبيعي**. بوابة على الحالة دي = زرار
+// "تطبيق" إجباري في كل فتح للأداة، واللي فلتر التاريخ الموحّد شايله عمدًا
+// (date-range-filter.md §1 و§5).
+const GATE_MIN_MISSING_MONTHS = 1;
+// حارس حداثة مربّع الشهر (Step 3-د-٣): أقل من كده = اقرا من الكاش بدل سحب كامل.
+const MONTH_BOX_FRESH_MINS    = 5;
+// الشبكة **هجينة** (Step 3-د-١، الخيار التالت "الأفضل"): الأداة دي افتراضها
+// `اليوم`، فإخضاعها لشبكة شهرية مطلقة معناه سحب شهر كامل عشان تعرض يوم وإعادته
+// كل ربع ساعة — تراجع مش تحسين. القاعدة المطبّقة:
+//   مفتاح الشهر موجود   → اقرا منه وفلتر الأطراف محليًا (إعادة استخدام كامل)
+//   مش موجود والفترة قصيرة ومش على حدود شهر → اسحب الفترة نفسها بمفتاحها
+//   غير كده (فترة واسعة / مطابقة لحدود شهور) → شبكة الشهور الكاملة
+const SHORT_RANGE_MAX_DAYS    = 31;
+
+// ─── §DASH-JS::monthChunks ───
+// 🔴 شبكة الكاش ≠ الفترة المعروضة (Step 3-د-١). مفتاح الكاش هو **نصّ التاريخين
+// حرفيًا** — الـ Worker مش بيفهم إن 2026-08-24→2026-08-30 جوّه 2026-08-01→2026-08-31.
+// فالقصّ على حدود اختيار المستخدم بيولّد مفتاح يتيم لكل فترة مخصصة، و"آخر ٧ أيام"
+// بتولّد واحد **كل يوم**. الـ chunks هنا شهور تقويمية كاملة بلا أي قصّ، والأطراف
+// بتتفلتر في الواجهة بـ createdAt (visibleRows) — الفترة المعروضة والليبلات
+// ما بيتغيّروش إطلاقًا.
+function monthChunks(from, to) {
+  const out = [];
+  const today = cairoDateStr(cairoNow());
+  let y = Number(from.slice(0, 4)), m = Number(from.slice(5, 7));
+  const endY = Number(to.slice(0, 4)), endM = Number(to.slice(5, 7));
+  let guard = 0;
+  while ((y < endY || (y === endY && m <= endM)) && guard++ < 240) {
+    const mm      = String(m).padStart(2, '0');
+    const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+    const last    = `${y}-${mm}-${String(lastDay).padStart(2, '0')}`;
+    out.push({
+      ym: `${y}-${mm}`, from: `${y}-${mm}-01`, to: last,
+      isOpen: last >= today, exact: false,
+      lastUpdated: null, source: null, count: null,
+    });
+    m++; if (m > 12) { m = 1; y++; }
+  }
+  return out;
+}
+// chunk واحد بحدود الفترة نفسها — المسار القصير من الشبكة الهجينة.
+function exactChunk(range) {
+  const today = cairoDateStr(cairoNow());
+  return [{
+    ym: null, from: range.from, to: range.to,
+    isOpen: range.to >= today, exact: true,
+    lastUpdated: null, source: null, count: null,
+  }];
+}
+function daysInRange(range) {
+  return Math.round((Date.parse(`${range.to}T00:00:00Z`) - Date.parse(`${range.from}T00:00:00Z`)) / 86400000) + 1;
+}
+// الفترة مطابقة لحدود شهور كاملة؟ لو أيوة، الشبكة الشهرية مجانية (نفس المفاتيح).
+function isWholeMonths(range, chunks) {
+  return !!chunks.length && chunks[0].from === range.from && chunks[chunks.length - 1].to === range.to;
+}
+function chunkKey(c) { return `${c.from}:${c.to}`; }
+function chunkLabel(c) { return c.exact ? `${c.from} → ${c.to}` : monthLabel(c.ym); }
+
+// بيستخدم RANGE_MONTH_NAMES المعرّفة في §DATERANGE — مصدر واحد لأسماء الشهور
+// (نسخة تانية هنا كانت هتتفرّق عنها عند أول تعديل).
+function monthLabel(ym) {
+  if (!ym) return '—';
+  const [y, m] = ym.split('-').map(Number);
+  return `${RANGE_MONTH_NAMES[m]} ${y}`;
+}
+
+// ─── §DASH-JS::visibleRows ───
+// الـ chunks بترجّع شهور كاملة، فالصفوف ممكن تتعدّى طرفي الفترة المختارة.
+// الفلترة دي هي اللي بتخلي "آخر ٧ أيام" تفضل ٧ أيام فعلًا وهي بتقرا من كاش
+// الشهر الكامل. ⚠️ بتعتمد على createdAt على كل صف — موجود في rows و orderRows.
+function visibleRows(rows, range) {
+  return (rows || []).filter(r => {
+    const d = String(r.createdAt || '').slice(0, 10);
+    return d && d >= range.from && d <= range.to;
+  });
+}
+
+// الشهور اللي زرار "تحديث" بيسحبها: المفتوحة. الفترة كلها في الماضي؟ ياخد
+// **أحدث** شهر — زرار بطيء أحسن من زرار مابيعملش حاجة.
+function forcedChunkIdx(chunks) {
+  const open = chunks.map((c, i) => (c.isOpen ? i : -1)).filter(i => i >= 0);
+  return new Set(open.length ? open : (chunks.length ? [chunks.length - 1] : []));
+}
+// طزاجة الفترة = **أقدم** شهر فيها. الفترة مش أطزج من أقدم جزء فيها.
+function oldestChunkUpdate(chunks) {
+  const t = (chunks || []).map(c => c.lastUpdated).filter(Boolean);
+  return t.length ? t.reduce((a, b) => (new Date(a) <= new Date(b) ? a : b)) : null;
+}
+
+// ─── §DASH-JS::updateRangeMeta — لافتات الزرارين + تنبيه الفترة الواسعة ───
+function updateRangeMeta() {
+  const r = state.range;
+  const chunks = (r && r.from && r.to) ? monthChunks(r.from, r.to) : [];
+  const lbl = document.getElementById('refreshBtnLabel');
+  if (lbl) lbl.textContent = chunks.length > 1
+    ? (chunks.some(c => c.isOpen) ? 'تحديث الشهر الحالي' : 'تحديث أحدث شهر')
+    : 'تحديث';
+  const allBtn = document.getElementById('refreshAllBtn');
+  if (allBtn) allBtn.style.display = chunks.length > 1 ? '' : 'none';
+  const note = document.getElementById('rangeNote');
+  if (note) note.textContent = chunks.length > 3
+    ? `⚠️ الفترة ${fmtInt(chunks.length)} شهور — أول تحميل بيسحبهم شهر ورا شهر وبياخد دقايق. بعد كده التحديث بيسحب الشهر الحالي بس.`
+    : '';
+}
+
+// ─── §DASH-JS::planChunks — الشبكة الهجينة (Step 3-د-١) ───
+// بترجّع chunks الفترة بعد probe للميتاداتا. الشهور المتكاشة بتتقرا من مفاتيحها
+// الثابتة؛ فترة قصيرة مش على حدود شهر وشهرها مش متكاش بتتسحب بمفتاحها هي.
+function planChunks(range, metaByKey) {
+  const months = monthChunks(range.from, range.to);
+  months.forEach(c => {
+    const mt = metaByKey.get(chunkKey(c));
+    c.lastUpdated = mt?.lastUpdated || null;
+    c.count       = (mt && mt.count != null) ? mt.count : (mt?.ordersScanned ?? null);
+  });
+  const missing = months.filter(c => !c.lastUpdated);
+  if (!missing.length) return months;                       // كله متكاش → إعادة استخدام كاملة
+  if (!isWholeMonths(range, months) && daysInRange(range) <= SHORT_RANGE_MAX_DAYS) {
+    return exactChunk(range);                               // فترة قصيرة يتيمة → مفتاحها هي
+  }
+  return months;
+}
+
+// ─── §DASH-JS::probeAndLoad ───
+// probe الـ get_meta **بالتوازي** (Promise.all) — استثناء صريح من قاعدة التسلسل:
+// نداء KV بحت مبيلمسش شوبيفاي ومش بيتحسب في سقف الـ subrequests. أما get_data
+// فبالتسلسل (loadData تحت).
+async function probeAndLoad() {
+  if (!isConfigured()) {
+    state.viewState = 'error';
+    state.lastError = { message: 'محتاج تظبط WORKER URL و WORKER SECRET من ⚙️ الإعدادات' };
+    setLoadState('error', state.lastError); renderShell(); return;
+  }
+  if (!currentEmployee) return;
+
+  const cur  = state.range;
+  const prev = getPreviousRange(cur);
+  setLoadState('loading', 'بنشوف الشهور المتحمّلة قبل كده…');
+  setFreshnessLoading();
+
+  try {
+    // مجموعة موحّدة للفترتين — شهر مشترك بين الحالية والسابقة بيتسأل عنه مرة واحدة
+    const probeSet = new Map();
+    [...monthChunks(cur.from, cur.to), ...monthChunks(prev.from, prev.to)]
+      .forEach(c => { if (!probeSet.has(chunkKey(c))) probeSet.set(chunkKey(c), c); });
+    const probeList = [...probeSet.values()];
+
+    // فشل أي get_meta بيترمي — ممنوع يتحوّل لـ"الشهر ده مش متكاش" ونسحب على الفاضي
+    const metas = await Promise.all(probeList.map(c =>
+      apiGet('get_meta', { dateFrom: c.from, dateTo: c.to })));
+    const metaByKey = new Map();
+    probeList.forEach((c, i) => metaByKey.set(chunkKey(c), metas[i] || null));
+
+    state.chunks     = planChunks(cur,  metaByKey);
+    state.prevChunks = planChunks(prev, metaByKey);
+
+    // البوابة بالتكلفة: الناقص من الفترتين مع بعض (بلا تكرار للمفتاح الواحد).
+    // ⛔ الـ chunks الـ exact (المسار القصير من الشبكة الهجينة) **مستثناة من
+    // العدّ**: الفترة القصيرة اليتيمة الـ miss فيها هو الوضع الطبيعي — التكلفة
+    // يوم أو أسبوع، مش شهر كامل. بوابة عليها = زرار "تطبيق" على "اليوم"، وده
+    // بالظبط اللي date-range-filter.md §1/§5 شايله (dashboard-builder Step 3-د-١:
+    // «فترات قصيرة … وممنوع بوابة ساعتها»).
+    const missing = [];
+    const seen = new Set();
+    [...state.chunks, ...state.prevChunks].forEach(c => {
+      if (c.lastUpdated || c.exact || seen.has(chunkKey(c))) return;
+      seen.add(chunkKey(c)); missing.push(c);
+    });
+    // مرتّبة زمنيًا — الفترة الحالية والسابقة بيتجمّعوا في قائمة واحدة، فمن غير
+    // الترتيب ده الشهور بتبان مبعثرة (يونيو · يوليو · مارس · أبريل · مايو).
+    missing.sort((a, b) => (a.from < b.from ? -1 : a.from > b.from ? 1 : 0));
+    if (missing.length <= GATE_MIN_MISSING_MONTHS) { await loadData({ mode: 'cache' }); return; }
+    setLoadState('prompt', missing);
+  } catch (e) {
+    console.error(e);
+    state.viewState = 'error'; state.lastError = e;
+    setLoadState('error', e); renderShell();
+  }
+}
+
+// ─── §DASH-JS::loadData — مصدرا التحديث الوحيدان: الزرار أو تغيير الفترة ───
+// mode: 'cache' كاش-أولاً · 'open' الشهر اللي لسه بيتغيّر بس · 'all' كل الشهور فورس.
+// الشهور بتتحمّل **ورا بعض** مش بالتوازي: التوازي بيولّع throttle على شوبيفاي،
+// وبيخلي الأخطاء متشابكة، ومفيش شريط تقدّم حقيقي.
+async function loadData({ mode }) {
+  if (state.loading) return;
+  if (!currentEmployee) return;
+  state.loading = true; setRefreshBusy(true);
+
+  const cur  = state.range;
+  const prev = getPreviousRange(cur);
+  if (!state.chunks || !state.chunks.length)     state.chunks     = monthChunks(cur.from, cur.to);
+  if (!state.prevChunks || !state.prevChunks.length) state.prevChunks = monthChunks(prev.from, prev.to);
+
+  // الفترة السابقة كاش-أولاً دايمًا — مقارنة Δ% بس، عمرها ما تستاهل سحب فورس.
+  // نفس المفتاح لو اتكرر بين الفترتين بيتسحب **مرة واحدة**.
+  const forceIdx = forcedChunkIdx(state.chunks);
+  const plan = [];
+  const byKey = new Map();
+  state.chunks.forEach((c, i) => {
+    plan.push({ c, force: mode === 'all' || (mode === 'open' && forceIdx.has(i)) });
+    byKey.set(chunkKey(c), null);
+  });
+  state.prevChunks.forEach(c => {
+    if (byKey.has(chunkKey(c))) return;
+    plan.push({ c, force: false });
+    byKey.set(chunkKey(c), null);
+  });
+
+  try {
+    for (let i = 0; i < plan.length; i++) {
+      const { c, force } = plan[i];
+      setLoadState('loading',
+        `${chunkLabel(c)}${force ? ' — بنسحب من شوبيفاي' : ''}`,
+        { done: i, total: plan.length, chunks: plan.map(p => p.c) });
+
+      let res;
+      try {
+        res = await apiPost('get_data', { dateFrom: c.from, dateTo: c.to, forceRefresh: force });
+      } catch (e) {
+        // شهر بيفشل = الطلب كله بيفشل. مفيش نتيجة جزئية بتوصل للشاشة أبدًا.
+        e.message = `${chunkLabel(c)} — ${e.message}`;
+        throw e;
+      }
+      // ⚠️ حارس: الكروت والتحذيرات كلها بتتحسب من الصفوف دلوقتي، فـ payload
+      // بلا صفوف (ROWS_MAX_DAYS في الـ Worker) هيرندر أصفار شكلها سليم.
+      // الـ chunks هنا شهر واحد على الأكثر فالحالة دي مفروض مستحيلة — ولو
+      // حصلت، تفشل بصوت عالي بدل ما تعدّي.
+      if (res.rowsIncluded === false) {
+        throw Object.assign(
+          new Error(`${chunkLabel(c)} — الـ Worker رجّع الفترة بدون صفوف تفصيلية (${res.rowsOmittedReason || 'rowsIncluded=false'})`),
+          { step: 'chunk_rows_missing' });
+      }
+      c.lastUpdated = res.lastUpdated || null;
+      c.source      = res.source || null;
+      c.count       = res.ordersScanned ?? null;
+      byKey.set(chunkKey(c), res);
+    }
+
+    // كل فترة بتتجمّع من **chunks بتاعتها هي** — مش من دمج عام، عشان مفتاح
+    // مشترك بين الفترتين ما يتعدّش مرتين.
+    const gather = (chunks, key) => chunks.reduce((acc, c) => {
+      const res = byKey.get(chunkKey(c));
+      return res ? acc.concat(res[key] || []) : acc;
+    }, []);
+
+    // الأطراف بتتفلتر هنا — الفترة المعروضة هي اختيار المستخدم بالظبط.
+    state.rows          = visibleRows(gather(state.chunks, 'rows'), cur);
+    state.prevRows      = visibleRows(gather(state.prevChunks, 'rows'), prev);
+    state.orderRows     = visibleRows(gather(state.chunks, 'orderRows'), cur);
+    state.prevOrderRows = visibleRows(gather(state.prevChunks, 'orderRows'), prev);
+
+    // الملخّصات الجاية من الـ Worker بتوصف الـ chunk كامل، مش المعروض — فكلها
+    // بتتحسب من الصفوف المرئية (computeBoxesFromRows / computeOrderBoxesFromRows /
+    // computeWarningsFromRows). مفيش رقم على الشاشة جاي من مصدر تاني.
+    state.orderBoxes        = computeOrderBoxesFromRows(state.orderRows);
+    state.prevOrderBoxes    = computeOrderBoxesFromRows(state.prevOrderRows);
+    state.warnings          = computeWarningsFromRows(state.rows);
+    state.orderWarnings     = computeOrderWarningsFromRows(state.orderRows);
+    state.ordersScanned     = state.orderRows.length;
+    state.candidatesFetched = state.orderRows.filter(r => r.hasRE).length;
+
+    state.meta = {
+      lastUpdated: oldestChunkUpdate(state.chunks),
+      source: state.chunks.some(c => c.source === 'shopify') ? 'shopify' : 'kv',
+    };
+    state.viewState = 'ready';
+    state.lastError = null;
+    setLoadState('ready');
+    renderShell();
+  } catch (e) {
+    // ممنوع تفضل أرقام قديمة على الشاشة تحت بانر خطأ — سكرين شوت ليها مش
+    // فارق عن شاشة شغّالة.
+    console.error(e);
+    state.rows = []; state.prevRows = []; state.orderRows = []; state.prevOrderRows = [];
+    state.viewState = 'error'; state.lastError = e;
+    setLoadState('error', e);
+    renderShell();
+  } finally {
+    state.loading = false; setRefreshBusy(false);
+  }
+}
+
+function setRefreshBusy(active) {
+  ['refreshBtn', 'refreshAllBtn'].forEach(id => {
+    const b = document.getElementById(id);
+    if (!b) return;
+    b.disabled = active;
+    b.classList.toggle('refreshing', active);
+  });
+}
+async function refreshData()    { await loadData({ mode: 'open' }); }
+async function refreshAllData() {
+  const n = (state.chunks || []).length;
+  if (n > 1 && !confirm(`تحديث كل الـ ${n} شهور من شوبيفاي من الأول؟ ده بياخد وقت أطول بكتير من تحديث الشهر الحالي.`)) return;
+  await loadData({ mode: 'all' });
+}
+// نقطة الدخول الموحّدة لأي تغيير في الفترة (preset · شهر محدد · تعديل يدوي)
+// — كلها كاش-أولاً. الاستثناء الوحيد هو مربّع الشهر (selectMonthBox).
+async function onRangeApplied() {
+  state.chunks = null; state.prevChunks = null;
+  updateRangeMeta();
+  await probeAndLoad();
+}
+
+// ─── §DASH-JS::setLoadState — التقدّم/البوابة/الخطأ ───
+// حالة غير 'ready' بتخفي المحتوى بالكامل: شاشة لسه فيها أرقام قديمة تحت بانر
+// خطأ مش فارقة عن شاشة شغّالة عند أول نظرة.
+function setLoadState(kind, payload, progress) {
+  const area = document.getElementById('stateArea');
+  const body = document.getElementById('dashboardBody');
+  if (body) body.style.display = (kind === 'ready') ? '' : 'none';
+  if (!area) return;
+
+  if (kind === 'ready') { area.innerHTML = ''; return; }
+
+  if (kind === 'loading') {
+    const p = progress || null;
+    const steps = p && p.chunks ? `<div class="progress-steps">${p.chunks.map((c, i) =>
+      `<span class="pstep ${i < p.done ? 'done' : i === p.done ? 'now' : ''}">${esc(chunkLabel(c))}</span>`).join('')}</div>` : '';
+    const bar = p ? `<div class="progress-wrap"><div class="progress-bar" style="width:${Math.round((p.done / p.total) * 100)}%"></div></div>
+      <div class="state-msg" style="font-family:var(--font-mono);direction:ltr;">${p.done} / ${p.total}</div>` : '';
+    area.innerHTML = `<div class="state-card">
+      <div class="loading-spinner"></div>
+      <div class="state-title">جاري التحميل</div>
+      <div class="state-msg">${esc(payload || '')}</div>
+      ${bar}${steps}</div>`;
+    return;
+  }
+
+  if (kind === 'prompt') {
+    // البوابة مش تحميل — الشريط لازم يقول الحقيقة (مستني المستخدم) بدل ما
+    // يفضل على "جاري التحميل…" وهو واقف.
+    const fbar = document.getElementById('freshnessBar');
+    fbar.querySelector('.freshness-dot').className = 'freshness-dot';
+    fbar.querySelector('.freshness-dot').style.background = 'var(--text-muted)';
+    fbar.querySelector('.freshness-text').textContent = 'مستني تأكيد التحميل';
+    fbar.querySelector('.freshness-text').style.color = 'var(--text-muted)';
+    const missing = payload || [];
+    area.innerHTML = `<div class="state-card">
+      <div class="state-title">فيه شهور لسه ما اتحمّلتش</div>
+      <div class="state-msg">
+        الفترة المختارة <strong>${esc(state.range.from)} → ${esc(state.range.to)}</strong>
+        (ومعاها الفترة السابقة للمقارنة) فيها
+        <strong>${fmtInt(missing.length)}</strong> شهور محتاجين سحب من شوبيفاي:
+        <div class="progress-steps" style="margin-top:8px;">${missing.map(c => `<span class="pstep now">${esc(chunkLabel(c))}</span>`).join('')}</div>
+        <div style="margin-top:8px;">كل شهر بيتسحب لوحده — ده بياخد دقايق أول مرة. بعد كده التحديث بيسحب الشهر الحالي بس.</div>
+      </div>
+      <button class="btn-primary" onclick="loadData({mode:'cache'})">تحميل الشهور الناقصة</button></div>`;
+    return;
+  }
+
+  if (kind === 'error') {
+    const e = payload || {};
+    document.querySelector('#freshnessBar .freshness-dot').className = 'freshness-dot error';
+    document.querySelector('#freshnessBar .freshness-text').textContent = 'فشل التحميل';
+    area.innerHTML = `<div class="state-card error-state">
+      <div class="error-title">⚠️ فشل تحميل البيانات</div>
+      <div class="error-msg">${esc(e.message || 'خطأ غير معروف')}</div>
+      <button class="btn-primary" onclick="loadData({mode:'cache'})">إعادة المحاولة</button>
+      ${e.step || e.technical ? `
+      <details>
+        <summary>تفاصيل تقنية</summary>
+        <pre>step: ${esc(e.step || '—')}\n${esc(e.technical || '')}</pre>
+      </details>` : ''}</div>`;
+  }
+}
+
+// ─── §DASH-JS::renderFreshness ───
+// `source` بيوصف النداء اللي جاب الداتا بس — مش حالة محفوظة. كل render بيحسب
+// العمر من lastUpdated؛ source === 'shopify' بيوسّع نافذة "دلوقتي" للـ render
+// اللي بعد الجلب مباشرة، وممنوع يعمل return مبكّر يتخطى حساب العمر.
 function freshnessState(lastUpdated, source) {
   if (!lastUpdated) return { colour: null, label: '—' };
   const mins = Math.floor((Date.now() - new Date(lastUpdated)) / 60000);
   if (source === 'shopify' && mins < 1) return { colour: 'var(--green)', label: 'بيانات لحظية — تم التحديث الآن' };
-  if (mins < 60)  return { colour: 'var(--green)', label: `آخر تحديث: من ${mins} دقيقة` };
-  if (mins < 360) return { colour: 'var(--amber)', label: `آخر تحديث: من ${Math.floor(mins/60)} ساعات` };
+  if (mins < 60)  return { colour: 'var(--green)', label: `آخر تحديث: من ${fmtInt(mins)} دقيقة` };
+  if (mins < 360) return { colour: 'var(--amber)', label: `آخر تحديث: من ${fmtInt(Math.floor(mins/60))} ساعات` };
   return { colour: 'var(--red)', label: 'البيانات قديمة — اضغط تحديث' };
 }
 function renderFreshness(lastUpdated, source) {
@@ -1793,6 +2493,26 @@ function renderFreshness(lastUpdated, source) {
   if (colour) dot.style.background = colour;
   text.textContent = label;
   if (colour) text.style.color = colour;
+  renderFreshnessMonths();
+}
+
+// ─── §DASH-JS::renderFreshnessMonths — إلزامي مع مؤشر أقدم شهر ───
+// السطر ده هو اللي بيمنع سؤال "الشريط بيقول ٦ ساعات وأنا لسه محدّث دلوقتي؟":
+// الشريط فوق بيعرض **أقدم** شهر (الأكثر تحفّظًا)، والسطر ده بيفكّ الرقم لكل شهر
+// على حدة — فالمستخدم يشوف إن الشهر الحالي لحظي والقديم هو اللي عمره ٦ ساعات.
+function renderFreshnessMonths() {
+  const el = document.getElementById('freshnessMonths');
+  if (!el) return;
+  const chunks = state.chunks || [];
+  if (chunks.length < 2 || state.viewState !== 'ready') { el.innerHTML = ''; return; }
+  el.innerHTML = '<span class="fm-label">طزاجة كل شهر:</span>' + chunks.map(c => {
+    const title = `${esc(c.from)} → ${esc(c.to)}${c.count != null ? ` · ${fmtInt(c.count)} أوردر` : ''}`;
+    if (!c.lastUpdated) return `<span class="fm-chip" title="${title}"><span class="fm-dot" style="background:var(--text-muted)"></span>${esc(chunkLabel(c))} · —</span>`;
+    const mins   = Math.floor((Date.now() - new Date(c.lastUpdated)) / 60000);
+    const colour = mins < 60 ? 'var(--green)' : mins < 360 ? 'var(--amber)' : 'var(--red)';
+    const age    = mins < 1 ? 'دلوقتي' : mins < 60 ? `${fmtInt(mins)} د` : `${fmtInt(Math.floor(mins / 60))} س`;
+    return `<span class="fm-chip" title="${title}"><span class="fm-dot" style="background:${colour}"></span>${esc(chunkLabel(c))} · <span class="fm-age">${esc(age)}</span>${c.isOpen ? ' 🔄' : ''}</span>`;
+  }).join('');
 }
 // إعادة رسم العمر كل 60 ثانية — بنفس lastUpdated/source، أبداً مش بيبعت fetch جديد
 setInterval(() => { if (state.viewState === 'ready') renderFreshness(state.meta.lastUpdated, state.meta.source); }, 60000);
@@ -1801,86 +2521,17 @@ function setFreshnessLoading() {
   const bar = document.getElementById('freshnessBar');
   bar.querySelector('.freshness-dot').className = 'freshness-dot loading';
   bar.querySelector('.freshness-text').textContent = 'جاري التحميل…';
-}
-
-async function loadAll({ forceRefresh }) {
-  if (!isConfigured()) {
-    state.viewState = 'error';
-    state.lastError = { message: 'محتاج تظبط WORKER URL و WORKER SECRET من ⚙️ الإعدادات' };
-    renderShell();
-    return;
-  }
-
-  state.range = state.range || computePresetRange(state.rangeMode) || computePresetRange('today');
-  const prevRange = getPreviousRange(state.range);
-
-  setFreshnessLoading();
-
-  try {
-    // v3.4.0 — تسلسلي مش متوازي (Promise.all القديمة). كل فترة متكاشة أصلاً
-    // تحت مفتاحها المستقل في الـ Worker، فالفرق الوحيد هنا هو حالة cache miss
-    // بارد للفترتين مع بعض: خطّين كاملين بالتوازي كانوا بيتنافسوا على نفس
-    // throttle bucket بتاع شوبيفاي ويبطّئوا بعض. التسلسل بيكلّف وقت إضافي في
-    // الحالة النادرة دي بس، ومش في أي تحميل تاني.
-    const curRes  = await apiPost('get_data', { dateFrom: state.range.from, dateTo: state.range.to, forceRefresh });
-    const prevRes = await apiPost('get_data', { dateFrom: prevRange.from,   dateTo: prevRange.to,   forceRefresh: false });
-
-    state.boxes             = curRes.boxes;
-    state.prevBoxes         = prevRes.boxes;
-    // v2.1.0 — الباج اتصلّح من الجذر في الـ Worker (normalBucket)، فمفيش أي تصحيح
-    // client-side لازم هنا دلوقتي — rows[] بتوصل مصنّفة صح من الأساس.
-    state.rows              = curRes.rows || [];
-    state.prevRows          = prevRes.rows || [];
-    // v3.4.0 — ROWS_MAX_DAYS (Worker): فترة أوسع من 45 يوم بترجع rows/orderRows
-    // فاضية + rowsOmittedReason. `!== false` عشان كاش قديم (من غير الحقل ده
-    // أصلاً) يتعامل معاه كـ"متضمّن" — كان فعلاً كامل قبل الإضافة دي.
-    state.rowsIncluded      = curRes.rowsIncluded !== false;
-    state.rowsOmittedReason = curRes.rowsOmittedReason || null;
-    // فترة واسعة جاية من "عدد قطع" فترة قديمة — مفيش rows نحسب منها، ارجع لـ"قيمة"
-    if (!state.rowsIncluded && state.viewMode === 'qty') state.viewMode = 'value';
-    state.warnings          = curRes.warnings || null;
-    state.ordersScanned     = curRes.ordersScanned || 0;
-    state.candidatesFetched = curRes.candidatesFetched || 0;
-    state.meta              = { lastUpdated: curRes.lastUpdated, source: curRes.source };
-
-    // v2.0.0 — نفس الـ response بالظبط بيرجّع بيانات تاب "الأوردرات" كمان (صفر fetch إضافي)
-    state.orderBoxes     = curRes.orderBoxes;
-    state.prevOrderBoxes = prevRes.orderBoxes;
-    state.orderRows      = curRes.orderRows || [];
-    state.prevOrderRows  = prevRes.orderRows || [];
-    state.orderWarnings  = curRes.orderWarnings || null;
-
-    state.viewState = 'ready';
-    state.lastError = null;
-    renderShell();
-  } catch (e) {
-    console.error(e);
-    state.viewState = 'error';
-    state.lastError = e;
-    renderShell();
-  }
+  bar.querySelector('.freshness-text').style.color = '';
+  const months = document.getElementById('freshnessMonths');
+  if (months) months.innerHTML = '';
 }
 
 function renderShell() {
   const wrap = document.getElementById('dashboardBody');
 
-  if (state.viewState === 'error') {
-    const e = state.lastError || {};
-    document.querySelector('.freshness-dot').className = 'freshness-dot error';
-    document.querySelector('.freshness-text').textContent = 'فشل التحميل';
-    wrap.innerHTML = `
-      <div class="error-state">
-        <div class="error-title">⚠️ فشل تحميل البيانات</div>
-        <div class="error-msg">${esc(e.message || 'خطأ غير معروف')}</div>
-        <button class="btn" onclick="doRefresh()">إعادة المحاولة</button>
-        ${e.step || e.technical ? `
-        <details>
-          <summary>تفاصيل تقنية</summary>
-          <pre>step: ${esc(e.step || '—')}\n${esc(e.technical || '')}</pre>
-        </details>` : ''}
-      </div>`;
-    return;
-  }
+  // حالة الخطأ/التقدّم/البوابة بقت مملوكة لـ setLoadState() في #stateArea —
+  // مصدر واحد للحالات دي بدل نسختين (واحدة هنا وواحدة هناك) كانوا بيتعارضوا.
+  if (state.viewState !== 'ready') { wrap.innerHTML = ''; return; }
 
   const w = state.warnings || {};
   const warnBits = [];
@@ -1898,14 +2549,8 @@ function renderShell() {
   if (ow.cycleOverlap) orderWarnBits.push(`${fmtInt(ow.cycleOverlap)} أوردر فيه تداخل دورات (إجراء: خدمة العملاء)`);
   if (ow.multiCycle)   orderWarnBits.push(`${fmtInt(ow.multiCycle)} أوردر بأكتر من دورة (المربع بيوصف أحدث دورة)`);
 
-  // v3.4.0 — ROWS_MAX_DAYS: الملخّصات (الكروت) فضلت كاملة، جدول التفاصيل بس
-  // اللي بيتقفل على فترة واسعة — والقفل ده لازم يتبلّغ صراحةً هنا، مش يتقرا
-  // ضمنيًا من جدول فاضي.
-  document.getElementById('viewModeBtnQty')?.classList.toggle('disabled', !state.rowsIncluded);
-
   wrap.innerHTML = `
     <div class="info-note">📊 تم فحص ${fmtInt(state.ordersScanned)} أوردر في الفترة المختارة — ${fmtInt(state.candidatesFetched)} منهم فيه نشاط إرجاع/استبدال (اتجابت بيانات مرتجعاتهم بالتفصيل).</div>
-    ${state.rowsOmittedReason ? `<div class="warn-note">⚠️ ${esc(state.rowsOmittedReason)} (وضع "عدد القطع" متقفل مؤقتًا لنفس السبب.)</div>` : ''}
 
     <div id="mainPageContent" class="${state.activePage === 'main' ? '' : 'hidden'}">
       ${warnBits.length ? `<div class="warn-note">⚠️ ${warnBits.join(' · ')} — اضغط على المربع المعني لمراجعة الصفوف.</div>` : ''}
@@ -1968,8 +2613,10 @@ function switchMainTab(page) {
     document.getElementById('mainTabOrders')?.classList.toggle('active', page === 'orders');
     document.getElementById('mainPageContent')?.classList.toggle('hidden', page !== 'main');
     document.getElementById('ordersPageContent')?.classList.toggle('hidden', page !== 'orders');
-    // مفتاح "طريقة العرض" (قيمة/عدد قطع) خاص بصفحة الرئيسية بس — بيتخفي في الأوردرات
-    document.getElementById('viewToggleWrap')?.classList.toggle('hidden', page !== 'main');
+    // مفتاح "طريقة العرض" (قيمة/عدد قطع) خاص بصفحة الرئيسية بس — بيتخفي في
+    // الأوردرات. ⚠️ الإخفاء على الـ .range-fg كله مش على الـ toggle جوّه بس،
+    // وإلا الليبل "طريقة العرض" بيفضل معلّق في الصف بلا أي عنصر تحته.
+    document.getElementById('viewToggleFg')?.classList.toggle('hidden', page !== 'main');
   }
   updateTabChip();
   closeTabChipMenu();
@@ -2096,27 +2743,83 @@ function computeBoxesFromRows(rows, key) {
   };
 }
 
+// ─── §TOOL-JS::computeOrderBoxesFromRows — v3.5.0 ───
+// نظير computeBoxesFromRows على مستوى الأوردر. **إلزامي** بعد التقسيم الشهري:
+// orderBoxes الجاي من الـ Worker بيوصف الـ chunk كامل (شهر تقويمي)، والمعروض
+// هو اختيار المستخدم بعد فلترة الأطراف بـ createdAt — فقراءة الملخّص الجاهز
+// معناها كارت بيعدّ أوردرات مالهاش صف على الشاشة. أسماء الحقول مطابقة حرفيًا
+// للـ orderBoxes بتاع الـ Worker عشان renderOrderBoxes مايتغيّرش.
+function computeOrderBoxesFromRows(rows) {
+  const q = {};
+  (rows || []).forEach(r => { q[r.bucket] = (q[r.bucket] || 0) + 1; });
+  const g = k => q[k] || 0;
+  return {
+    totalOrders:           (rows || []).length,
+    pendingConfirm:        g('PENDING_CONFIRM'),
+    prepConfirmed:         g('PREP_CONFIRMED'),
+    prepExchange:          g('PREP_EXCHANGE'),
+    prepReturn:            g('PREP_RETURN'),
+    shippedConfirmed:      g('SHIPPED_CONFIRMED'),
+    shippedExchange:       g('SHIPPED_EXCHANGE'),
+    shippedReturn:         g('SHIPPED_RETURN'),
+    lostCancelled:         g('LOST_CANCELLED'),
+    lostRTO:               g('LOST_RTO'),
+    lostFullReturn:        g('LOST_FULL_RETURN'),
+    deliveryBasic:         g('DELIVERY_BASIC'),
+    deliveryExchange:      g('DELIVERY_EXCHANGE'),
+    deliveryPartialReturn: g('DELIVERY_PARTIAL_RETURN'),
+    unclassified:          g('UNCLASSIFIED'),
+  };
+}
+
+// ─── §TOOL-JS::computeWarningsFromRows — v3.5.0 ───
+// نفس تعريفات عدّادات الـ Worker بالظبط:
+//   unclassified/fulfilmentMismatch/redelivery → **لكل صف** (قطعة)
+//   cycleOverlap/multiCycle                    → **لكل أوردر** (خاصية على الأوردر)
+// ⛔ الوسمين منفصلين إجباريًا — بيروحوا لجهتين مختلفتين (خدمة عملاء · كود)،
+// ودمجهم بيمسك ~١١٪ بس من الصفوف المحتاجة مراجعة (state-machines.md §2.4).
+function computeWarningsFromRows(rows) {
+  const w = { fulfilmentMismatch: 0, redelivery: 0, unclassified: 0, cycleOverlap: 0, multiCycle: 0 };
+  const overlapOrders = new Set(), multiOrders = new Set();
+  (rows || []).forEach(r => {
+    if (r.bucket === 'IP_UNCLASSIFIED') w.unclassified++;
+    if (r.note === 'FULFIL_MISM')       w.fulfilmentMismatch++;
+    if (r.note === 'REDELIVERY')        w.redelivery++;
+    if (r.cycleNote === 'CYCLE_OVERLAP') overlapOrders.add(r.orderId);
+    else if (r.cycleNote === 'MULTI_CYCLE') multiOrders.add(r.orderId);
+  });
+  w.cycleOverlap = overlapOrders.size;
+  w.multiCycle   = multiOrders.size;
+  return w;
+}
+function computeOrderWarningsFromRows(rows) {
+  const w = { unclassified: 0, cycleOverlap: 0, multiCycle: 0 };
+  (rows || []).forEach(r => {
+    if (r.bucket === 'UNCLASSIFIED')        w.unclassified++;
+    if (r.cycleNote === 'CYCLE_OVERLAP')    w.cycleOverlap++;
+    else if (r.cycleNote === 'MULTI_CYCLE') w.multiCycle++;
+  });
+  return w;
+}
+
 // ─── §TOOL-JS::activeBoxes / activePrevBoxes — v2.1.0: دايماً من state.rows/state.prevRows
 // (بعد التصحيح) — بصرف النظر عن viewMode، عشان "قيمة" و"عدد قطع" يفضلوا متطابقين
 // مع جدول التفاصيل دايماً ───
-// v3.4.0 — ⚠️ استثناء وحيد: لو rowsIncluded=false (فترة أوسع من ROWS_MAX_DAYS)،
-// مفيش rows نرجّع منها نحسب — بنرجع boxes/prevBoxes زي ما جايين من الـ Worker
-// مباشرة (نفس أسماء الحقول بالظبط، فـ renderBoxes مش محتاج أي تفريق). ده بيشتغل
-// في وضع "قيمة" بس — وضع "عدد القطع" بيتقفل في الحالة دي (setViewMode تحت).
+// v3.5.0 — الفولباك لـ boxes/prevBoxes الجايين من الـ Worker **اتشال**: بعد
+// التقسيم الشهري كل chunk شهر واحد على الأكثر، فـ ROWS_MAX_DAYS (٤٥ يوم في
+// الـ Worker) عمره ما بيتفعّل ومفيش حالة "فترة بلا صفوف" أصلاً. ولو حصلت رغم
+// كده، loadData بترمي بصوت عالي (rowsIncluded === false) بدل ما ترندر أصفار.
 function activeBoxes() {
-  if (!state.rowsIncluded) return state.boxes || {};
   return computeBoxesFromRows(state.rows, state.viewMode === 'qty' ? 'qty' : 'value');
 }
 function activePrevBoxes() {
-  if (!state.rowsIncluded) return state.prevBoxes || {};
   return computeBoxesFromRows(state.prevRows, state.viewMode === 'qty' ? 'qty' : 'value');
 }
 
 // ─── §TOOL-JS::setViewMode — v1.4.0: تبديل قيمة/عدد قطع — إعادة رسم فورية من نفس البيانات المحمّلة ───
-// v3.4.0: وضع "عدد القطع" محتاج rows فعليًا (بيتحسب بالجمع منها) — لو
-// rowsIncluded=false مفيش قطع نلمّها، فالتبديل بيتجاهل 'qty' ويفضل 'value'.
+// v3.5.0: الحارس القديم (قفل "عدد القطع" لما rows مش موجودة) اتشال — التقسيم
+// الشهري بيضمن إن الصفوف دايمًا موجودة لأي فترة.
 function setViewMode(mode) {
-  if (mode === 'qty' && !state.rowsIncluded) return;
   if (state.viewMode === mode) return;
   state.viewMode = mode;
   document.getElementById('viewModeBtnValue').classList.toggle('active', mode === 'value');
@@ -2681,12 +3384,7 @@ function renderDetailsTableWrap() {
     </div>`;
 
   if (!rows.length) {
-    // v3.4.0 — لو الفترة أوسع من ROWS_MAX_DAYS، الجدول فاضي عن قصد (rowsOmittedReason)
-    // مش لأنه مفيش نتايج — لازم يتقال صراحةً بدل ما يتقرا "مفيش حركة" غلط.
-    const emptyMsg = !state.rowsIncluded
-      ? esc(state.rowsOmittedReason || 'الفترة أوسع من الحد المدعوم لجدول التفاصيل.')
-      : `مفيش صفوف مطابقة${state.detailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.`;
-    wrap.innerHTML = summary + `<div class="details-empty">${emptyMsg}</div>`;
+    wrap.innerHTML = summary + `<div class="details-empty">مفيش صفوف مطابقة${state.detailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.</div>`;
     return;
   }
 
@@ -3270,12 +3968,7 @@ function renderOrderDetailsTableWrap() {
     </div>`;
 
   if (!rows.length) {
-    // v3.4.0 — نفس منطق جدول تفاصيل المبيعات: فترة أوسع من ROWS_MAX_DAYS = فاضي
-    // عن قصد (rowsOmittedReason)، مش "مفيش أوردرات".
-    const emptyMsg = !state.rowsIncluded
-      ? esc(state.rowsOmittedReason || 'الفترة أوسع من الحد المدعوم لجدول التفاصيل.')
-      : `مفيش أوردرات مطابقة${state.orderDetailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.`;
-    wrap.innerHTML = summary + `<div class="details-empty">${emptyMsg}</div>`;
+    wrap.innerHTML = summary + `<div class="details-empty">مفيش أوردرات مطابقة${state.orderDetailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.</div>`;
     return;
   }
 
@@ -3596,6 +4289,10 @@ async function finishLogin(username, displayName) {
   document.getElementById('loginOverlay').classList.add('hidden');
   showToast(`أهلاً ${displayName} 👋`, 'success');
   playBeep('success');
+  const userBtn = document.getElementById('activeUserBtn');
+  if (userBtn) userBtn.textContent = `👤 ${displayName}`;
+  // CUSTOMIZE — أول تحميل للبيانات بيحصل هنا، بعد الدخول
+  onRangeApplied();
 }
 
 async function doLogout() {
@@ -3619,11 +4316,22 @@ async function doLogout() {
   renderLoginMode('employee');
   clearLoginAlert();
 
+  const userBtn = document.getElementById('activeUserBtn');
+  if (userBtn) userBtn.textContent = '👤 —';
+
+  // CUSTOMIZE — تصفير حالة الأداة عشان بيانات موظف ما تفضلش على الشاشة بعد خروجه
+  state.viewState = 'loading';
+  state.rows = []; state.prevRows = []; state.orderRows = []; state.prevOrderRows = [];
+  state.chunks = null; state.prevChunks = null;
+  renderShell();
+  setFreshnessLoading();
+  setLoadState('loading', 'سجّل دخولك عشان البيانات تتحمّل…');
+
   document.getElementById('loginOverlay').classList.remove('hidden');
   loadEmployeesList();
 }
 
-function updateLoginSettingsBtnState() {
+function updateLoginSettingsBtn() {
   const btn = document.getElementById('loginSettingsBtn');
   if (!btn) return;
   btn.classList.toggle('ready',   isConfigured());
@@ -3639,7 +4347,11 @@ initDateRange();
 buildTabChipMenu();
 updateTabChip();
 loadEmployeesList();
-loadAll({ forceRefresh: false });
+checkWorkerVersion();
+// ⚠️ التحميل بقى بعد الدخول (finishLogin) مش هنا — v3.5.0. قبل كده كانت دورة
+// سحب كاملة بتشتغل ورا شاشة الدخول حتى لو محدش سجّل دخول، ومع التقسيم الشهري
+// شريط التقدّم/البوابة كانوا هيرسموا تحت الـ overlay بلا أي فايدة.
+setLoadState('loading', 'سجّل دخولك عشان البيانات تتحمّل…');
 </script>
 </body>
 </html>
