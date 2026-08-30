@@ -2,24 +2,24 @@
 
 # لوحة الأداء (`Performance-Dashboard`)
 
-![version](https://img.shields.io/badge/version-v1.2.0-blue)
+![version](https://img.shields.io/badge/version-v1.3.0-blue)
 
 **بتعمل إيه:** داشبورد قراءة فقط بيجمّع بيانات أوردرات شوبيفاي على مستويين مستقلين —
 تقييم بالقطعة (فلوس) وعدّ الأوردرات — لفترة زمنية محددة، مع كاش على KV.
 **مين بيستخدمها:** إدارة · حسابات
-**الإصدار:** Worker `v3.1.0` · الواجهة `v3.2.0` ← الاتنين مستقلين، طبيعي يختلفوا
+**الإصدار:** Worker `v3.2.0` · الواجهة `v3.3.0` ← الاتنين مستقلين، طبيعي يختلفوا
 
 ## بصمة المهارات
 
 | المهارة | الإصدار وقت آخر تعديل |
 |---|---|
 | ecommoda-worker-builder | v1.0.0 |
-| ecommoda-html-builder | v1.0.0 |
+| ecommoda-html-builder | v1.1.0 |
 | ecommoda-constants | v1.0.0 |
-| ecommoda-dashboard-builder | v1.1.0 |
-| ecommoda-order-lifecycle | v1.0.0 |
+| ecommoda-dashboard-builder | v2.0.0 |
+| ecommoda-order-lifecycle | v1.1.0 |
 
-آخر مطابقة: 26-08-2026 · `index.js` v3.1.0 · `index.html` v3.2.0
+آخر مطابقة: 30-08-2026 · `index.js` v3.2.0 · `index.html` v3.3.0
 🔴 معلّقة: **خطوة (ج) من G-13** — `orderCycleRows[]` (مصفوفة صف لكل دورة جنب
 المربع، `classification-rules.md` §9-ب). مؤجّلة بقرار. من غيرها المربع الواحد
 بيفضل بيوصف **أحدث دورة بس**، والدورة الأقدم المكتملة مش ظاهرة في أي KPI —
@@ -53,6 +53,8 @@
 | `get_data` | GET/POST | البيانات المجمّعة — `boxes`/`rows`/`warnings` + `orderBoxes`/`orderRows`/`orderWarnings`. محتاج `dateFrom` و `dateTo` |
 | `get_meta` | GET | ميتاداتا الكاش لفترة. محتاج `dateFrom` و `dateTo` |
 | `clear_cache` | GET | يمسح كاش فترة واحدة، أو الكاش كله لو الفترة مش متبعتة |
+| `diag` | GET | فحص ذاتي بدون كتابة — متغيّرات/bindings/صلاحيات شوبيفاي/D1/KV (30-08-2026) |
+| `get_config` | GET | يرجّع `WORKER_VERSION` — للمقارنة مع نسخة الواجهة (30-08-2026) |
 
 > **مفيش `get_logs` في الأداة دي** — بتكتب في D1 بس، مبتقراش السجل.
 
@@ -89,9 +91,11 @@ Build watch paths : * (الافتراضي) — لسه متضيّقتش
 ```
 LINE_ITEMS_PAGE 25 · RETURNS_PAGE 10 · RETURN_LINES_PAGE 25
 EXCHANGE_LINES_PAGE 20 · STAGE1_PAGE_SIZE 250 · STAGE2_BATCH_SIZE 10
-CACHE_VERSION v8 · MAX_CACHE_BYTES 25MB
-كاش: نطاق مغلق (dateTo قبل النهاردة) = دائم · نطاق مفتوح = 900 ثانية
-مفاتيح KV: dash:performance_dashboard:v8:data|meta:<from>:<to>
+CACHE_VERSION v9 · MAX_CACHE_BYTES 25MB
+كاش: TTL متدرّج (ttlFor) — نطاق فيه النهارده = 900 ثانية · قفل من ٤٥ يوم أو أقل
+     = 21600 ثانية (6 ساعات) · أقدم من ٤٥ يوم = 86400 ثانية (24 ساعة). عمره ما
+     يبقى دائم (كان كذلك قبل 30-08-2026 — شوف قرارات معتمدة تحت).
+مفاتيح KV: dash:performance_dashboard:v9:data|meta:<from>:<to>
 ```
 
 > **تحديث 25-08-2026:** RETURNS_PAGE و EXCHANGE_LINES_PAGE اتضاعفوا (5→10،
@@ -128,6 +132,19 @@ CACHE_VERSION v8 · MAX_CACHE_BYTES 25MB
   الكود. دمجهم في تحذير واحد بيمسك **١١%** بس من الصفوف المحتاجة مراجعة.
   ⛔ الوسم **مبيحركش ولا رقم** — الصف بيفضل في مربعه (Rule 13).
   → `state-machines.md` §2.4
+
+- **كاش الفترات المقفولة بقى TTL متدرّج بدل دائم — 30-08-2026.**
+  `ecommoda-dashboard-builder` v2.0.0 (بند كاسر) وضّحت إن قاعدة "الفترة المقفولة
+  = كاش دائم" صح بس للأحداث، وغلط لصفوف بتوصف **حالة حالية** — وسمّت الأداة دي
+  بالاسم كمرشّح مباشر. `boxes`/`orderBoxes` هنا حالة أوردر حالية
+  (`manual_status`/`status_2_r_e`/bucket)، فأوردر اتعمل في شهر مقفول ممكن يتحرك
+  `Shipped → Delivered → Returned` بعد ما الشهر يتكاش — وكاش دائم كان بيخلّي
+  الرقم يفضل واقف على الصورة القديمة للأبد من غير أي خطأ ظاهر. `cacheTtlFor()`
+  اتبدلت بـ `ttlFor()` متدرّجة (900 / 21600 / 86400)، عمرها ما ترجع `null`.
+  `CACHE_VERSION` اترفع لـ v9 عشان كل فترة متكاشة قديمة بكاش دائم تتحرر وتتحسب
+  بالـ TTL الجديد. أُضيف كمان `?action=diag` و `?action=get_config` (كانوا
+  ناقصين — `ecommoda-worker-builder` Step 5A ⑨) + trailing-slash fix على
+  `SHOP_DOMAIN`. → `ecommoda-dashboard-builder` Step 3-أ/ج
 
 ## خط الأساس بعد النقل
 
@@ -199,6 +216,6 @@ git show 30ce4b2:Index.html
 - **تعليق في `wrangler.toml`** فيه نقطتين `..` بدل نقطة — تجميلي بحت، متلمسش الملف
   عشانه لوحده.
 
-آخر تحديث: 26-08-2026
+آخر تحديث: 30-08-2026
 
 </div>

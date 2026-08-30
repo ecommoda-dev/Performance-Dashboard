@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════════════════════════════
-// Performance Dashboard Worker — لوحة الأداء (v3.1.0).
+// Performance Dashboard Worker — لوحة الأداء (v3.2.0).
 // المرجع: docs/performance-dashboard-data-contract-v2.1.0.md (v2.1.0 — معتمد)
 //         + ecommoda-order-lifecycle / references/piece-level-valuation.md (v1.1.0)
 //         + ecommoda-order-lifecycle / references/classification-rules.md (عدّ الأوردرات)
@@ -103,15 +103,32 @@
 //   اتحرّك (#50091: SHIPPED_EXCHANGE → SHIPPED_RETURN)، والباقي وسم بس.
 //   CACHE_VERSION → v8 (شكل الصفوف + التصنيف الاتنين اتغيّروا).
 //
-// skills: worker-builder v1.0.0 · constants v1.0.0 · dashboard-builder v1.1.0 ·
-//         order-lifecycle v1.0.0 — 26-08-2026
+// v3.2.0 (30-08-2026): مراجعة على أحدث نسخ المهارات — إصلاح كاسر واحد + إضافتين:
+//   1. 🔴 كاسر — cacheTtlFor() كانت بترجع كاش دائم (null TTL) لأي فترة مقفولة،
+//      وده صح للأحداث بس غلط للحالة (dashboard-builder v2.0.0 Step 3-أ/ج —
+//      الأداة دي مذكورة بالاسم في الـ CHANGELOG كمرشّح مباشر). boxes/orderBoxes
+//      هنا بتوصف حالة الأوردر الحالية (manual_status/status_2_r_e/bucket) —
+//      أوردر اتعمل في شهر مقفول ممكن يتحرك Shipped→Delivered→Returned بعد ما
+//      الشهر يتكاش، وكاش دائم كان بيخلّي الرقم يفضل واقف على الصورة القديمة
+//      للأبد من غير أي خطأ ظاهر. اتبدلت بـ ttlFor() متدرّجة (900/21600/86400)،
+//      عمرها ما ترجع null. CACHE_VERSION → v9 (عشان الفترات المقفولة المتكاشة
+//      دائمًا قبل كده تتحرر وتتحسب بالـ TTL الجديد).
+//   2. إضافة ?action=diag و ?action=get_config (worker-builder Step 5A ⑨ —
+//      كانوا ناقصين). diag بيفحص المتغيّرات/الـ bindings/صلاحيات شوبيفاي/D1/KV
+//      بدون أي كتابة وبدون عرض قيمة أي سر. get_config بيرجّع WORKER_VERSION
+//      عشان الواجهة تقارنها وتحذّر لو مختلفة.
+//   3. trailing-slash fix على SHOP_DOMAIN قبل كل نداء (worker-builder checklist).
+//
+// skills: worker-builder v1.0.0 · constants v1.0.0 · dashboard-builder v2.0.0 ·
+//         order-lifecycle v1.1.0 — 30-08-2026
 // ══════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════
 // §CONSTANTS
 // ══════════════════════════════════════════════════════
-const TOOL_NAME  = 'performance_dashboard';
-const CACHE_VERSION = 'v8'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف)
+const TOOL_NAME     = 'performance_dashboard';
+const WORKER_VERSION = 'v3.2.0'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
+const CACHE_VERSION = 'v9'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
 const LINE_ITEMS_PAGE     = 25;   // lineItems(first: 25) — absolute max
@@ -270,8 +287,9 @@ function isLineFulfilled(li) {
 // §SHOPIFY
 // ══════════════════════════════════════════════════════
 async function getAccessToken(env) {
+  const shopDomain = String(env.SHOP_DOMAIN || '').replace(/\/$/, '');
   const resp = await fetch(
-    `https://${env.SHOP_DOMAIN}/admin/oauth/access_token`,
+    `https://${shopDomain}/admin/oauth/access_token`,
     {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -293,8 +311,9 @@ async function getAccessToken(env) {
 // فاضية (undefined.data يمرّ من هنا لحد fetchStage1/fetchStage2 اللي بترمي برسالة
 // مضلّلة "Shopify لم يرجع بيانات" بدل السبب الحقيقي).
 async function shopifyGQL(env, token, query, variables = {}) {
+  const shopDomain = String(env.SHOP_DOMAIN || '').replace(/\/$/, '');
   const resp = await fetch(
-    `https://${env.SHOP_DOMAIN}/admin/api/2026-01/graphql.json`,
+    `https://${shopDomain}/admin/api/2026-01/graphql.json`,
     {
       method: 'POST',
       headers: {
@@ -1011,10 +1030,23 @@ function computeOrderBoxes(stage1Orders, stage2Map) {
 const dataKey = (f, t) => `dash:${TOOL_NAME}:${CACHE_VERSION}:data:${f}:${t}`;
 const metaKey = (f, t) => `dash:${TOOL_NAME}:${CACHE_VERSION}:meta:${f}:${t}`;
 
-// نطاق مغلق (dateTo قبل النهاردة) = دائم · نطاق مفتوح = 15 دقيقة (dashboard-builder Rule)
-function cacheTtlFor(dateTo) {
+// §CACHE::ttlFor — الصفوف هنا state payload مش event payload: boxes/orderBoxes
+// بتوصف حالة الأوردر الحالية (manual_status/status_2_r_e/bucket)، وأوردر اتعمل
+// في فترة مقفولة ممكن يتحرك Shipped→Delivered→Returned بعد ما الفترة تتكاش.
+// عمرها ما ترجع null (dashboard-builder v2.0.0 Step 3-ج) — كاش دائم هنا معناه
+// رقم قديم يفضل يرندر سليم للأبد من غير أي خطأ ظاهر.
+const TTL_OPEN    = 900;    // الفترة فيها النهارده — ١٥ دقيقة
+const TTL_RECENT  = 21600;  // قفلت من ٤٥ يوم أو أقل — ٦ ساعات (لسه فيها حركة)
+const TTL_SETTLED = 86400;  // أقدم من ٤٥ يوم — ٢٤ ساعة (الحركة نادرة، مش مستحيلة)
+const RECENT_DAYS = 45;
+
+function ttlFor(dateTo) {
   const today = new Date().toISOString().slice(0, 10);
-  return dateTo < today ? null : 900;
+  if (dateTo >= today) return TTL_OPEN;
+  const ageDays = Math.round(
+    (Date.parse(`${today}T00:00:00Z`) - Date.parse(`${dateTo}T00:00:00Z`)) / 86400000
+  );
+  return ageDays <= RECENT_DAYS ? TTL_RECENT : TTL_SETTLED;
 }
 
 // حد Cloudflare KV لحجم القيمة الواحدة — 25 ميجابايت. لو تعدّاه الـ put بيفشل
@@ -1028,8 +1060,8 @@ async function readCache(env, key) {
 }
 
 async function writeCache(env, key, dateTo, payload) {
-  const ttl  = cacheTtlFor(dateTo);
-  const opts = ttl ? { expirationTtl: ttl } : {};
+  const ttl  = ttlFor(dateTo);
+  const opts = { expirationTtl: ttl };
   const lastUpdated = new Date().toISOString();
   const body = JSON.stringify({ ...payload, lastUpdated });
 
@@ -1272,6 +1304,57 @@ export default {
         const list = await env.DASH_KV.list({ prefix: `dash:${TOOL_NAME}:` });
         for (const k of list.keys) await env.DASH_KV.delete(k.name);
         return json({ cleared: 'all', count: list.keys.length });
+      }
+
+      // ─── §HANDLER::DIAG ────────────────────────────────────
+      // worker-builder Step 5A ⑨ — إلزامي: diag + get_config
+      if (action === 'get_config') {
+        return json({ ok: true, workerVersion: WORKER_VERSION, cacheVersion: CACHE_VERSION }, 200);
+      }
+
+      if (action === 'diag') {
+        // ⚠️ ممنوع عرض قيمة أي سر — أسماء وأطوال بس
+        const secretKeys = ['WORKER_SECRET', 'CLIENT_ID', 'CLIENT_SECRET'];
+        const varKeys    = ['SHOP_DOMAIN', 'LOCATION_ID'];
+        const checks = [];
+
+        for (const k of secretKeys) {
+          const v = env[k];
+          checks.push({ check: `env.${k}`, ok: !!v, detail: v ? `موجود (${String(v).length} حرف)` : 'ناقص' });
+        }
+        for (const k of varKeys) {
+          const v = env[k];
+          checks.push({ check: `env.${k}`, ok: !!v, detail: v ? String(v) : 'ناقص' });
+        }
+        checks.push({ check: 'DASH_KV binding', ok: !!env.DASH_KV, detail: env.DASH_KV ? 'موجود' : 'ناقص — get_data هيرمي على كل نداء' });
+        checks.push({ check: 'DB binding (D1)',  ok: !!env.DB,      detail: env.DB      ? 'موجود' : 'ناقص — تسجيل الدخول هيفشل' });
+
+        try {
+          const token = await getAccessToken(env);
+          const scopeData = await shopifyGQL(env, token, `{ currentAppInstallation { accessScopes { handle } } }`);
+          const scopes = (scopeData.data?.currentAppInstallation?.accessScopes || []).map(s => s.handle);
+          checks.push({ check: 'Shopify OAuth + صلاحيات التطبيق', ok: true, detail: scopes.join(', ') || 'مفيش scopes' });
+        } catch (e) {
+          checks.push({ check: 'Shopify OAuth + صلاحيات التطبيق', ok: false, detail: e.message });
+        }
+
+        try {
+          await env.DB.prepare('SELECT 1').first();
+          checks.push({ check: 'D1 query', ok: true, detail: 'تم' });
+        } catch (e) {
+          checks.push({ check: 'D1 query', ok: false, detail: e.message });
+        }
+
+        try {
+          await env.DASH_KV.get('diag:ping');
+          checks.push({ check: 'KV read', ok: true, detail: 'تم' });
+        } catch (e) {
+          checks.push({ check: 'KV read', ok: false, detail: e.message });
+        }
+
+        checks.push({ check: 'Origin', ok: true, detail: request.headers.get('Origin') || '(بدون)' });
+
+        return json({ ok: checks.every(c => c.ok), workerVersion: WORKER_VERSION, checks }, 200);
       }
 
       return json({ error: `Unknown action: ${action}` }, 400);
