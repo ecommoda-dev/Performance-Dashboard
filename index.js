@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════════════════════════════
-// Performance Dashboard Worker — لوحة الأداء (v3.2.0).
+// Performance Dashboard Worker — لوحة الأداء (v3.3.0).
 // المرجع: docs/performance-dashboard-data-contract-v2.1.0.md (v2.1.0 — معتمد)
 //         + ecommoda-order-lifecycle / references/piece-level-valuation.md (v1.1.0)
 //         + ecommoda-order-lifecycle / references/classification-rules.md (عدّ الأوردرات)
@@ -119,6 +119,28 @@
 //      عشان الواجهة تقارنها وتحذّر لو مختلفة.
 //   3. trailing-slash fix على SHOP_DOMAIN قبل كل نداء (worker-builder checklist).
 //
+// v3.3.0 (30-08-2026): دفعة إصلاحات من مراجعة docs/DATA-PULL-AND-CACHE.md قبل حذفه
+//   (الملف كان بيوثّق سلوك قديم اتصلّح جزئيًا في v3.2.0 — البنود الباقية هنا):
+//   1. 🔴 clear_cache (بدون dateFrom/dateTo) بقى بيلفّ على cursor بتاع
+//      DASH_KV.list() بدل نداء واحد سقفه 1000 مفتاح — قبل كده كان بيمسح جزء
+//      ويرجّع "cleared: all" (نجاح كاذب) لو عدد المفاتيح تعدّى الألف.
+//   2. 🟠 MAX_CACHE_BYTES نزلت من 25MB (نفس حد KV بالظبط) لـ 24MB — هامش أمان.
+//   3. 🟠 get_data/get_meta بقى فيهم فحص صيغة YYYY-MM-DD + dateFrom<=dateTo
+//      (validateDateRange) — قبل كده '2026-8-1' كانت بتولّد مفتاح كاش مستقل
+//      عن '2026-08-01' لنفس اليوم فعليًا.
+//   4. 🟡 readCache() بقى فيه try/catch حوالين JSON.parse — قيمة KV تالفة
+//      كانت بترمي 500 على كل نداء بدل ما ترجع null وتعيد السحب.
+//   5. 🟡 getAccessToken() بقى بيكاش التوكن في نطاق الـ isolate (module-scope)
+//      بدل نداء OAuth جديد في كل get_data/diag.
+//   6. 🔴 ROWS_MAX_DAYS=45 — فترة أوسع من كده بترجع rows/orderRows فاضية +
+//      rowsIncluded:false + rowsOmittedReason بدل ما تستنى دورة سحب كاملة
+//      وتاخد خطأ 24MB في الآخر بصفر أرقام. boxes/orderBoxes فضلوا كاملين
+//      دايمًا. CACHE_VERSION → v10 (شكل الـ payload اتغيّر).
+//   ⚠️ الفترة السابقة (state.prevRows في الواجهة) اتسابت زي ما هي عمدًا —
+//      مُستخدمة فعليًا في مقارنة وضع "عدد قطع" (activePrevBoxes)، مش بيانات
+//      بتترمى زي ما كان متوقّع. التعديل الوحيد المرتبط بيها كان في الواجهة:
+//      الجلب بقى تسلسلي مش متوازي (تجنّب تنافس throttle على cache miss بارد).
+//
 // skills: worker-builder v1.0.0 · constants v1.0.0 · dashboard-builder v2.0.0 ·
 //         order-lifecycle v1.1.0 — 30-08-2026
 // ══════════════════════════════════════════════════════════════════
@@ -127,8 +149,8 @@
 // §CONSTANTS
 // ══════════════════════════════════════════════════════
 const TOOL_NAME     = 'performance_dashboard';
-const WORKER_VERSION = 'v3.2.0'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
-const CACHE_VERSION = 'v9'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0)
+const WORKER_VERSION = 'v3.3.0'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
+const CACHE_VERSION = 'v10'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
 const LINE_ITEMS_PAGE     = 25;   // lineItems(first: 25) — absolute max
@@ -137,6 +159,16 @@ const RETURN_LINES_PAGE   = 25;   // returnLineItems(first: 25)
 const EXCHANGE_LINES_PAGE = 20;   // exchangeLineItems(first: 20)
 const STAGE1_PAGE_SIZE    = 250;  // orders(first: 250) — مرحلة 1
 const STAGE2_BATCH_SIZE   = 10;   // نداءات nodes(ids:) — مرحلة 2، دفعات 10
+
+// §CONSTANTS::ROWS_MAX_DAYS — سقف الصفوف التفصيلية (dashboard-builder anti-pattern:
+// فترة طويلة قوي كانت بتستنى دورة سحب كاملة (دقيقة+) وفي الآخر تاخد خطأ 24MB
+// وصفر أرقام. boxes/orderBoxes (الملخّصات) فضلوا كاملين دايمًا مهما كان طول
+// الفترة — القص هنا على rows/orderRows (جدول التفاصيل) بس، ومُعلَن صراحةً عبر
+// rowsIncluded/rowsOmittedReason بدل قص صامت.
+const ROWS_MAX_DAYS = 45;
+function daysBetweenStr(a, b) {
+  return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400000) + 1;
+}
 
 // §CONSTANTS::S1 — قيم manual_status حرفياً (ecommoda-order-lifecycle §2 — casing load-bearing)
 // v2.0.0: أضاف القيم الوسيطة (Confirmed, Confirmed + Edit, Pending Edit,
@@ -261,6 +293,20 @@ function fail(step, arMessage, technical) {
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
+// §HELPERS::validateDateRange — 'YYYY-MM-DD' فقط + from <= to. من غيره
+// '2026-8-1' كانت بتعدّي، تروح لشوبيفاي، وتولّد مفتاح كاش مستقل عن '2026-08-01'
+// لنفس اليوم فعليًا — نسختين محفوظتين، ومسح واحدة مابيمسحش التانية.
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+function validateDateRange(dateFrom, dateTo) {
+  if (!ISO_DAY.test(dateFrom) || !ISO_DAY.test(dateTo)) {
+    return 'صيغة التاريخ لازم تكون YYYY-MM-DD';
+  }
+  if (dateFrom > dateTo) {
+    return 'تاريخ البداية بعد تاريخ النهاية';
+  }
+  return null;
+}
+
 // ══════════════════════════════════════════════════════
 // §SHARED
 // ══════════════════════════════════════════════════════
@@ -286,7 +332,16 @@ function isLineFulfilled(li) {
 // ══════════════════════════════════════════════════════
 // §SHOPIFY
 // ══════════════════════════════════════════════════════
+// module-scope — بيعيش طول عمر الـ isolate (بيتصفّر على cold start، ده طبيعي
+// ومقبول). التوكن مش مربوط بأي طلب معيّن، فمشاركته بين نداءات get_data/diag
+// المتتالية على نفس الـ isolate آمنة. أولوية منخفضة أصلاً (subrequest واحد
+// بس)، الهدف هنا تقليله مش ضمان صفر نداء OAuth.
+let cachedToken = null;
+let cachedTokenExpiresAt = 0;
+
 async function getAccessToken(env) {
+  if (cachedToken && Date.now() < cachedTokenExpiresAt) return cachedToken;
+
   const shopDomain = String(env.SHOP_DOMAIN || '').replace(/\/$/, '');
   const resp = await fetch(
     `https://${shopDomain}/admin/oauth/access_token`,
@@ -303,7 +358,13 @@ async function getAccessToken(env) {
   if (!resp.ok) throw fail('oauth', 'فشل تسجيل الدخول لـ Shopify', `OAuth failed: ${resp.status}`);
   const data = await resp.json();
   if (!data.access_token) throw fail('oauth', 'فشل تسجيل الدخول لـ Shopify', 'No access_token in OAuth response');
-  return data.access_token;
+
+  // هامش أمان 5 دقايق قبل انتهاء الصلاحية الفعلية. لو Shopify ما رجّعتش
+  // expires_in، هامش محافظ (10 دقايق) بدل ما نفترض توكن دائم.
+  const ttlSeconds = Number(data.expires_in) > 0 ? Number(data.expires_in) : 600;
+  cachedToken = data.access_token;
+  cachedTokenExpiresAt = Date.now() + Math.max(ttlSeconds - 300, 60) * 1000;
+  return cachedToken;
 }
 
 // ⚠️ حارس إلزامي (dashboard-builder — نمط resp.ok + JSON-parse + empty-data) —
@@ -1049,14 +1110,17 @@ function ttlFor(dateTo) {
   return ageDays <= RECENT_DAYS ? TTL_RECENT : TTL_SETTLED;
 }
 
-// حد Cloudflare KV لحجم القيمة الواحدة — 25 ميجابايت. لو تعدّاه الـ put بيفشل
-// بصمت (أو برسالة KV مش واضحة) والداشبورد بيفضل يحاول يجيب من كاش مش موجود
-// أصلاً. الحارس ده بيحوّل الفشل لرسالة واضحة بدل ما يتقفّى وراه لاحقًا.
-const MAX_CACHE_BYTES = 25 * 1024 * 1024;
+// حد Cloudflare KV لحجم القيمة الواحدة — 25 ميجابايت بالظبط. لو الحارس بيسمح
+// بحمولة على الحد ده تمامًا، KV نفسها بترفضها بعد كده — فالحد هنا 24MB عشان
+// يفشل هو الأول برسالة واضحة، مش KV برسالة مش واضحة على حافة الحد.
+const MAX_CACHE_BYTES = 24 * 1024 * 1024;
 
 async function readCache(env, key) {
   const raw = await env.DASH_KV.get(key);
-  return raw ? JSON.parse(raw) : null;
+  if (!raw) return null;
+  // ⚠️ قيمة KV تالفة (نادر، بس ممكن) كانت بتفجّر JSON.parse → 500 على كل نداء
+  // لحد ما حد يمسح المفتاح يدويًا. هنا بترجع null بدل كده → إعادة سحب طبيعية.
+  try { return JSON.parse(raw); } catch { return null; }
 }
 
 async function writeCache(env, key, dateTo, payload) {
@@ -1069,7 +1133,7 @@ async function writeCache(env, key, dateTo, payload) {
   if (bodyBytes > MAX_CACHE_BYTES) {
     throw fail(
       'cache_write',
-      'حجم بيانات الفترة أكبر من حد الكاش (25MB) — قصّر الفترة وحاول تاني',
+      'حجم بيانات الفترة أكبر من حد الكاش (24MB) — قصّر الفترة وحاول تاني',
       `writeCache payload ${bodyBytes} bytes > MAX_CACHE_BYTES ${MAX_CACHE_BYTES} for key ${key}`
     );
   }
@@ -1251,6 +1315,8 @@ export default {
         if (!dateFrom || !dateTo) {
           return json({ error: 'محتاج dateFrom و dateTo', step: 'validation' }, 400);
         }
+        const dateErr = validateDateRange(dateFrom, dateTo);
+        if (dateErr) return json({ error: dateErr, step: 'validation' }, 400);
 
         const key = dataKey(dateFrom, dateTo);
 
@@ -1269,9 +1335,18 @@ export default {
         // مستوى الأوردر/العدّ (صفحة "الأوردرات" — v2.0.0) — نفس البيانات، صفر نداء إضافي
         const { orderBoxes, orderRows, orderWarnings } = computeOrderBoxes(stage1Orders, stage2Map);
 
+        // §DATA::ROWS_MAX_DAYS — الملخّصات (boxes/orderBoxes) كاملة دايمًا؛ جدول
+        // التفاصيل (rows/orderRows) بيتقصّ فوق 45 يوم، ومُعلَن صراحةً بدل قص صامت.
+        const rangeDays   = daysBetweenStr(dateFrom, dateTo);
+        const includeRows = body.includeRows === true || rangeDays <= ROWS_MAX_DAYS;
+
         const payload = {
-          boxes, rows, warnings,
-          orderBoxes, orderRows, orderWarnings,
+          boxes, orderBoxes, warnings, orderWarnings,
+          rows:      includeRows ? rows      : [],
+          orderRows: includeRows ? orderRows : [],
+          rowsIncluded: includeRows,
+          rowsOmittedReason: includeRows ? null
+            : `الفترة ${rangeDays} يوم — جدول التفاصيل بيتحمّل حتى ${ROWS_MAX_DAYS} يوم. كل الملخّصات (boxes/orderBoxes) كاملة.`,
           dateFrom, dateTo,
           ordersScanned:     stage1Orders.length,
           candidatesFetched: candidateIds.length,
@@ -1289,6 +1364,8 @@ export default {
         if (!dateFrom || !dateTo) {
           return json({ error: 'محتاج dateFrom و dateTo', step: 'validation' }, 400);
         }
+        const metaDateErr = validateDateRange(dateFrom, dateTo);
+        if (metaDateErr) return json({ error: metaDateErr, step: 'validation' }, 400);
         const cached = await readCache(env, metaKey(dateFrom, dateTo));
         return json(cached || { ordersScanned: null, lastUpdated: null });
       }
@@ -1301,9 +1378,20 @@ export default {
           await env.DASH_KV.delete(metaKey(dateFrom, dateTo));
           return json({ cleared: `${dateFrom}:${dateTo}` });
         }
-        const list = await env.DASH_KV.list({ prefix: `dash:${TOOL_NAME}:` });
-        for (const k of list.keys) await env.DASH_KV.delete(k.name);
-        return json({ cleared: 'all', count: list.keys.length });
+        // ⚠️ list() سقفها 1000 مفتاح لكل نداء وبترجّع cursor للباقي — من غير
+        // الحلقة دي، مفاتيح النطاقات المقفولة (اللي بره الألف الأولى) كانت
+        // بتفضل، والرد "cleared: all" بيبقى نجاح كاذب.
+        let cursor, count = 0;
+        for (;;) {
+          const list = await env.DASH_KV.list({
+            prefix: `dash:${TOOL_NAME}:`,
+            cursor: cursor || undefined,
+          });
+          for (const k of list.keys) { await env.DASH_KV.delete(k.name); count++; }
+          if (list.list_complete || !list.cursor) break;
+          cursor = list.cursor;
+        }
+        return json({ cleared: 'all', count });
       }
 
       // ─── §HANDLER::DIAG ────────────────────────────────────

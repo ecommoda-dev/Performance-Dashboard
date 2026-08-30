@@ -2,12 +2,12 @@
 
 # لوحة الأداء (`Performance-Dashboard`)
 
-![version](https://img.shields.io/badge/version-v1.3.0-blue)
+![version](https://img.shields.io/badge/version-v1.4.0-blue)
 
 **بتعمل إيه:** داشبورد قراءة فقط بيجمّع بيانات أوردرات شوبيفاي على مستويين مستقلين —
 تقييم بالقطعة (فلوس) وعدّ الأوردرات — لفترة زمنية محددة، مع كاش على KV.
 **مين بيستخدمها:** إدارة · حسابات
-**الإصدار:** Worker `v3.2.0` · الواجهة `v3.3.0` ← الاتنين مستقلين، طبيعي يختلفوا
+**الإصدار:** Worker `v3.3.0` · الواجهة `v3.4.0` ← الاتنين مستقلين، طبيعي يختلفوا
 
 ## بصمة المهارات
 
@@ -19,7 +19,7 @@
 | ecommoda-dashboard-builder | v2.0.0 |
 | ecommoda-order-lifecycle | v1.1.0 |
 
-آخر مطابقة: 30-08-2026 · `index.js` v3.2.0 · `index.html` v3.3.0
+آخر مطابقة: 30-08-2026 · `index.js` v3.3.0 · `index.html` v3.4.0
 🔴 معلّقة: **خطوة (ج) من G-13** — `orderCycleRows[]` (مصفوفة صف لكل دورة جنب
 المربع، `classification-rules.md` §9-ب). مؤجّلة بقرار. من غيرها المربع الواحد
 بيفضل بيوصف **أحدث دورة بس**، والدورة الأقدم المكتملة مش ظاهرة في أي KPI —
@@ -50,7 +50,7 @@
 | `verify_employee` | POST | تسجيل الدخول (+ `writeLog` type `login`) |
 | `log_logout` | GET | تسجيل الخروج (+ `writeLog` type `logout`) |
 | `get_employees` | GET | قائمة الموظفين النشطين للـ dropdown |
-| `get_data` | GET/POST | البيانات المجمّعة — `boxes`/`rows`/`warnings` + `orderBoxes`/`orderRows`/`orderWarnings`. محتاج `dateFrom` و `dateTo` |
+| `get_data` | GET/POST | البيانات المجمّعة — `boxes`/`rows`/`warnings` + `orderBoxes`/`orderRows`/`orderWarnings`. محتاج `dateFrom` و `dateTo`. `boxes`/`orderBoxes` كاملين دايمًا؛ `rows`/`orderRows` بيتقصّوا فوق 45 يوم (`rowsIncluded`/`rowsOmittedReason` — 30-08-2026) |
 | `get_meta` | GET | ميتاداتا الكاش لفترة. محتاج `dateFrom` و `dateTo` |
 | `clear_cache` | GET | يمسح كاش فترة واحدة، أو الكاش كله لو الفترة مش متبعتة |
 | `diag` | GET | فحص ذاتي بدون كتابة — متغيّرات/bindings/صلاحيات شوبيفاي/D1/KV (30-08-2026) |
@@ -91,11 +91,11 @@ Build watch paths : * (الافتراضي) — لسه متضيّقتش
 ```
 LINE_ITEMS_PAGE 25 · RETURNS_PAGE 10 · RETURN_LINES_PAGE 25
 EXCHANGE_LINES_PAGE 20 · STAGE1_PAGE_SIZE 250 · STAGE2_BATCH_SIZE 10
-CACHE_VERSION v9 · MAX_CACHE_BYTES 25MB
+CACHE_VERSION v10 · MAX_CACHE_BYTES 24MB
 كاش: TTL متدرّج (ttlFor) — نطاق فيه النهارده = 900 ثانية · قفل من ٤٥ يوم أو أقل
      = 21600 ثانية (6 ساعات) · أقدم من ٤٥ يوم = 86400 ثانية (24 ساعة). عمره ما
      يبقى دائم (كان كذلك قبل 30-08-2026 — شوف قرارات معتمدة تحت).
-مفاتيح KV: dash:performance_dashboard:v9:data|meta:<from>:<to>
+مفاتيح KV: dash:performance_dashboard:v10:data|meta:<from>:<to>
 ```
 
 > **تحديث 25-08-2026:** RETURNS_PAGE و EXCHANGE_LINES_PAGE اتضاعفوا (5→10،
@@ -145,6 +145,31 @@ CACHE_VERSION v9 · MAX_CACHE_BYTES 25MB
   بالـ TTL الجديد. أُضيف كمان `?action=diag` و `?action=get_config` (كانوا
   ناقصين — `ecommoda-worker-builder` Step 5A ⑨) + trailing-slash fix على
   `SHOP_DOMAIN`. → `ecommoda-dashboard-builder` Step 3-أ/ج
+
+- **دفعة إصلاحات من مراجعة `docs/DATA-PULL-AND-CACHE.md` قبل حذفه — 30-08-2026.**
+  الملف كان بيوثّق سلوك قديم اتصلّح جزئيًا في v3.2.0 (`CACHE_VERSION`/`ttlFor`) —
+  المراجعة دي قفلت باقي البنود بعد فحص الكود الفعلي (مش بس التوثيق) ومسحت
+  الملف بعدها. البنود:
+  - 🔴 `clear_cache` الكامل بقى بيلفّ على `cursor` بتاع `DASH_KV.list()` بدل
+    نداء واحد سقفه ١٠٠٠ مفتاح — قبل كده كان بيمسح جزء ويرجّع "cleared: all".
+  - 🔴 **`ROWS_MAX_DAYS = 45`** — فترة أوسع بترجع `rows`/`orderRows` فاضية +
+    `rowsIncluded: false` + `rowsOmittedReason` بدل ما تستنى دورة سحب كاملة
+    وتاخد خطأ حجم الكاش في الآخر بصفر أرقام. `boxes`/`orderBoxes` (الملخّصات)
+    فضلوا كاملين دايمًا. ⚠️ الواجهة بتحسب الكروت (`activeBoxes`/`activePrevBoxes`)
+    من `rows` دايمًا (عشان وضعي "قيمة"/"عدد قطع" يفضلوا مطابقين لجدول
+    التفاصيل) — فلما `rowsIncluded=false` بترجع لـ `boxes`/`prevBoxes` مباشرة
+    (نفس أسماء الحقول)، ووضع "عدد القطع" (اللي محتاج `rows` ليتحسب) بيتقفل
+    مؤقتًا مع بانر بيوضّح السبب. `CACHE_VERSION` اترفع لـ v10.
+  - 🟠 `MAX_CACHE_BYTES` نزلت من 25MB (نفس حد KV بالظبط) لـ 24MB.
+  - 🟠 `get_data`/`get_meta` بقى فيهم فحص صيغة `YYYY-MM-DD` + `dateFrom<=dateTo`.
+  - 🟠 الفترة الحالية والسابقة (`state.prevRows`) بيتجابوا تسلسليًا في الواجهة
+    مش بالتوازي — تجنّب تنافس throttle على cache miss بارد للفترتين مع بعض.
+    ⚠️ **الفترة السابقة اتسابت زي ما هي عمدًا** (كاملة، مش مصغّرة) — `prevRows`
+    مُستخدمة فعليًا في مقارنة وضع "عدد قطع" (`activePrevBoxes`)، مش بيانات
+    بتترمى زي ما كان مفترض في نسخة قديمة من الملف المحذوف.
+  - 🟡 `readCache()` بقى فيها `try/catch` حوالين `JSON.parse`.
+  - 🟡 `getAccessToken()` بقى بيكاش التوكن في نطاق الـ isolate.
+  → `index.js` v3.3.0 · `index.html` v3.4.0
 
 ## خط الأساس بعد النقل
 

@@ -224,6 +224,8 @@
   .view-toggle-btn:hover { background: var(--accent-light); color: var(--accent); }
   .view-toggle-btn.active { background: var(--accent); color: #fff; }
   .view-toggle-btn.active:hover { background: var(--accent-dark); color: #fff; }
+  /* v3.3.0 — فترة أوسع من ROWS_MAX_DAYS: مفيش rows نحسب "عدد القطع" منها */
+  .view-toggle-btn.disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
 
   .btn { border: 1px solid var(--border); background: var(--surface); color: var(--text-primary); padding: 7px 13px; border-radius: 9px; font-family: var(--font-body); font-size: 13px; cursor: pointer; }
   .btn:hover { background: var(--bg); }
@@ -939,7 +941,20 @@
     <div class="eco-modal-hdr"><span>📋 سجل التحديثات</span><button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="eco-modal-body">
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v3.3.0</span><span class="cl-ver-date">30-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge">v3.4.0</span><span class="cl-ver-date">30-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) <code>clear_cache</code> الكامل كان بيمسح جزء ويرجّع "تم مسح الكل".</b> <code>DASH_KV.list()</code> سقفها ١٠٠٠ مفتاح لكل نداء — أي مفتاح بره الألف الأولى (وبالذات فترات مقفولة قديمة) كان بيفضل. دلوقتي بيلفّ على الـ <code>cursor</code> لحد ما يمسح كل المفاتيح فعلاً.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>فترة أوسع من ٤٥ يوم:</b> جدول التفاصيل (مش الكروت) بيتقفل صراحةً بدل ما ينتظر الطلب دورة سحب كاملة ويطلّع خطأ حجم الكاش في الآخر بصفر أرقام. الملخّصات (الكروت) فضلت كاملة دايمًا مهما كان طول الفترة. وضع "عدد القطع" (اللي محتاج جدول التفاصيل ليتحسب) بيتقفل مؤقتًا لنفس الفترة، وبانر بيوضّح السبب.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) صيغة تاريخ غلط كانت بتعدّي وتولّد كاش مستقل.</b> <code>'2026-8-1'</code> كانت بتفوت فحص <code>!dateFrom</code> وتروح لشوبيفاي بمفتاح كاش مختلف عن <code>'2026-08-01'</code> لنفس اليوم فعليًا. دلوقتي فيه فحص صيغة <code>YYYY-MM-DD</code> + تاريخ البداية قبل النهاية.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الفترة الحالية والسابقة بيتجابوا تسلسليًا مش بالتوازي.</b> على cache miss بارد للفترتين مع بعض، خطّين كاملين بالتوازي كانوا بيتنافسوا على نفس throttle bucket بتاع شوبيفاي ويبطّئوا بعض. كل فترة لسه متكاشة تحت مفتاحها المستقل زي ما كانت.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) حد حجم الكاش نزل من 25MB (نفس حد KV بالظبط) لـ 24MB</b> — هامش أمان بدل ما يفشل على حافة الحد.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) قيمة كاش تالفة كانت بترمي 500 على كل نداء.</b> <code>readCache()</code> بقى فيها <code>try/catch</code> حوالين <code>JSON.parse</code> — قيمة تالفة بترجع <code>null</code> (إعادة سحب) بدل خطأ متكرر.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>(Worker) توكن Shopify OAuth بقى بيتكاش</b> في نطاق الـ isolate بدل نداء جديد في كل <code>get_data</code>/<code>diag</code>.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><code>CACHE_VERSION</code> اترفع من <code>v9</code> لـ <code>v10</code> — شكل الـ payload اتغيّر (<code>rowsIncluded</code>/<code>rowsOmittedReason</code> جدد). أي فترة متكاشة بنسخة أقدم هتتحسب من الأول تلقائي.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.3.0</span><span class="cl-ver-date">30-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) كاش دائم على الفترات المقفولة كان بيجمّد حالة الأوردر.</b> <code>cacheTtlFor()</code> كانت بترجع كاش من غير انتهاء صلاحية لأي فترة قبل النهارده — صح لبيانات حدث حصل وخلص، غلط لبيانات <b>حالة حالية</b> زي حالة الأوردر (<code>ecommoda-dashboard-builder</code> v2.0.0، بند كاسر بيسمّي الأداة دي بالاسم). أوردر اتعمل في شهر مقفول ممكن يتحرك <code>Shipped → Delivered → Returned</code> بعد ما الشهر يتكاش، وكان بيفضل واقف على الصورة القديمة للأبد من غير أي خطأ ظاهر. دلوقتي TTL متدرّج (15 دقيقة / 6 ساعات / 24 ساعة حسب عمر الفترة)، عمره ما يبقى دائم. <code>CACHE_VERSION</code> اترفع من <code>v8</code> لـ <code>v9</code> عشان كل فترة متكاشة قديمة تتحرر.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>(Worker) <code>?action=diag</code> و <code>?action=get_config</code></b> — فحص ذاتي بدون كتابة (متغيّرات/bindings/صلاحيات شوبيفاي/D1/KV، بدون عرض قيمة أي سر) ونداء يرجّع رقم نسخة الـ Worker.</span></li>
@@ -1252,6 +1267,10 @@ Bar chart مقارنة المربعات الأساسية + أرقام على ا�
 فلتر "شهر محدد" (select شهر+سنة)  │ HTML   │ §DATERANGE │ applySpecificMonth / toggleMonthSubmenu
 عمود "الوقت" منفصل في جداول التفاصيل│ HTML  │ §TOOL-JS   │ formatTimeOnly
 Freeze on Scroll (هيدر + تابات)   │ HTML   │ §STICKY-JS │ onPageScroll / updateTabChip / buildTabChipMenu
+──────────────────────────────────────────────────────────────  v3.4.0 (30-08-2026)
+قفل جدول التفاصيل فوق 45 يوم       │ Worker │ §DATA      │ ROWS_MAX_DAYS / rowsIncluded / rowsOmittedReason
+فولباك الكروت لـ boxes بدون rows   │ HTML   │ §TOOL-JS   │ activeBoxes / activePrevBoxes / setViewMode
+جلب الفترتين تسلسلي مش متوازي      │ HTML   │ §DASH-JS   │ loadAll
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1264,6 +1283,12 @@ state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
                             منفصل عن note عن قصد، عشان الجديد ما يخفيش القديم
 state.prevRows = نفس شكل state.rows بس للفترة السابقة (v1.4.0 — كانت بتتجاب
                  من الـ Worker وبتترمى، دلوقتي بتتخزن لحساب Δ% في وضع عدد القطع)
+state.rowsIncluded / state.rowsOmittedReason = من نفس get_data response (v3.4.0)
+                 — false + سبب لو الفترة أوسع من ROWS_MAX_DAYS (45 يوم). لما
+                 false: activeBoxes()/activePrevBoxes() بيرجعوا state.boxes/
+                 prevBoxes مباشرة بدل ما يحسبوا من rows الفاضية، ووضع "عدد
+                 القطع" بيتقفل مؤقتًا (setViewMode). الكروت (boxes/orderBoxes)
+                 فضلت كاملة دايمًا — القفل على جدول التفاصيل بس.
 state.viewMode = 'value' | 'qty' — يتحكم في activeBoxes() و fmtAmt()
 BUCKET_LABELS = خريطة bucket → التسمية العربية (لازم تطابق BUCKET في الـ Worker)
 NOTE_LABELS   = REDELIVERY (محاولة مكررة) · FULFIL_MISM (تعارض حالة شحن)
@@ -1362,7 +1387,7 @@ NOTES
 const LS_URL       = 'perfdash_worker_url';
 const LS_SECRET    = 'perfdash_worker_secret';
 const LS_ADMIN_URL = 'admin_worker_url';       // shared across all tools — never rename
-const TOOL_VERSION = 'v3.3.0';
+const TOOL_VERSION = 'v3.4.0';
 const CURRENCY_SUFFIX = 'ج.م';
 const QTY_SUFFIX = 'قطعة';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
@@ -1792,10 +1817,13 @@ async function loadAll({ forceRefresh }) {
   setFreshnessLoading();
 
   try {
-    const [curRes, prevRes] = await Promise.all([
-      apiPost('get_data', { dateFrom: state.range.from, dateTo: state.range.to, forceRefresh }),
-      apiPost('get_data', { dateFrom: prevRange.from,   dateTo: prevRange.to,   forceRefresh: false }),
-    ]);
+    // v3.4.0 — تسلسلي مش متوازي (Promise.all القديمة). كل فترة متكاشة أصلاً
+    // تحت مفتاحها المستقل في الـ Worker، فالفرق الوحيد هنا هو حالة cache miss
+    // بارد للفترتين مع بعض: خطّين كاملين بالتوازي كانوا بيتنافسوا على نفس
+    // throttle bucket بتاع شوبيفاي ويبطّئوا بعض. التسلسل بيكلّف وقت إضافي في
+    // الحالة النادرة دي بس، ومش في أي تحميل تاني.
+    const curRes  = await apiPost('get_data', { dateFrom: state.range.from, dateTo: state.range.to, forceRefresh });
+    const prevRes = await apiPost('get_data', { dateFrom: prevRange.from,   dateTo: prevRange.to,   forceRefresh: false });
 
     state.boxes             = curRes.boxes;
     state.prevBoxes         = prevRes.boxes;
@@ -1803,6 +1831,13 @@ async function loadAll({ forceRefresh }) {
     // client-side لازم هنا دلوقتي — rows[] بتوصل مصنّفة صح من الأساس.
     state.rows              = curRes.rows || [];
     state.prevRows          = prevRes.rows || [];
+    // v3.4.0 — ROWS_MAX_DAYS (Worker): فترة أوسع من 45 يوم بترجع rows/orderRows
+    // فاضية + rowsOmittedReason. `!== false` عشان كاش قديم (من غير الحقل ده
+    // أصلاً) يتعامل معاه كـ"متضمّن" — كان فعلاً كامل قبل الإضافة دي.
+    state.rowsIncluded      = curRes.rowsIncluded !== false;
+    state.rowsOmittedReason = curRes.rowsOmittedReason || null;
+    // فترة واسعة جاية من "عدد قطع" فترة قديمة — مفيش rows نحسب منها، ارجع لـ"قيمة"
+    if (!state.rowsIncluded && state.viewMode === 'qty') state.viewMode = 'value';
     state.warnings          = curRes.warnings || null;
     state.ordersScanned     = curRes.ordersScanned || 0;
     state.candidatesFetched = curRes.candidatesFetched || 0;
@@ -1863,8 +1898,14 @@ function renderShell() {
   if (ow.cycleOverlap) orderWarnBits.push(`${fmtInt(ow.cycleOverlap)} أوردر فيه تداخل دورات (إجراء: خدمة العملاء)`);
   if (ow.multiCycle)   orderWarnBits.push(`${fmtInt(ow.multiCycle)} أوردر بأكتر من دورة (المربع بيوصف أحدث دورة)`);
 
+  // v3.4.0 — ROWS_MAX_DAYS: الملخّصات (الكروت) فضلت كاملة، جدول التفاصيل بس
+  // اللي بيتقفل على فترة واسعة — والقفل ده لازم يتبلّغ صراحةً هنا، مش يتقرا
+  // ضمنيًا من جدول فاضي.
+  document.getElementById('viewModeBtnQty')?.classList.toggle('disabled', !state.rowsIncluded);
+
   wrap.innerHTML = `
     <div class="info-note">📊 تم فحص ${fmtInt(state.ordersScanned)} أوردر في الفترة المختارة — ${fmtInt(state.candidatesFetched)} منهم فيه نشاط إرجاع/استبدال (اتجابت بيانات مرتجعاتهم بالتفصيل).</div>
+    ${state.rowsOmittedReason ? `<div class="warn-note">⚠️ ${esc(state.rowsOmittedReason)} (وضع "عدد القطع" متقفل مؤقتًا لنفس السبب.)</div>` : ''}
 
     <div id="mainPageContent" class="${state.activePage === 'main' ? '' : 'hidden'}">
       ${warnBits.length ? `<div class="warn-note">⚠️ ${warnBits.join(' · ')} — اضغط على المربع المعني لمراجعة الصفوف.</div>` : ''}
@@ -2044,11 +2085,24 @@ function computeBoxesFromRows(rows, key) {
 // ─── §TOOL-JS::activeBoxes / activePrevBoxes — v2.1.0: دايماً من state.rows/state.prevRows
 // (بعد التصحيح) — بصرف النظر عن viewMode، عشان "قيمة" و"عدد قطع" يفضلوا متطابقين
 // مع جدول التفاصيل دايماً ───
-function activeBoxes()     { return computeBoxesFromRows(state.rows,     state.viewMode === 'qty' ? 'qty' : 'value'); }
-function activePrevBoxes()  { return computeBoxesFromRows(state.prevRows, state.viewMode === 'qty' ? 'qty' : 'value'); }
+// v3.4.0 — ⚠️ استثناء وحيد: لو rowsIncluded=false (فترة أوسع من ROWS_MAX_DAYS)،
+// مفيش rows نرجّع منها نحسب — بنرجع boxes/prevBoxes زي ما جايين من الـ Worker
+// مباشرة (نفس أسماء الحقول بالظبط، فـ renderBoxes مش محتاج أي تفريق). ده بيشتغل
+// في وضع "قيمة" بس — وضع "عدد القطع" بيتقفل في الحالة دي (setViewMode تحت).
+function activeBoxes() {
+  if (!state.rowsIncluded) return state.boxes || {};
+  return computeBoxesFromRows(state.rows, state.viewMode === 'qty' ? 'qty' : 'value');
+}
+function activePrevBoxes() {
+  if (!state.rowsIncluded) return state.prevBoxes || {};
+  return computeBoxesFromRows(state.prevRows, state.viewMode === 'qty' ? 'qty' : 'value');
+}
 
 // ─── §TOOL-JS::setViewMode — v1.4.0: تبديل قيمة/عدد قطع — إعادة رسم فورية من نفس البيانات المحمّلة ───
+// v3.4.0: وضع "عدد القطع" محتاج rows فعليًا (بيتحسب بالجمع منها) — لو
+// rowsIncluded=false مفيش قطع نلمّها، فالتبديل بيتجاهل 'qty' ويفضل 'value'.
 function setViewMode(mode) {
+  if (mode === 'qty' && !state.rowsIncluded) return;
   if (state.viewMode === mode) return;
   state.viewMode = mode;
   document.getElementById('viewModeBtnValue').classList.toggle('active', mode === 'value');
@@ -2613,7 +2667,12 @@ function renderDetailsTableWrap() {
     </div>`;
 
   if (!rows.length) {
-    wrap.innerHTML = summary + `<div class="details-empty">مفيش صفوف مطابقة${state.detailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.</div>`;
+    // v3.4.0 — لو الفترة أوسع من ROWS_MAX_DAYS، الجدول فاضي عن قصد (rowsOmittedReason)
+    // مش لأنه مفيش نتايج — لازم يتقال صراحةً بدل ما يتقرا "مفيش حركة" غلط.
+    const emptyMsg = !state.rowsIncluded
+      ? esc(state.rowsOmittedReason || 'الفترة أوسع من الحد المدعوم لجدول التفاصيل.')
+      : `مفيش صفوف مطابقة${state.detailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.`;
+    wrap.innerHTML = summary + `<div class="details-empty">${emptyMsg}</div>`;
     return;
   }
 
@@ -3197,7 +3256,12 @@ function renderOrderDetailsTableWrap() {
     </div>`;
 
   if (!rows.length) {
-    wrap.innerHTML = summary + `<div class="details-empty">مفيش أوردرات مطابقة${state.orderDetailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.</div>`;
+    // v3.4.0 — نفس منطق جدول تفاصيل المبيعات: فترة أوسع من ROWS_MAX_DAYS = فاضي
+    // عن قصد (rowsOmittedReason)، مش "مفيش أوردرات".
+    const emptyMsg = !state.rowsIncluded
+      ? esc(state.rowsOmittedReason || 'الفترة أوسع من الحد المدعوم لجدول التفاصيل.')
+      : `مفيش أوردرات مطابقة${state.orderDetailsSearch ? ' للبحث' : ' ضمن الفلتر ده'} في الفترة المختارة.`;
+    wrap.innerHTML = summary + `<div class="details-empty">${emptyMsg}</div>`;
     return;
   }
 
