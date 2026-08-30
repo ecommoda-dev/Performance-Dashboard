@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- skills: html-builder v1.0.0 · dashboard-builder v1.1.0 · order-lifecycle v1.0.0 — 26-08-2026 -->
+<!-- skills: html-builder v1.1.0 · dashboard-builder v2.0.0 · order-lifecycle v1.1.0 — 30-08-2026 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة الأداء — EcomModa</title>
@@ -110,6 +110,55 @@
     box-shadow: 0 2px 8px rgba(37,99,235,.25);
   }
 
+  /* ── Freeze on Scroll — الهيدر + شريط التابات (html-builder v1.1.0 §1b) ── */
+  .sticky-header-wrap { position: sticky; top: 0; z-index: 300; background: var(--bg); padding-top: 2px; margin: 0 -2px; }
+  .sticky-header-wrap.stuck { box-shadow: 0 6px 18px rgba(0,0,0,.10); }
+  .sticky-header-wrap.stuck .app-header       { padding: 6px 14px; margin-bottom: 6px; }
+  .sticky-header-wrap.stuck .app-icon         { font-size: 16px; }
+  .sticky-header-wrap.stuck .app-title-text h1{ font-size: 12.5px; }
+  .sticky-header-wrap.stuck .app-title-text span { max-height: 0; opacity: 0; margin-top: 0; }
+  .sticky-header-wrap.stuck .hbtn             { padding: 4px 9px; font-size: 11px; }
+
+  .app-header        { transition: padding .18s ease; }
+  .app-icon          { transition: font-size .18s ease; }
+  .app-title-text h1 { transition: font-size .18s ease; }
+  .app-title-text span {
+    display: block; overflow: hidden; max-height: 16px; margin-top: 2px;
+    transition: max-height .18s ease, opacity .18s ease, margin-top .18s ease;
+  }
+
+  /* شريط التابات — بيتقفل بـ max-height بدل ما يختفي فجأة */
+  .main-tabs-bar { overflow: hidden;
+    transition: max-height .22s ease, opacity .18s ease, padding .18s ease, margin .18s ease, border-width .18s ease; }
+  .sticky-header-wrap.stuck .main-tabs-bar {
+    max-height: 0 !important; opacity: 0; padding: 0; margin-bottom: 0; border-width: 0;
+  }
+
+  /* Chip التاب الحالي — يظهر بس وقت الـ Sticky */
+  .active-tab-chip {
+    display: none; align-items: center; gap: 6px; padding: 5px 10px;
+    border: 1.5px solid var(--border-strong); border-radius: 20px;
+    background: var(--surface-2); font-size: 11.5px; font-weight: 700; color: var(--text-primary);
+    cursor: pointer; position: relative; white-space: nowrap; transition: border-color .15s, color .15s;
+  }
+  .active-tab-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .active-tab-chip.open  { border-color: var(--accent); color: var(--accent-dark); background: var(--accent-light); }
+  .sticky-header-wrap.stuck .active-tab-chip { display: flex; }
+  .chip-arrow { font-size: 9px; color: var(--text-muted); transition: transform .2s; }
+  .active-tab-chip.open .chip-arrow { transform: rotate(180deg); }
+  .tab-chip-menu {
+    position: absolute; top: calc(100% + 6px); left: 0; z-index: 310; min-width: 180px;
+    background: var(--surface); border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    box-shadow: 0 8px 28px rgba(0,0,0,.14); display: none; padding: 4px;
+  }
+  .tab-chip-menu.open { display: block; }
+  .tab-chip-item {
+    display: flex; align-items: center; gap: 6px; padding: 8px 10px; font-size: 12.5px; font-weight: 600;
+    border-radius: 6px; cursor: pointer; color: var(--text-secondary); white-space: nowrap;
+  }
+  .tab-chip-item:hover  { background: var(--surface-2); }
+  .tab-chip-item.active { background: var(--accent-light); color: var(--accent-dark); }
+
   /* ── Dash Controls (range + freshness) ── */
   .dash-controls {
     background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
@@ -144,6 +193,25 @@
   .range-preset-item .pr-check { font-size: 11px; color: var(--accent); display: none; }
   .range-preset-item.active .pr-check { display: block; }
   .range-preset-sep { height: 1px; background: var(--border); margin: 3px 4px; }
+
+  /* "شهر محدد" — submenu شهر+سنة (html-builder v1.1.0) */
+  .range-preset-item.has-sub { position: relative; }
+  .range-preset-item.has-sub .pr-sub-arrow { font-size: 11px; color: var(--text-muted); transition: color .15s; }
+  .range-preset-item.has-sub:hover .pr-sub-arrow, .range-preset-item.has-sub.open .pr-sub-arrow { color: var(--accent); }
+  .month-submenu {
+    position: absolute; top: -4px; right: calc(100% + 6px); width: 220px; background: var(--surface);
+    border: 1px solid var(--border-strong); border-radius: var(--radius-sm); box-shadow: 0 8px 28px rgba(0,0,0,.14);
+    display: none; padding: 12px; z-index: 210;
+  }
+  .month-submenu.open { display: block; }
+  .month-select-row { display: flex; gap: 8px; }
+  .month-select {
+    flex: 1; height: 34px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
+    padding: 0 6px; font-family: inherit; font-size: 12.5px; color: var(--text-primary); background: var(--surface);
+    outline: none; cursor: pointer;
+  }
+  .month-select.filled { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); }
+  .month-select-hint { font-size: 10.5px; color: var(--text-muted); line-height: 1.5; margin-top: 8px; }
 
   /* ── View Mode Toggle (قيمة / عدد قطع — v1.4.0) ── */
   .view-toggle { display: flex; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); overflow: hidden; height: 34px; }
@@ -218,6 +286,8 @@
   @media (max-width: 560px) { .forecast-grid { grid-template-columns: 1fr; } }
   .kpi-card.forecast { border-style: dashed; border-width: 2px; cursor: default; }
   .kpi-card.forecast:hover { box-shadow: none; transform: none; }
+  /* تشبّع أقل من الكروت الحقيقية — إشارة بصرية إضافية إن الرقم تقدير مش واقعة (dashboard-builder Rule 11-ج) */
+  .kpi-card.forecast .kpi-value { opacity: .78; }
   .forecast-note { font-size: 11.5px; color: var(--text-muted); }
 
   /* ── زرار طيّ/فتح المربعات الفرعية — Collapsed افتراضياً (v2.1.0) ── */
@@ -658,6 +728,11 @@
      §SHELL — header + modals + toast
      ══════════════════════════════════════════════════════ -->
 <main class="container">
+  <!-- ══════════════════════════════════════════════════════
+       §STICKY — Freeze on Scroll (html-builder v1.1.0 §1b)
+       ══════════════════════════════════════════════════════ -->
+  <div class="sticky-header-wrap" id="stickyWrap">
+
   <div class="app-header">
     <div class="app-title">
       <div class="app-icon">🎯</div>
@@ -666,6 +741,13 @@
         <span>كل جنيه دخل النظام راح فين؟ وكام أوردر في كل مرحلة؟</span>
       </div>
     </div>
+
+    <!-- ⭐ Chip التاب الحالي — ما يظهرش إلا وقت الـ Sticky -->
+    <div class="active-tab-chip" id="activeTabChip" onclick="toggleTabChipMenu(event)">
+      <span id="activeTabChipLabel">💰 المبيعات</span><span class="chip-arrow">▾</span>
+      <div class="tab-chip-menu" id="tabChipMenu"></div>
+    </div>
+
     <div class="app-header-btns">
       <button class="hbtn" id="refreshBtn" onclick="doRefresh()"><span class="ico">↺</span> تحديث</button>
       <div class="freshness" id="freshnessBar">
@@ -682,10 +764,12 @@
   <!-- ══════════════════════════════════════════════════════
        §TABS — الرئيسية (فلوس) / الأوردرات (عدّ) — v2.0.0
        ══════════════════════════════════════════════════════ -->
-  <div class="main-tabs-bar">
+  <div class="main-tabs-bar" id="mainTabsBar">
     <button class="main-tab-btn active" id="mainTabMain" onclick="switchMainTab('main')">💰 المبيعات</button>
     <button class="main-tab-btn" id="mainTabOrders" onclick="switchMainTab('orders')">📦 الأوردرات</button>
   </div>
+
+  </div><!-- /.sticky-header-wrap -->
 
   <!-- ══════════════════════════════════════════════════════
        §DASH — date range filter (شكل موحّد) + طريقة العرض
@@ -707,6 +791,27 @@
             <div class="range-preset-item" data-preset="last30"      onclick="applyRangePreset('last30')">     <span>آخر 30 يوم</span>   <span class="pr-check">✓</span></div>
             <div class="range-preset-item" data-preset="last90"      onclick="applyRangePreset('last90')">     <span>آخر 90 يوم</span>   <span class="pr-check">✓</span></div>
             <div class="range-preset-sep"></div>
+
+            <!-- ⭐ "شهر محدد" — html-builder v1.1.0 -->
+            <div class="range-preset-item has-sub" id="monthSpecificItem" onclick="toggleMonthSubmenu(event)">
+              <span>📅 شهر محدد</span><span class="pr-sub-arrow">‹</span>
+              <div class="month-submenu" id="monthSubmenu" onclick="event.stopPropagation();">
+                <div class="month-select-row">
+                  <select class="month-select" id="monthSelectMonth" onchange="onMonthYearChange()">
+                    <option value="">الشهر</option>
+                    <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option>
+                    <option value="4">أبريل</option><option value="5">مايو</option><option value="6">يونيو</option>
+                    <option value="7">يوليو</option><option value="8">أغسطس</option><option value="9">سبتمبر</option>
+                    <option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+                  </select>
+                  <select class="month-select" id="monthSelectYear" onchange="onYearSelectChange()"></select>
+                </div>
+                <input type="number" class="month-select" id="monthSelectYearManual" style="display:none;margin-top:8px;"
+                  placeholder="مثال: 2019" oninput="onMonthYearManualInput()">
+                <div class="month-select-hint">اختَر الشهر والسنة — يتطبّق الفلتر تلقائيًا بمجرد اختيار الاتنين. لسنة أقدم اختَر "سنة تانية..." واكتبها يدويًا.</div>
+              </div>
+            </div>
+
             <div class="range-preset-item" data-preset="thisMonth"   onclick="applyRangePreset('thisMonth')">  <span>الشهر الحالي</span>  <span class="pr-check">✓</span></div>
             <div class="range-preset-item" data-preset="lastMonth"   onclick="applyRangePreset('lastMonth')">  <span>الشهر السابق</span>  <span class="pr-check">✓</span></div>
             <div class="range-preset-item" data-preset="thisQuarter" onclick="applyRangePreset('thisQuarter')"><span>الربع الحالي</span>  <span class="pr-check">✓</span></div>
@@ -834,7 +939,18 @@
     <div class="eco-modal-hdr"><span>📋 سجل التحديثات</span><button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="eco-modal-body">
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge">v3.2.0</span><span class="cl-ver-date">26-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge">v3.3.0</span><span class="cl-ver-date">30-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>(Worker) كاش دائم على الفترات المقفولة كان بيجمّد حالة الأوردر.</b> <code>cacheTtlFor()</code> كانت بترجع كاش من غير انتهاء صلاحية لأي فترة قبل النهارده — صح لبيانات حدث حصل وخلص، غلط لبيانات <b>حالة حالية</b> زي حالة الأوردر (<code>ecommoda-dashboard-builder</code> v2.0.0، بند كاسر بيسمّي الأداة دي بالاسم). أوردر اتعمل في شهر مقفول ممكن يتحرك <code>Shipped → Delivered → Returned</code> بعد ما الشهر يتكاش، وكان بيفضل واقف على الصورة القديمة للأبد من غير أي خطأ ظاهر. دلوقتي TTL متدرّج (15 دقيقة / 6 ساعات / 24 ساعة حسب عمر الفترة)، عمره ما يبقى دائم. <code>CACHE_VERSION</code> اترفع من <code>v8</code> لـ <code>v9</code> عشان كل فترة متكاشة قديمة تتحرر.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>(Worker) <code>?action=diag</code> و <code>?action=get_config</code></b> — فحص ذاتي بدون كتابة (متغيّرات/bindings/صلاحيات شوبيفاي/D1/KV، بدون عرض قيمة أي سر) ونداء يرجّع رقم نسخة الـ Worker.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>فلتر "📅 شهر محدد"</b> في قائمة الفترة السريعة — اختيار شهر وسنة مباشرة (السنة الحالية + آخر سنتين، أو إدخال يدوي لسنة أقدم) بدل تمرير أشهر واحد واحد.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>عمود "الوقت" منفصل عن "التاريخ"</b> في جدولي تفاصيل المبيعات والأوردرات.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>Freeze on Scroll</b> — الهيدر وشريط التابات بيتقفلوا لشكل مضغوط عند التمرير، وبدالهم Chip باسم التاب الحالي بيفتح قائمة تبديل تابات سريعة.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>كروت "توقّع اكتمال الفترة" بقت بتشبّع أقل من الكروت الحقيقية — إشارة بصرية إضافية إن الرقم تقدير مش واقعة.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.2.0</span><span class="cl-ver-date">26-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>وسمان للأوردرات اللي فيها أكتر من دورة إرجاع/استبدال</b> — <code>تداخل دورات</code> (دورة اتفتحت وسابقتها لسه مفتوحة → إجراء خدمة العملاء) و<code>أكتر من دورة</code> (دورات متتالية شرعية، بس المربع بيوصف أحدث دورة بس → حد معروف في الكود). الوسمان <b>منفصلان</b> في البانر وفي الجدولين وفي مفتاح الأسباب الجديد فوق الجدول — ممنوع دمجهم لأنهم بيروحوا لناس مختلفة. <b>الوسم مبيحركش أي رقم</b> — الصف بيفضل في مربعه.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>أوردر بدورتين كان بياخد مربع غلط.</b> نوع الدورة كان بيتحسب بـ <code>.some()</code> على كل الدورات، فدورة استبدال قديمة مقفولة كانت بتخلي إرجاع جديد يتقرا "استبدال" — وده <b>بيقلب إشارة التوقّع</b> (رجل مرتجع "نجح" = خسارة، مش تسليم). دلوقتي الفرع الانتقالي ("إيه اللي ماشي دلوقتي؟") بيقرا <b>أحدث دورة بس</b>، والفرع النهائي ("الأوردر ده شاف استبدال أصلاً؟") فاضل <code>.some()</code> وده الصح. أثر مقيس: أوردر واحد بس اتحرّك (<code>#50091</code>).</span></li>
@@ -1063,7 +1179,7 @@
           <ol>
             <li>اختار فترة — preset أو تعديل يدوي على "من/إلى تاريخ" — بيتحمل من الكاش (KV) لو موجود.</li>
             <li>الـ Worker بيجيب كل الأوردرات (مرحلة 1، first: 250)، وبعدين بيانات المرتجعات للأوردرات المرشّحة بس (مرحلة 2، دفعات 10).</li>
-            <li>زرار "تحديث" بيجبر Fetch جديد. تغيير الفترة بيقرا من الكاش (نطاق مغلق = دائم · مفتوح = 15 دقيقة).</li>
+            <li>زرار "تحديث" بيجبر Fetch جديد. تغيير الفترة بيقرا من الكاش (نطاق فيه النهارده = 15 دقيقة · قفل من ٤٥ يوم أو أقل = 6 ساعات · أقدم = 24 ساعة — TTL متدرّج، مش دائم، عشان حالة الأوردر ممكن تتحرك بعد ما الفترة تقفل).</li>
             <li>لو أي أوردر فيه أكتر من 25 سطر، أو أي صفحة فشلت، الطلب كله بيفشل برسالة واضحة — مفيش أرقام ناقصة بصمت.</li>
             <li>الضغط على أي مربع بيفتح قسم التفاصيل تحت من نفس البيانات المحمّلة (rows[]).</li>
             <li>مفتاح "طريقة العرض" بيبدّل عرض المربعات فوق بين القيمة وعدد القطع فوراً من نفس البيانات المحمّلة — من غير أي إعادة تحميل.</li>
@@ -1078,6 +1194,8 @@
             <tr><td><code>register_pin</code></td><td>تسجيل PIN لأول مرة لموظف (POST)</td></tr>
             <tr><td><code>verify_employee</code></td><td>التحقق من PIN عند تسجيل الدخول (POST)</td></tr>
             <tr><td><code>log_logout</code></td><td>تسجيل خروج الموظف (GET)</td></tr>
+            <tr><td><code>diag</code></td><td>فحص ذاتي بدون كتابة — متغيّرات/bindings/صلاحيات شوبيفاي/D1/KV (GET)</td></tr>
+            <tr><td><code>get_config</code></td><td>يرجّع WORKER_VERSION للمقارنة مع نسخة الواجهة (GET)</td></tr>
           </table>
         </div>
       </details>
@@ -1104,7 +1222,7 @@ Bar chart مقارنة المربعات الأساسية + أرقام على ا�
 تأكيد حالة شحن القطعة            │ Worker │ §SHARED    │ isLineFulfilled
 مرحلة 1 — كل الأوردرات           │ Worker │ §SHOPIFY   │ fetchStage1
 مرحلة 2 — مرشّحون فقط            │ Worker │ §SHOPIFY   │ fetchStage2
-كاش (KV، مغلق=دائم)             │ Worker │ §CACHE     │ get_data / get_meta
+كاش (KV، TTL متدرّج — v3.3.0)   │ Worker │ §CACHE     │ ttlFor / get_data / get_meta
 مؤشر آخر تحديث (age دايماً)      │ HTML   │ §DASH-JS   │ freshnessState / renderFreshness
 ──────────────── v2.0.0 — تاب "الأوردرات" (عدّ، مش فلوس) ─────
 تبديل التابين (فوري، بدون fetch)  │ HTML   │ §TABS-JS   │ switchMainTab
@@ -1128,6 +1246,12 @@ Bar chart مقارنة المربعات الأساسية + أرقام على ا�
 وسم تداخل/تعدد الدورات            │ Worker │ §AGGREGATE │ cycleNote
 شارة الوسم في الجدولين            │ HTML   │ §TOOL-JS   │ cyclePill
 مفتاح الأسباب فوق الجدول          │ HTML   │ §TOOL-JS   │ reasonLegend
+──────────────────────────────────────────────────────────────  v3.3.0 (30-08-2026)
+كاش دائم على فترة مقفولة → TTL متدرّج │ Worker │ §CACHE     │ ttlFor (dashboard-builder v2.0.0)
+فحص ذاتي + مقارنة نسخة الـ Worker  │ Worker │ §HANDLER   │ diag / get_config
+فلتر "شهر محدد" (select شهر+سنة)  │ HTML   │ §DATERANGE │ applySpecificMonth / toggleMonthSubmenu
+عمود "الوقت" منفصل في جداول التفاصيل│ HTML  │ §TOOL-JS   │ formatTimeOnly
+Freeze on Scroll (هيدر + تابات)   │ HTML   │ §STICKY-JS │ onPageScroll / updateTabChip / buildTabChipMenu
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1238,7 +1362,7 @@ NOTES
 const LS_URL       = 'perfdash_worker_url';
 const LS_SECRET    = 'perfdash_worker_secret';
 const LS_ADMIN_URL = 'admin_worker_url';       // shared across all tools — never rename
-const TOOL_VERSION = 'v3.2.0';
+const TOOL_VERSION = 'v3.3.0';
 const CURRENCY_SUFFIX = 'ج.م';
 const QTY_SUFFIX = 'قطعة';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
@@ -1383,6 +1507,15 @@ function fmtRowDate(iso) {
   if (!iso) return '—';
   return cairoDateStr(toCairo(iso));
 }
+// html-builder v1.1.0 — عمود "الوقت" منفصل عن "التاريخ" لنفس الـ timestamp
+function formatTimeOnly(iso) {
+  if (!iso) return '—';
+  const d = toCairo(iso), pad = n => String(n).padStart(2, '0');
+  let h = d.getUTCHours();
+  const ampm = h >= 12 ? 'م' : 'ص';
+  h = h % 12 || 12;
+  return `${pad(h)}:${pad(d.getUTCMinutes())} ${ampm}`;
+}
 
 // ══════════════════════════════════════════════════════
 // §STATE
@@ -1464,7 +1597,78 @@ function toggleRangePresetMenu(e) {
 document.addEventListener('click', () => {
   document.getElementById('rangePresetMenu')?.classList.remove('open');
   document.getElementById('rangePresetBtn')?.classList.remove('open');
+  closeMonthSubmenu();
 });
+
+// ── "شهر محدد" — شهر + سنة (html-builder v1.1.0) ──────────────
+// السنة: السنة الحالية + آخر سنتين فقط كخيارات جاهزة + "سنة تانية..." تفتح
+// إدخال يدوي لأي سنة أقدم.
+function ensureRangeYearOptions() {
+  const sel = document.getElementById('monthSelectYear');
+  if (!sel || sel.options.length) return; // idempotent
+  const y = cairoNow().getUTCFullYear();
+  sel.innerHTML = '<option value="">السنة</option>'
+    + [y, y-1, y-2].map(v => `<option value="${v}">${v}</option>`).join('')
+    + '<option value="__other">سنة تانية...</option>';
+}
+function resetMonthSpecific() {
+  const mSel = document.getElementById('monthSelectMonth');
+  const ySel = document.getElementById('monthSelectYear');
+  const yManual = document.getElementById('monthSelectYearManual');
+  if (mSel) { mSel.value=''; mSel.classList.remove('filled'); }
+  if (ySel) { ySel.value=''; ySel.classList.remove('filled'); }
+  if (yManual) { yManual.value=''; yManual.style.display='none'; }
+}
+function toggleMonthSubmenu(e) {
+  e.stopPropagation();
+  ensureRangeYearOptions();
+  const sub = document.getElementById('monthSubmenu'), item = document.getElementById('monthSpecificItem');
+  const isOpen = sub.classList.contains('open');
+  sub.classList.toggle('open', !isOpen); item.classList.toggle('open', !isOpen);
+}
+function closeMonthSubmenu() {
+  document.getElementById('monthSubmenu')?.classList.remove('open');
+  document.getElementById('monthSpecificItem')?.classList.remove('open');
+}
+function onYearSelectChange() {
+  const sel = document.getElementById('monthSelectYear'), manual = document.getElementById('monthSelectYearManual');
+  if (sel.value === '__other') {
+    manual.style.display = 'block'; manual.value = ''; sel.classList.remove('filled'); manual.focus();
+  } else {
+    manual.style.display = 'none'; manual.value = '';
+    onMonthYearChange();
+  }
+}
+function onMonthYearManualInput() { onMonthYearChange(); }
+function onMonthYearChange() {
+  const monthSel = document.getElementById('monthSelectMonth');
+  const yearSel  = document.getElementById('monthSelectYear');
+  const manual   = document.getElementById('monthSelectYearManual');
+  const month = monthSel.value;
+  const year  = yearSel.value === '__other' ? manual.value.trim() : yearSel.value;
+  monthSel.classList.toggle('filled', !!month);
+  yearSel.classList.toggle('filled', !!yearSel.value && yearSel.value !== '__other');
+  if (!month || !year || year.length !== 4 || isNaN(Number(year))) return;
+  applySpecificMonth(Number(year), Number(month));
+}
+const RANGE_MONTH_NAMES = ['','يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+function applySpecificMonth(year, month) {
+  const from = `${year}-${String(month).padStart(2,'0')}-01`;
+  const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
+  const to = `${year}-${String(month).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+  activeRangePreset = 'specificMonth';
+  document.getElementById('rangeDateFrom').value = from;
+  document.getElementById('rangeDateTo').value   = to;
+  document.querySelectorAll('.range-preset-item').forEach(el => el.classList.toggle('active', el.id === 'monthSpecificItem'));
+  document.getElementById('rangePresetLabel').textContent = `📅 ${RANGE_MONTH_NAMES[month]} ${year}`;
+  document.getElementById('rangePresetBtn').classList.add('has-preset');
+  closeMonthSubmenu();
+  document.getElementById('rangePresetMenu').classList.remove('open');
+  document.getElementById('rangePresetBtn').classList.remove('open');
+  state.rangeMode = 'specificMonth';
+  state.range = { from, to };
+  loadAll({ forceRefresh: false });
+}
 
 function computePresetRange(preset) {
   const now = cairoNow();
@@ -1499,6 +1703,7 @@ function computePresetRange(preset) {
 function applyRangePreset(preset) {
   document.getElementById('rangePresetMenu').classList.remove('open');
   document.getElementById('rangePresetBtn').classList.remove('open');
+  resetMonthSpecific();
   const range = computePresetRange(preset);
   if (!range) return;
   activeRangePreset = preset;
@@ -1517,6 +1722,7 @@ function onRangeDateChange() {
   document.querySelectorAll('.range-preset-item').forEach(el => el.classList.remove('active'));
   document.getElementById('rangePresetLabel').textContent = '⚡ اختار فترة';
   document.getElementById('rangePresetBtn').classList.remove('has-preset');
+  resetMonthSpecific();
 
   const fromVal = document.getElementById('rangeDateFrom').value;
   const toVal   = document.getElementById('rangeDateTo').value;
@@ -1715,15 +1921,61 @@ function renderShell() {
 // بيتحكم بس في العرض (hidden class) — صفر fetch إضافي، صفر إعادة تحميل.
 // ══════════════════════════════════════════════════════
 function switchMainTab(page) {
-  if (state.activePage === page) return;
-  state.activePage = page;
-  document.getElementById('mainTabMain')?.classList.toggle('active', page === 'main');
-  document.getElementById('mainTabOrders')?.classList.toggle('active', page === 'orders');
-  document.getElementById('mainPageContent')?.classList.toggle('hidden', page !== 'main');
-  document.getElementById('ordersPageContent')?.classList.toggle('hidden', page !== 'orders');
-  // مفتاح "طريقة العرض" (قيمة/عدد قطع) خاص بصفحة الرئيسية بس — بيتخفي في الأوردرات
-  document.getElementById('viewToggleWrap')?.classList.toggle('hidden', page !== 'main');
+  if (state.activePage !== page) {
+    state.activePage = page;
+    document.getElementById('mainTabMain')?.classList.toggle('active', page === 'main');
+    document.getElementById('mainTabOrders')?.classList.toggle('active', page === 'orders');
+    document.getElementById('mainPageContent')?.classList.toggle('hidden', page !== 'main');
+    document.getElementById('ordersPageContent')?.classList.toggle('hidden', page !== 'orders');
+    // مفتاح "طريقة العرض" (قيمة/عدد قطع) خاص بصفحة الرئيسية بس — بيتخفي في الأوردرات
+    document.getElementById('viewToggleWrap')?.classList.toggle('hidden', page !== 'main');
+  }
+  updateTabChip();
+  closeTabChipMenu();
 }
+
+// ══════════════════════════════════════════════════════
+// §STICKY-JS — Freeze on Scroll (html-builder v1.1.0 §1b)
+// ══════════════════════════════════════════════════════
+const TAB_IDS = ['main', 'orders'];
+
+function onPageScroll() {
+  document.getElementById('stickyWrap')?.classList.toggle('stuck', window.scrollY > 8);
+}
+window.addEventListener('scroll', onPageScroll, { passive: true });
+
+function updateTabChip() {
+  const label = document.getElementById(state.activePage === 'main' ? 'mainTabMain' : 'mainTabOrders').textContent.trim();
+  const labelEl = document.getElementById('activeTabChipLabel');
+  if (labelEl) labelEl.textContent = label;
+  document.querySelectorAll('#tabChipMenu .tab-chip-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === state.activePage);
+  });
+}
+function buildTabChipMenu() {
+  const menu = document.getElementById('tabChipMenu');
+  if (!menu) return;
+  menu.innerHTML = TAB_IDS.map(id => {
+    const btn = document.getElementById(id === 'main' ? 'mainTabMain' : 'mainTabOrders');
+    return `<div class="tab-chip-item ${id === state.activePage ? 'active' : ''}" data-tab="${id}"
+      onclick="event.stopPropagation(); switchMainTab('${id}');">${btn.textContent.trim()}</div>`;
+  }).join('');
+}
+function toggleTabChipMenu(e) {
+  e.stopPropagation();
+  const chip = document.getElementById('activeTabChip'), menu = document.getElementById('tabChipMenu');
+  const willOpen = !menu.classList.contains('open');
+  menu.classList.toggle('open', willOpen);
+  chip.classList.toggle('open', willOpen);
+}
+function closeTabChipMenu() {
+  document.getElementById('tabChipMenu')?.classList.remove('open');
+  document.getElementById('activeTabChip')?.classList.remove('open');
+}
+document.addEventListener('click', (e) => {
+  const chip = document.getElementById('activeTabChip');
+  if (chip && !chip.contains(e.target)) closeTabChipMenu();
+});
 
 // ══════════════════════════════════════════════════════
 // §TOOL-JS
@@ -2373,6 +2625,7 @@ function renderDetailsTableWrap() {
       <td>${orderLink(r.orderName || r.orderId, r.orderId)}</td>
       <td class="col-num">${fmtInt(r.orderTotalPieces)}</td>
       <td class="col-num">${fmtRowDate(r.createdAt)}</td>
+      <td class="col-num">${formatTimeOnly(r.createdAt)}</td>
       <td class="mono">${esc(r.sku || '—')}</td>
       <td class="col-num">${fmtInt(r.qty)}</td>
       <td class="col-num">${fmtMoney(r.value)}</td>
@@ -2389,6 +2642,7 @@ function renderDetailsTableWrap() {
             <th>رقم الأوردر</th>
             <th>عدد قطع الأوردر</th>
             <th>التاريخ</th>
+            <th>الوقت</th>
             <th>SKU</th>
             <th>الكمية</th>
             <th>القيمة</th>
@@ -2955,6 +3209,7 @@ function renderOrderDetailsTableWrap() {
       <td>${orderLink(r.orderName || r.orderId, r.orderId)}</td>
       <td class="col-num">${fmtInt(r.orderTotalPieces)}</td>
       <td class="col-num">${fmtRowDate(r.createdAt)}</td>
+      <td class="col-num">${formatTimeOnly(r.createdAt)}</td>
       <td>${orderBucketPill(r.bucket)}${cyclePill(r.cycleNote)}</td>
       <td>${esc(r.s1 || '—')}</td>
       <td>${esc(r.s2 || '—')}</td>
@@ -2968,6 +3223,7 @@ function renderOrderDetailsTableWrap() {
             <th>رقم الأوردر</th>
             <th>عدد القطع</th>
             <th>التاريخ</th>
+            <th>الوقت</th>
             <th>الحالة</th>
             <th>حالة الأوردر (S1)</th>
             <th>حالة الإرجاع (S2)</th>
@@ -3302,6 +3558,8 @@ function updateLoginSettingsBtnState() {
 updateSettingsBtn();
 renderVersionUI();
 initDateRange();
+buildTabChipMenu();
+updateTabChip();
 loadEmployeesList();
 loadAll({ forceRefresh: false });
 </script>
