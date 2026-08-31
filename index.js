@@ -141,7 +141,34 @@
 //      بتترمى زي ما كان متوقّع. التعديل الوحيد المرتبط بيها كان في الواجهة:
 //      الجلب بقى تسلسلي مش متوازي (تجنّب تنافس throttle على cache miss بارد).
 //
-// skills: worker-builder v1.0.0 · constants v1.0.0 · dashboard-builder v2.0.0 ·
+// v3.5.0 (30-08-2026): مراجعة كاملة على dashboard-builder v2.1.0 / html-builder
+//   v2.1.0 / worker-builder v1.1.0 / constants v1.2.0 — التقسيم الشهري في
+//   الواجهة والبنود اللي بتخصّ الـ Worker منه:
+//   1. 🔴 **مسح كل `sleep` ثابت بين دفعات الجلب** — `sleep(1000)` بين صفحات
+//      المرحلة 1 و`sleep(500)` بين دفعات المرحلة 2. القاعدة:
+//      `ecommoda-dashboard-builder` v2.1.0 Step 5 («⛔ الاستثناء الوحيد
+//      للجدول ده: sleep ثابت بين الدفعات») — النوم الثابت بيخلي مدة الطلب
+//      **دالة في عدد الصفوف** مش في سرعة شوبيفاي: ٣ آلاف أوردر في الشهر =
+//      ١٢ صفحة (١٢ ثانية نوم) + ~٣٠٠ مرشّح في ٣٠ دفعة (١٥ ثانية نوم) ≈ **٢٧
+//      ثانية نوم مقصود لكل شهر**. الانتظار الوحيد المسموح هو backoff الـ
+//      `THROTTLED` في `shopifyWithRetry` — وهو **بيستنى لما شوبيفاي تقول
+//      استنى، وبس**. العلاج الهيكلي (التقسيم الشهري) اتنفّذ في الواجهة في
+//      نفس التسليم، فعدد الصفوف في النداء الواحد بقى محدود بشهر.
+//      ⚠️ سطر «ثانية بين الصفحات» في Data Contract v2.1.0 §6 اتعلّم عليه
+//      كمنسوخ هناك — الثوابت المقفولة (LINE_ITEMS_PAGE/RETURNS_PAGE/...) ما
+//      اتلمستش، ودي مش واحدة منهم.
+//   2. `orderRows[]` بقى فيها `hasRE` (الأوردر ده كان مرشّح للمرحلة 2؟) —
+//      من غيرها الواجهة مش قادرة تحسب سطر «كام أوردر فيه نشاط إرجاع/استبدال»
+//      لأي **جزء** من الفترة المتكاشة. مع التقسيم الشهري الصفوف بتتفلتر على
+//      أطراف الفترة في الواجهة، فأي رقم مجمّع جاي من الـ Worker (زي
+//      `candidatesFetched`) بيوصف الشهر كله مش المعروض = رقم غلط شكله سليم.
+//      → CACHE_VERSION v10 → **v11** (شكل الصف اتغيّر).
+//   3. `get_meta` بقى بيرجّع `count` جنب `ordersScanned` — الاسم القياسي اللي
+//      نمط الـ probe في `monthly-chunk-loading.md` بيقراه.
+//   ⚠️ صفر تغيير في أي منطق تصنيف — `computeBoxes`/`computeOrderBoxes`/
+//      `classifyOrderForCounts` ما اتلمسوش.
+//
+// skills: worker-builder v1.1.0 · constants v1.2.0 · dashboard-builder v2.1.0 ·
 //         order-lifecycle v1.1.0 — 30-08-2026
 // ══════════════════════════════════════════════════════════════════
 
@@ -149,8 +176,8 @@
 // §CONSTANTS
 // ══════════════════════════════════════════════════════
 const TOOL_NAME     = 'performance_dashboard';
-const WORKER_VERSION = 'v3.3.0'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
-const CACHE_VERSION = 'v10'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا)
+const WORKER_VERSION = 'v3.5.0'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
+const CACHE_VERSION = 'v11'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا) → v11(hasRE على كل صف أوردر — عشان الواجهة تحسب «كام أوردر فيه نشاط إرجاع/استبدال» لأي جزء من الفترة بعد التقسيم الشهري)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
 const LINE_ITEMS_PAGE     = 25;   // lineItems(first: 25) — absolute max
@@ -498,7 +525,10 @@ async function fetchStage1(env, token, dateFrom, dateTo) {
 
     hasNext = conn.pageInfo.hasNextPage;
     cursor  = conn.pageInfo.endCursor;
-    if (hasNext) await sleep(1000); // ثانية بين الصفحات — Data Contract §6
+    // ⛔ ممنوع أي sleep ثابت هنا (dashboard-builder v2.1.0 Step 5). النوم الثابت
+    // بيخلي مدة الطلب دالة في **عدد الصفحات** مش في سرعة شوبيفاي، والانتظار
+    // الوحيد المشروع هو backoff الـ THROTTLED جوه shopifyWithRetry — بيستنى
+    // لما شوبيفاي تقول استنى وبس. (كان `await sleep(1000)` لحد v3.4.0.)
   }
 
   return orders;
@@ -588,7 +618,8 @@ async function fetchStage2(env, token, candidateIds) {
       stage2Map.set(node.id, node);
     }
 
-    if (i + STAGE2_BATCH_SIZE < candidateIds.length) await sleep(500);
+    // ⛔ نفس قاعدة fetchStage1 — مفيش sleep ثابت بين الدفعات. دي بالظبط الحالة
+    // اللي dashboard-builder v2.1.0 Step 5 بتسمّيها بالاسم (دفعات ١٠ + ٥٠٠ms).
   }
 
   return stage2Map;
@@ -1017,7 +1048,7 @@ function classifyOrderForCounts(order, stage2Order) {
 }
 
 // §AGGREGATE-ORDERS::pushOrderRow — صف drill-down واحد لكل أوردر (مش لكل سطر/SKU)
-function pushOrderRow(rows, order, bucket, cycNote = null) {
+function pushOrderRow(rows, order, bucket, cycNote = null, hasRE = false) {
   const lineItems = order.lineItems?.nodes || [];
   rows.push({
     orderId:          numericIdFromGid(order.id),
@@ -1029,6 +1060,11 @@ function pushOrderRow(rows, order, bucket, cycNote = null) {
     bucket,
     // §CYCLE — تشخيص، مش تصنيف: الصف بيفضل في مربعه (Rule 13)
     cycleNote:        cycNote,
+    // v3.5.0 — الأوردر ده كان مرشّح للمرحلة 2 (فيه نشاط إرجاع/استبدال)؟
+    // ⚠️ على الصف عن قصد، مش رقم مجمّع في الـ payload: بعد التقسيم الشهري
+    // الواجهة بتفلتر أطراف الفترة بـ createdAt، فأي رقم مجمّع بيوصف الشهر
+    // كامل مش المعروض — رقم غلط شكله سليم. من الصف بيتحسب لأي جزء صح.
+    hasRE:            !!hasRE,
   });
 }
 
@@ -1079,7 +1115,7 @@ function computeOrderBoxes(stage1Orders, stage2Map) {
     ob[FIELD[bucket]]++;
     if (bucket === ORDER_BUCKET.UNCLASSIFIED) warnings.unclassified++;
 
-    pushOrderRow(rows, order, bucket, cycNote);
+    pushOrderRow(rows, order, bucket, cycNote, isCandidateForStage2(order));
   }
 
   return { orderBoxes: ob, orderRows: rows, orderWarnings: warnings };
@@ -1352,7 +1388,13 @@ export default {
           candidatesFetched: candidateIds.length,
         };
         const lastUpdated = await writeCache(env, key, dateTo, payload);
-        await writeCache(env, metaKey(dateFrom, dateTo), dateTo, { ordersScanned: stage1Orders.length });
+        // `count` هو الاسم القياسي اللي probe الـ get_meta بيقراه
+        // (html-builder monthly-chunk-loading.md §4) — `ordersScanned` باقي
+        // معاه للتوافق مع أي قارئ قديم.
+        await writeCache(env, metaKey(dateFrom, dateTo), dateTo, {
+          ordersScanned: stage1Orders.length,
+          count:         stage1Orders.length,
+        });
 
         // ✅ رجّع اللي جاي من fetch مباشرة — أبداً re-read من KV بعد الكتابة (eventual consistency)
         return json({ ...payload, lastUpdated, source: 'shopify' });
@@ -1367,7 +1409,7 @@ export default {
         const metaDateErr = validateDateRange(dateFrom, dateTo);
         if (metaDateErr) return json({ error: metaDateErr, step: 'validation' }, 400);
         const cached = await readCache(env, metaKey(dateFrom, dateTo));
-        return json(cached || { ordersScanned: null, lastUpdated: null });
+        return json(cached || { ordersScanned: null, count: null, lastUpdated: null });
       }
 
       if (action === 'clear_cache') {
