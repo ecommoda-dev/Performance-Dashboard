@@ -197,6 +197,8 @@
   .range-preset-item.active { background: var(--accent-light); color: var(--accent); }
   .range-preset-item .pr-check { font-size: 11px; color: var(--accent); display: none; }
   .range-preset-item.active .pr-check { display: block; }
+  /* فترة كلها قبل بداية تشغيل المتجر (STORE_START_DATE) — معطّلة بصريًا وبالضغط */
+  .range-preset-item.unavailable { opacity: .38; cursor: not-allowed; pointer-events: none; }
   .range-preset-sep { height: 1px; background: var(--border); margin: 3px 4px; }
 
   /* "شهر محدد" — submenu شهر+سنة (html-builder v1.1.0) */
@@ -883,7 +885,7 @@
                 </div>
                 <input type="number" class="month-select" id="monthSelectYearManual" style="display:none;margin-top:8px;"
                   placeholder="مثال: 2019" oninput="onMonthYearManualInput()">
-                <div class="month-select-hint">اختَر الشهر والسنة — يتطبّق الفلتر تلقائيًا بمجرد اختيار الاتنين. لسنة أقدم اختَر "سنة تانية..." واكتبها يدويًا.</div>
+                <div class="month-select-hint" id="monthSelectHint">اختَر الشهر والسنة — يتطبّق الفلتر تلقائيًا بمجرد اختيار الاتنين.</div>
               </div>
             </div>
 
@@ -1038,7 +1040,16 @@
     <div class="eco-modal-hdr"><span>📋 سجل التحديثات</span><button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="eco-modal-body">
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">30-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">31-08-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>الأداة بقت تبدأ من 1 مايو 2026 — بداية تشغيل المتجر.</b> أي يوم قبل التاريخ ده اتعامل معاه كأن المتجر ماكانش شغّال: مفيش سحب من شوبيفاي، مفيش كاش، ومفيش رقم على الشاشة. عمليًا: تقويم "من تاريخ" و"إلى تاريخ" مش بيسمح باختيار قبل التاريخ ده · مربعات الشهور بتقف عند مايو 2026 · فترة سريعة مداها كله قبل الحد (زي "العام السابق") بقت <b>معطّلة</b> في القايمة · وفترة بتبدأ قبل الحد (زي "العام الحالي") بتبدأ من 1 مايو مع سطر بيوضّح السبب.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>مقارنة Δ% بتختفي لما مافيش فترة سابقة كاملة.</b> مربّع "مايو 2026" مالوش شهر سابق يتقارن بيه أصلاً، و"آخر ٩٠ يوم" الـ ٩٠ يوم اللي قبلها مش كلها بعد بداية المتجر. في الحالتين المقارنة بتتشال بالكامل بدل ما تتحسب على فترة سابقة <b>مقصوصة</b> — مقارنة ٩٠ يوم بـ ٣٣ يوم كانت هتطلّع نسبة شكلها سليم ومعناها غلط. الأرقام نفسها بتفضل زي ما هي، سطر الـ Δ بس هو اللي بيختفي.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تحذير لو الطبقتين اتفرّقوا.</b> تاريخ البداية مكتوب في الواجهة <b>وفي الـ Worker</b>، والاتنين لازم يتطابقوا. لو واحد منهم اتنشر والتاني لأ، علامة اختلاف النسخة في الهيدر بتظهر وبتقول الفرق بالظبط — بدل ما الفلترة تشتغل في طبقة واحدة بس والأداة شكلها سليم.</span></li>
+        </ul>
+      </div>
+
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.5.0</span><span class="cl-ver-date">30-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مربعات الشهور.</b> صف أزرار فوق فلتر التاريخ — زرار لكل شهر (الشهر الحالي + ٥ سابقين، الأحدث أقصى اليمين). الضغط على مربّع بيختار <b>الشهر التقويمي كامل</b> وبيسحب من شوبيفاي مباشرة، إلا لو الكاش أطزج من ٥ دقايق ساعتها بيقرا منه. المربّع وفلتر "الفترة السريعة" بيمسحوا بعض — مستحيل الاتنين يبانوا مختارين مع بعض.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>التحميل بقى شهر بشهر.</b> الفترة بتتقسّم على حدود الشهور التقويمية <b>الكاملة</b>، وكل شهر بمفتاح كاش مستقل بيتحمّل ورا التاني بشريط تقدّم بيسمّي الشهر. أطراف الفترة بتتفلتر في الواجهة — <b>الفترة المعروضة هي اختيارك بالظبط، ما اتغيّرتش</b>. المكسب: "آخر ٣٠ يوم" و"أغسطس" و"آخر ٧ أيام" بقوا بيقروا من <b>نفس</b> مفتاح أغسطس بدل ٣ مفاتيح منفصلة، وزرار التحديث بيسحب الشهر اللي لسه بيتغيّر بس.</span></li>
@@ -1226,6 +1237,8 @@
         <summary>📋 وصف الأداة</summary>
         <div class="about-sec-body">
           <p>داشبورد فيه تابين: <b>المبيعات</b> (اسمها القديم "الرئيسية") بتجاوب "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. و<b>الأوردرات</b> بتجاوب "كام أوردر في كل مرحلة؟" — عدّ أوردرات مش جنيه. التابين بيشتركوا في نفس فلتر التاريخ ونفس نداء <code>get_data</code> — التبديل بينهم فوري من غير أي تحميل إضافي.</p>
+          <h4>بداية البيانات</h4>
+          <p>الأداة بتبدأ من <b>1 مايو 2026</b> — يوم بداية تشغيل المتجر. أي يوم قبل كده متعامَل معاه كأن المتجر ماكانش شغّال: مفيش سحب من شوبيفاي ومفيش رقم بيتعرض. عشان كده التقويم مش بيسمح باختيار قبل التاريخ ده، مربعات الشهور بتقف عند مايو 2026، وفترة سريعة مداها كله قبله (زي "العام السابق") بتبان معطّلة. الفترة اللي بتبدأ قبل الحد بتتقصّ عليه تلقائيًا مع سطر بيوضّح ده. ولو الفترة السابقة (اللي الـ Δ% بتتحسب منها) مش داخلة كلها بعد الحد، المقارنة بتتشال بالكامل بدل ما تتحسب على فترة مقصوصة.</p>
           <h4>المستخدمون</h4>
           <p>المدير العام وفريق التحليل.</p>
           <h4>النموذج (Data Contract v2.0.0)</h4>
@@ -1412,6 +1425,14 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 مسح النوم الثابت بين الدفعات        │ Worker │ §SHOPIFY   │ fetchStage1 / fetchStage2
 زرار الفحص الذاتي 🩺                │ HTML   │ §SHELL-JS  │ runDiag (→ ?action=diag)
 تحذير اختلاف نسخة الـ Worker        │ HTML   │ §SHELL-JS  │ checkWorkerVersion / showVersionMismatch (→ ?action=get_config)
+─────────────────────────────────────────────────────  v3.6.0 (31-08-2026)
+بداية تشغيل المتجر — حد أدنى صلب   │ Worker │ §CONSTANTS │ STORE_START_DATE (+ validateDateRange)
+نفس الحد في الواجهة (قصّ قبل السؤال)│ HTML   │ §CONFIG    │ STORE_START_DATE / STORE_START_YM
+قصّ أي فترة على الحد               │ HTML   │ §DATERANGE │ clampRangeToStoreStart
+تعطيل فترة سريعة كلها قبل الحد     │ HTML   │ §DATERANGE │ markUnavailablePresets
+تعطيل شهور/سنين قبل الحد في "شهر محدد"│ HTML  │ §DATERANGE │ refreshMonthOptionState / ensureRangeYearOptions
+إلغاء المقارنة لو الفترة السابقة ناقصة│ HTML │ §UTILS     │ getPreviousRange (بترجّع null)
+كشف تفرّق الطبقتين                 │ HTML   │ §SHELL-JS  │ checkWorkerVersion (storeStartDate)
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1429,6 +1450,21 @@ state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
                             منفصل عن note عن قصد، عشان الجديد ما يخفيش القديم
 state.prevRows = نفس شكل state.rows بس للفترة السابقة (v1.4.0 — كانت بتتجاب
                  من الـ Worker وبتترمى، دلوقتي بتتخزن لحساب Δ% في وضع عدد القطع)
+v3.6.0 — KEY VARIABLES (بداية تشغيل المتجر)
+STORE_START_DATE = '2026-05-01' — أول يوم تشغيل للمتجر (قرار أحمد 31-08-2026).
+  اللي قبله **مش موجود**: مفيش فترة بتتعرض قبله، مفيش نداء بيتبعت بيه، ومفيش
+  مربّع شهر بيتولّد قبله.
+  ⚠️ **نفس الثابت بالحرف في index.js** — طبقتين إجباريتين:
+     الواجهة بتقصّ **قبل** ما تسأل (المستخدم يشوف اللي هياخده بالظبط)،
+     والـ Worker بيرفض بـ 400 (الحارس الأخير — بيغطّي get_data و get_meta).
+  ⛔ الـ Worker **بيرفض ومبيقصّش**: مفتاح الكاش هو نصّ التاريخين حرفيًا،
+     فالقصّ الصامت بيولّد مفتاحين لنفس المحتوى أو رد على فترة غير المطلوبة
+     (فالـ probe بالتواريخ الأصلية يفضل يقول "مش متكاش" للأبد).
+  ⚠️ getPreviousRange بترجّع **null** لو الفترة السابقة مش داخلة كلها بعد الحد
+     — إلغاء المقارنة أنضف من قصّها (Δ% بين نافذتين بأطوال مختلفة = رقم غلط
+     شكله سليم). delta() بترجّع '' لوحدها لما prevVal = 0، فالمربعات بتفضل
+     بأرقامها من غير سطر Δ.
+
 v3.5.0 — KEY VARIABLES (التقسيم الشهري)
 GATE_MIN_MISSING_MONTHS = 1 — شهر واحد ناقص بيتحمّل تلقائيًا؛ البوابة من
   شهرين فما فوق. البوابة **بالتكلفة مش بوجود نقص**: مفتاح الـ meta بياخد نفس
@@ -1565,12 +1601,24 @@ NOTES
 const LS_URL       = 'perfdash_worker_url';
 const LS_SECRET    = 'perfdash_worker_secret';
 const LS_ADMIN_URL = 'admin_worker_url';       // shared across all tools — never rename
-const TOOL_VERSION = 'v3.5.0';
+const TOOL_VERSION = 'v3.6.0';
 // نسخة الـ Worker اللي الواجهة دي اتكتبت عليها — **مش** نفس TOOL_VERSION.
 // الاتنين مستقلين عن قصد في الأداة دي (CLAUDE.md)، فالمقارنة لازم تبقى مع
 // القيمة دي عشان تكشف Promote ناقص بدل ما تحذّر من اختلاف ترقيم مقصود.
-const EXPECTED_WORKER_VERSION = 'v3.5.0';
+const EXPECTED_WORKER_VERSION = 'v3.6.0';
 let workerLiveVersion = '';
+let workerLiveStoreStart = '';
+
+// ─── §CONFIG::STORE_START_DATE — بداية تشغيل المتجر (قرار أحمد 31-08-2026) ───
+// اللي قبل التاريخ ده **مش موجود** بالنسبة للأداة: مفيش فترة بتتعرض قبله،
+// مفيش نداء بيتبعت بيه، ومفيش مربّع شهر بيتولّد قبله.
+// ⚠️ **نفس القيمة بالحرف في index.js** (`STORE_START_DATE` هناك). الطبقتين
+// لازم يتحرّكوا في نفس التعديل — الـ Worker هو الحارس الصلب (بيرفض بـ 400)،
+// والواجهة بتقصّ **قبل** ما تسأل عشان المستخدم يشوف اللي هياخده بالظبط.
+// checkWorkerVersion() بتقارن القيمتين وبتحذّر لو اتفرّقوا.
+const STORE_START_DATE = '2026-05-01';
+const STORE_START_YM   = STORE_START_DATE.slice(0, 7);   // '2026-05'
+const STORE_START_LABEL = '1 مايو 2026';
 const CURRENCY_SUFFIX = 'ج.م';
 const QTY_SUFFIX = 'قطعة';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
@@ -1703,12 +1751,26 @@ async function checkWorkerVersion() {
     const btn  = document.getElementById('verMismatchBtn');
     if (!btn) return;
     workerLiveVersion = live;
-    btn.style.display = (live && live !== EXPECTED_WORKER_VERSION) ? '' : 'none';
+    // ⚠️ STORE_START_DATE لازم يبقى **نفس القيمة** في الطبقتين. لو الواجهة
+    // اتنشرت والـ Worker لأ (أو العكس)، الأداة بتفضل شكلها سليم بينما
+    // الفلترة بتحصل في طبقة واحدة بس — فالاختلاف بيتحسب mismatch زيه زي
+    // اختلاف النسخة، ونفس الزرار بيوضّحه.
+    workerLiveStoreStart = res.storeStartDate || '';
+    const verMismatch   = !!live && live !== EXPECTED_WORKER_VERSION;
+    const startMismatch = !!workerLiveStoreStart && workerLiveStoreStart !== STORE_START_DATE;
+    btn.style.display = (verMismatch || startMismatch) ? '' : 'none';
   } catch { /* الفحص ده مساعد — فشله ما يوقفش الأداة */ }
 }
 function showVersionMismatch() {
-  alert(`الـ Worker المنشور بيقول إنه ${workerLiveVersion || '—'}، والواجهة دي اتكتبت على ${EXPECTED_WORKER_VERSION}.\n\n`
-      + 'يعني على الأغلب فيه نشر ناقص (Promote) أو نسخة قديمة شغّالة. راجع Cloudflare → Workers → performance-dashboard-worker.');
+  const lines = [];
+  if (workerLiveVersion && workerLiveVersion !== EXPECTED_WORKER_VERSION) {
+    lines.push(`الـ Worker المنشور بيقول إنه ${workerLiveVersion}، والواجهة دي اتكتبت على ${EXPECTED_WORKER_VERSION}.`);
+  }
+  if (workerLiveStoreStart && workerLiveStoreStart !== STORE_START_DATE) {
+    lines.push(`بداية تشغيل المتجر مختلفة بين الطبقتين — الـ Worker: ${workerLiveStoreStart} · الواجهة: ${STORE_START_DATE}.`);
+  }
+  alert((lines.join('\n') || 'فيه اختلاف بين الواجهة والـ Worker المنشور.')
+      + '\n\nيعني على الأغلب فيه نشر ناقص (Promote) أو نسخة قديمة شغّالة. راجع Cloudflare → Workers → performance-dashboard-worker.');
 }
 
 function openChangelog()  { document.getElementById('changelogOverlay').classList.add('open'); }
@@ -1744,10 +1806,17 @@ function addDays(dateStr, n) {
 function daysBetween(fromStr, toStr) {
   return Math.round((new Date(toStr + 'T00:00:00Z') - new Date(fromStr + 'T00:00:00Z')) / 86400000) + 1;
 }
+// بترجّع فترة المقارنة (اللي الـ Δ% بتتحسب منها) — أو **null** لو مش موجودة.
+// ⚠️ الشرط `prevFrom < STORE_START_DATE` بيلغي المقارنة بالكامل، مش بيقصّها:
+// قصّ الفترة السابقة على الحد بيولّد Δ% بين نافذتين **بأطوال مختلفة** — "آخر
+// ٩٠ يوم" (٩٠ يوم) مقابل ٣٣ يوم بس بعد القصّ — وده رقم غلط شكله سليم، أخطر
+// من غياب المقارنة. من غير مقارنة، delta() بترجّع '' لوحدها (prevVal = 0)
+// فالمربعات بتظهر بأرقامها من غير سطر Δ.
 function getPreviousRange(range) {
   const len = daysBetween(range.from, range.to);
   const prevTo   = addDays(range.from, -1);
   const prevFrom = addDays(prevTo, -(len - 1));
+  if (prevFrom < STORE_START_DATE) return null;
   return { from: prevFrom, to: prevTo };
 }
 function fmtRowDate(iso) {
@@ -1837,6 +1906,9 @@ const RANGE_PRESET_LABELS = {
 };
 let activeRangePreset = '';
 let rangeDebounce = null;
+// رسالة الحد الأدنى — بتتعرض في نفس سطر `rangeNote` جنب تنبيه الفترة الواسعة
+// (updateRangeMeta بتركّب الاتنين). بتتصفّر مع كل اختيار فترة جديد.
+let rangeNotice = '';
 
 function toggleRangePresetMenu(e) {
   e.stopPropagation();
@@ -1853,13 +1925,46 @@ document.addEventListener('click', () => {
 // ── "شهر محدد" — شهر + سنة (html-builder v1.1.0) ──────────────
 // السنة: السنة الحالية + آخر سنتين فقط كخيارات جاهزة + "سنة تانية..." تفتح
 // إدخال يدوي لأي سنة أقدم.
+// ⚠️ السنين المعروضة مقصوصة على سنة بداية تشغيل المتجر — سنة قبلها معناها
+// شهر فاضي مضمون. ولمّا مفيش ولا سنة أقدم متاحة، خيار "سنة تانية..." بيختفي
+// كمان (كان هيفتح إدخال يدوي لسنة الرد الوحيد عليها رفض).
 function ensureRangeYearOptions() {
   const sel = document.getElementById('monthSelectYear');
   if (!sel || sel.options.length) return; // idempotent
   const y = cairoNow().getUTCFullYear();
+  const minYear = Number(STORE_START_DATE.slice(0, 4));
+  const years = [y, y-1, y-2].filter(v => v >= minYear);
+  const allowOther = years.length > 0 && years[years.length - 1] > minYear;
   sel.innerHTML = '<option value="">السنة</option>'
-    + [y, y-1, y-2].map(v => `<option value="${v}">${v}</option>`).join('')
-    + '<option value="__other">سنة تانية...</option>';
+    + years.map(v => `<option value="${v}">${v}</option>`).join('')
+    + (allowOther ? '<option value="__other">سنة تانية...</option>' : '');
+  // الهينت بيتبع الخيارات الفعلية — من غير كده بيفضل بيقول "لسنة أقدم اختَر
+  // سنة تانية..." والخيار ده مش موجود أصلاً.
+  const hint = document.getElementById('monthSelectHint');
+  if (hint) {
+    hint.textContent = 'اختَر الشهر والسنة — يتطبّق الفلتر تلقائيًا بمجرد اختيار الاتنين.'
+      + (allowOther ? ' لسنة أقدم اختَر "سنة تانية..." واكتبها يدويًا.'
+                    : ` الأداة بتبدأ من ${STORE_START_LABEL}، فمفيش سنين أقدم.`);
+  }
+}
+
+// شهور قبل بداية تشغيل المتجر بتتعطّل في السنة المختارة — بدل ما تتاخد
+// وترد برسالة رفض. (بتتنادى بعد أي تغيير في السنة.)
+function refreshMonthOptionState() {
+  const mSel = document.getElementById('monthSelectMonth');
+  const ySel = document.getElementById('monthSelectYear');
+  const manual = document.getElementById('monthSelectYearManual');
+  if (!mSel || !ySel) return;
+  const year = ySel.value === '__other' ? (manual?.value || '').trim() : ySel.value;
+  [...mSel.options].forEach(opt => {
+    if (!opt.value) return;
+    if (!year || year.length !== 4 || isNaN(Number(year))) { opt.disabled = false; return; }
+    const m = Number(opt.value);
+    const lastDay = new Date(Date.UTC(Number(year), m, 0)).getUTCDate();
+    opt.disabled = `${year}-${String(m).padStart(2,'0')}-${lastDay}` < STORE_START_DATE;
+  });
+  // الشهر المختار بقى معطّل بعد تغيير السنة؟ صفّره بدل ما يفضل معروض ومرفوض.
+  if (mSel.selectedOptions[0]?.disabled) { mSel.value = ''; mSel.classList.remove('filled'); }
 }
 function resetMonthSpecific() {
   const mSel = document.getElementById('monthSelectMonth');
@@ -1884,12 +1989,14 @@ function onYearSelectChange() {
   const sel = document.getElementById('monthSelectYear'), manual = document.getElementById('monthSelectYearManual');
   if (sel.value === '__other') {
     manual.style.display = 'block'; manual.value = ''; sel.classList.remove('filled'); manual.focus();
+    refreshMonthOptionState();
   } else {
     manual.style.display = 'none'; manual.value = '';
+    refreshMonthOptionState();
     onMonthYearChange();
   }
 }
-function onMonthYearManualInput() { onMonthYearChange(); }
+function onMonthYearManualInput() { refreshMonthOptionState(); onMonthYearChange(); }
 function onMonthYearChange() {
   const monthSel = document.getElementById('monthSelectMonth');
   const yearSel  = document.getElementById('monthSelectYear');
@@ -1906,9 +2013,19 @@ function applySpecificMonth(year, month) {
   const from = `${year}-${String(month).padStart(2,'0')}-01`;
   const lastDay = new Date(Date.UTC(year, month, 0)).getUTCDate();
   const to = `${year}-${String(month).padStart(2,'0')}-${String(lastDay).padStart(2,'0')}`;
+  // شهر كامل قبل بداية تشغيل المتجر = صفر أوردرات مضمونة. بنرفض بصوت عالي
+  // بدل ما نسحب شهر فاضي ونعرض أصفار شكلها سليم.
+  const range = clampRangeToStoreStart({ from, to });
+  if (!range) {
+    rangeNotice = `⛔ ${RANGE_MONTH_NAMES[month]} ${year} قبل بداية تشغيل المتجر (${STORE_START_LABEL}) — مفيش بيانات قبل التاريخ ده.`;
+    updateRangeMeta();
+    return;
+  }
+  rangeNotice = range.clamped
+    ? `ℹ️ الفترة بدأت من ${STORE_START_LABEL} — بداية تشغيل المتجر.` : '';
   activeRangePreset = 'specificMonth';
-  document.getElementById('rangeDateFrom').value = from;
-  document.getElementById('rangeDateTo').value   = to;
+  document.getElementById('rangeDateFrom').value = range.from;
+  document.getElementById('rangeDateTo').value   = range.to;
   document.querySelectorAll('.range-preset-item').forEach(el => el.classList.toggle('active', el.id === 'monthSpecificItem'));
   document.getElementById('rangePresetLabel').textContent = `📅 ${RANGE_MONTH_NAMES[month]} ${year}`;
   document.getElementById('rangePresetBtn').classList.add('has-preset');
@@ -1917,7 +2034,7 @@ function applySpecificMonth(year, month) {
   document.getElementById('rangePresetBtn').classList.remove('open');
   clearActiveMonthBox();
   state.rangeMode = 'specificMonth';
-  state.range = { from, to };
+  state.range = { from: range.from, to: range.to };
   onRangeApplied();
 }
 
@@ -1940,14 +2057,22 @@ function computeMonthBoxes() {
   const now = cairoNow(), out = [];
   for (let i = 0; i < MONTH_BOX_COUNT; i++) {
     const d = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - i, 1));
-    out.push(`${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`);
+    const ym = `${d.getUTCFullYear()}-${String(d.getUTCMonth() + 1).padStart(2, '0')}`;
+    if (ym < STORE_START_YM) break;   // مايتولّدش شهر قبل بداية تشغيل المتجر
+    out.push(ym);
   }
   return out;   // الأحدث أولاً — في RTL أول عنصر في الـ DOM بيظهر أقصى اليمين
 }
 function monthBoxRange(ym) {
   const [y, m]  = ym.split('-').map(Number);
   const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
-  return { from: `${ym}-01`, to: `${ym}-${String(lastDay).padStart(2, '0')}` };
+  const from = `${ym}-01`;
+  // نفس حارس monthChunks: بلا أثر النهارده (الحد أول يوم في شهر)، وبيمنع
+  // مربّع شهر الحد إنه يطلب يوم قبله لو الحد اتنقل لنص شهر.
+  return {
+    from: from < STORE_START_DATE ? STORE_START_DATE : from,
+    to: `${ym}-${String(lastDay).padStart(2, '0')}`,
+  };
 }
 function renderMonthBoxes() {
   const row = document.getElementById('monthBoxRow');
@@ -1982,6 +2107,7 @@ async function selectMonthBox(ym) {
   activeMonthYm = ym;
   renderMonthBoxes();
   resetRangePresetUI();
+  rangeNotice = '';   // المربعات مش بتتولّد قبل الحد أصلاً (computeMonthBoxes)
   const range = monthBoxRange(ym);
   document.getElementById('rangeDateFrom').value = range.from;
   document.getElementById('rangeDateTo').value   = range.to;
@@ -2005,11 +2131,29 @@ async function selectMonthBox(ym) {
   // (loadData بتحطّها force:false مهما كان الـ mode) — الفورس للشهر المضغوط بس.
   const prev = getPreviousRange(range);
   state.chunks     = monthChunks(range.from, range.to);
-  state.prevChunks = monthChunks(prev.from, prev.to);
+  state.prevChunks = prev ? monthChunks(prev.from, prev.to) : [];
   await loadData({ mode: 'all' });
 }
 
+// ─── §DATERANGE::الحد الأدنى — بداية تشغيل المتجر ───
+// كل فترة (preset / مربّع شهر / إدخال يدوي) بتعدّي من هنا قبل ما تتعرض أو
+// تتبعت. القصّ بيحصل **في الواجهة** عشان المستخدم يشوف الفترة اللي هياخدها
+// بالظبط في حقلي من/إلى — الـ Worker بيرفض أي حاجة قبل الحد (حارس أخير).
+function clampRangeToStoreStart(range) {
+  if (!range) return null;
+  if (range.to < STORE_START_DATE) return null;              // الفترة كلها قبل بداية المتجر
+  if (range.from < STORE_START_DATE) {
+    return { from: STORE_START_DATE, to: range.to, clamped: true };
+  }
+  return range;
+}
+
 function computePresetRange(preset) {
+  const raw = computePresetRangeRaw(preset);
+  return clampRangeToStoreStart(raw);
+}
+
+function computePresetRangeRaw(preset) {
   const now = cairoNow();
   const today = cairoDateStr(now);
   switch (preset) {
@@ -2044,7 +2188,15 @@ function applyRangePreset(preset) {
   document.getElementById('rangePresetBtn').classList.remove('open');
   resetMonthSpecific();
   const range = computePresetRange(preset);
-  if (!range) return;
+  // الفترة كلها قبل بداية تشغيل المتجر — البند مفروض متعطّل أصلاً في القايمة
+  // (markUnavailablePresets)، والحارس ده للنداءات البرمجية.
+  if (!range) {
+    rangeNotice = `⛔ "${RANGE_PRESET_LABELS[preset] || preset}" كلها قبل بداية تشغيل المتجر (${STORE_START_LABEL}).`;
+    updateRangeMeta();
+    return;
+  }
+  rangeNotice = range.clamped
+    ? `ℹ️ الفترة بدأت من ${STORE_START_LABEL} — بداية تشغيل المتجر.` : '';
   activeRangePreset = preset;
   document.getElementById('rangeDateFrom').value = range.from;
   document.getElementById('rangeDateTo').value   = range.to;
@@ -2068,9 +2220,25 @@ function onRangeDateChange() {
   const toVal   = document.getElementById('rangeDateTo').value;
   if (!fromVal || !toVal || fromVal > toVal) return;
 
+  // `min` على الـ input بيمنع الاختيار من التقويم، بس الكتابة اليدوية بتعدّي
+  // منه في متصفحات كتير — فالقصّ بيحصل هنا كمان، وبيرجع للحقل نفسه عشان
+  // اللي على الشاشة يفضل هو اللي اتبعت بالظبط.
+  const range = clampRangeToStoreStart({ from: fromVal, to: toVal });
+  if (!range) {
+    rangeNotice = `⛔ الفترة كلها قبل بداية تشغيل المتجر (${STORE_START_LABEL}) — مفيش بيانات قبل التاريخ ده.`;
+    updateRangeMeta();
+    return;
+  }
+  if (range.clamped) {
+    document.getElementById('rangeDateFrom').value = range.from;
+    rangeNotice = `ℹ️ الفترة بدأت من ${STORE_START_LABEL} — بداية تشغيل المتجر.`;
+  } else {
+    rangeNotice = '';
+  }
+
   clearActiveMonthBox();
   state.rangeMode = 'custom';
-  state.range = { from: fromVal, to: toVal };
+  state.range = { from: range.from, to: range.to };
 
   clearTimeout(rangeDebounce);
   rangeDebounce = setTimeout(() => onRangeApplied(), 400);
@@ -2079,17 +2247,34 @@ function onRangeDateChange() {
 // الافتراضي على أول تحميل = **"اليوم"** — إلزامي لكل داشبورد
 // (dashboard-ui-patterns.md §9 · date-range-filter.md §5). مربّع الشهر
 // كافتراضي = قرار صريح من صاحب الأداة، مش اتخذناه هنا.
+// بنود الفترة السريعة اللي مداها **كله** قبل بداية تشغيل المتجر بتتعطّل بدل
+// ما تفضل قابلة للضغط وترد برسالة رفض — "العام السابق" هو الحالة الحيّة
+// دلوقتي. البند اللي بيتقصّ جزئيًا بيفضل شغّال (بياخد الجزء الموجود).
+function markUnavailablePresets() {
+  document.querySelectorAll('.range-preset-item[data-preset]').forEach(el => {
+    const p = el.dataset.preset;
+    const unavailable = !computePresetRange(p);
+    el.classList.toggle('unavailable', unavailable);
+    el.title = unavailable ? `الفترة دي كلها قبل بداية تشغيل المتجر (${STORE_START_LABEL})` : '';
+  });
+}
+
 function initDateRange() {
   const DEFAULT_PRESET = 'today';
   const range = computePresetRange(DEFAULT_PRESET);
   activeRangePreset = DEFAULT_PRESET;
   state.rangeMode = DEFAULT_PRESET;
   state.range = range;
+  // الحد الأدنى على الحقلين نفسهم — التقويم مش بيسمح باختيار قبله أصلاً.
+  // (الكتابة اليدوية بتتقص في onRangeDateChange).
+  document.getElementById('rangeDateFrom').min = STORE_START_DATE;
+  document.getElementById('rangeDateTo').min   = STORE_START_DATE;
   document.getElementById('rangeDateFrom').value = range.from;
   document.getElementById('rangeDateTo').value   = range.to;
   document.querySelectorAll('.range-preset-item').forEach(el => el.classList.toggle('active', el.dataset.preset === DEFAULT_PRESET));
   document.getElementById('rangePresetLabel').textContent = `⚡ ${RANGE_PRESET_LABELS[DEFAULT_PRESET]}`;
   document.getElementById('rangePresetBtn').classList.add('has-preset');
+  markUnavailablePresets();
   activeMonthYm = null;
   renderMonthBoxes();
   updateRangeMeta();
@@ -2134,12 +2319,20 @@ function monthChunks(from, to) {
     const mm      = String(m).padStart(2, '0');
     const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
     const last    = `${y}-${mm}-${String(lastDay).padStart(2, '0')}`;
+    const first   = `${y}-${mm}-01`;
+    m++; if (m > 12) { m = 1; y++; }
+    // ⛔ حارس بداية تشغيل المتجر. النهارده STORE_START_DATE أول يوم في شهر،
+    // فالسطرين دول ما بيغيّروش أي حاجة. لكن لو اتنقل لنص شهر، شهر الحد كان
+    // هيتولّد بـ `-01` (قبل الحد) والـ Worker كان هيرفض النداء بـ 400 —
+    // وشهر بالكامل قبل الحد كان هيتسحب على الفاضي.
+    // ⚠️ القصّ هنا على **ثابت**، مش على حدود اختيار المستخدم: المفتاح بيفضل
+    // هو هو لكل فترة بتلمس شهر الحد، فقاعدة "ممنوع قصّ الـ chunk" سليمة.
+    if (last < STORE_START_DATE) continue;
     out.push({
-      ym: `${y}-${mm}`, from: `${y}-${mm}-01`, to: last,
+      ym: `${first.slice(0, 7)}`, from: first < STORE_START_DATE ? STORE_START_DATE : first, to: last,
       isOpen: last >= today, exact: false,
       lastUpdated: null, source: null, count: null,
     });
-    m++; if (m > 12) { m = 1; y++; }
   }
   return out;
 }
@@ -2204,9 +2397,12 @@ function updateRangeMeta() {
   const allBtn = document.getElementById('refreshAllBtn');
   if (allBtn) allBtn.style.display = chunks.length > 1 ? '' : 'none';
   const note = document.getElementById('rangeNote');
-  if (note) note.textContent = chunks.length > 3
-    ? `⚠️ الفترة ${fmtInt(chunks.length)} شهور — أول تحميل بيسحبهم شهر ورا شهر وبياخد دقايق. بعد كده التحديث بيسحب الشهر الحالي بس.`
-    : '';
+  if (note) {
+    const wide = chunks.length > 3
+      ? `⚠️ الفترة ${fmtInt(chunks.length)} شهور — أول تحميل بيسحبهم شهر ورا شهر وبياخد دقايق. بعد كده التحديث بيسحب الشهر الحالي بس.`
+      : '';
+    note.textContent = [rangeNotice, wide].filter(Boolean).join('  ·  ');
+  }
 }
 
 // ─── §DASH-JS::planChunks — الشبكة الهجينة (Step 3-د-١) ───
@@ -2247,7 +2443,7 @@ async function probeAndLoad() {
   try {
     // مجموعة موحّدة للفترتين — شهر مشترك بين الحالية والسابقة بيتسأل عنه مرة واحدة
     const probeSet = new Map();
-    [...monthChunks(cur.from, cur.to), ...monthChunks(prev.from, prev.to)]
+    [...monthChunks(cur.from, cur.to), ...(prev ? monthChunks(prev.from, prev.to) : [])]
       .forEach(c => { if (!probeSet.has(chunkKey(c))) probeSet.set(chunkKey(c), c); });
     const probeList = [...probeSet.values()];
 
@@ -2258,7 +2454,7 @@ async function probeAndLoad() {
     probeList.forEach((c, i) => metaByKey.set(chunkKey(c), metas[i] || null));
 
     state.chunks     = planChunks(cur,  metaByKey);
-    state.prevChunks = planChunks(prev, metaByKey);
+    state.prevChunks = prev ? planChunks(prev, metaByKey) : [];
 
     // البوابة بالتكلفة: الناقص من الفترتين مع بعض (بلا تكرار للمفتاح الواحد).
     // ⛔ الـ chunks الـ exact (المسار القصير من الشبكة الهجينة) **مستثناة من
@@ -2296,7 +2492,10 @@ async function loadData({ mode }) {
   const cur  = state.range;
   const prev = getPreviousRange(cur);
   if (!state.chunks || !state.chunks.length)     state.chunks     = monthChunks(cur.from, cur.to);
-  if (!state.prevChunks || !state.prevChunks.length) state.prevChunks = monthChunks(prev.from, prev.to);
+  // prev = null → مفيش فترة مقارنة خالص (كلها أو جزء منها قبل بداية المتجر).
+  // prevChunks بتفضل [] فـ gather بترجّع [] فالـ Δ بتختفي — من غير أي نداء.
+  if (!prev) state.prevChunks = [];
+  else if (!state.prevChunks || !state.prevChunks.length) state.prevChunks = monthChunks(prev.from, prev.to);
 
   // الفترة السابقة كاش-أولاً دايمًا — مقارنة Δ% بس، عمرها ما تستاهل سحب فورس.
   // نفس المفتاح لو اتكرر بين الفترتين بيتسحب **مرة واحدة**.
@@ -2352,9 +2551,9 @@ async function loadData({ mode }) {
 
     // الأطراف بتتفلتر هنا — الفترة المعروضة هي اختيار المستخدم بالظبط.
     state.rows          = visibleRows(gather(state.chunks, 'rows'), cur);
-    state.prevRows      = visibleRows(gather(state.prevChunks, 'rows'), prev);
+    state.prevRows      = prev ? visibleRows(gather(state.prevChunks, 'rows'), prev) : [];
     state.orderRows     = visibleRows(gather(state.chunks, 'orderRows'), cur);
-    state.prevOrderRows = visibleRows(gather(state.prevChunks, 'orderRows'), prev);
+    state.prevOrderRows = prev ? visibleRows(gather(state.prevChunks, 'orderRows'), prev) : [];
 
     // الملخّصات الجاية من الـ Worker بتوصف الـ chunk كامل، مش المعروض — فكلها
     // بتتحسب من الصفوف المرئية (computeBoxesFromRows / computeOrderBoxesFromRows /
