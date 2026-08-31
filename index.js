@@ -168,6 +168,28 @@
 //   ⚠️ صفر تغيير في أي منطق تصنيف — `computeBoxes`/`computeOrderBoxes`/
 //      `classifyOrderForCounts` ما اتلمسوش.
 //
+// v3.6.0 (31-08-2026): **STORE_START_DATE = 2026-05-01 — حد أدنى صلب للبيانات.**
+//   قرار أحمد 31-08-2026: المتجر ابتدى اشتغال في 01-05-2026، واللي قبل كده
+//   يتعامل معاه كأنه مش موجود. المسألة كانت مفتوحة في CLAUDE.md («مفيش
+//   STORE_START_DATE في الأداة دي … لو اتقرر، لازم يتحط في index.js **و**
+//   index.html في نفس التعديل») — اتقفلت هنا، والطبقتين اتعدّلوا مع بعض.
+//   1. `validateDateRange` بقى بيرفض أي `dateFrom` قبل الحد بـ 400 —
+//      choke point واحد بيغطّي `get_data` و`get_meta` مع بعض.
+//   2. ⛔ **قصّ صامت (clamp) للتاريخ مرفوض** — مفتاح الكاش هو **نصّ التاريخين
+//      حرفيًا** (CLAUDE.md · dashboard-builder Step 3-د-١)، فلو الـ Worker
+//      قصّ `2026-01-01→2026-05-31` لـ `2026-05-01→2026-05-31` يبقى إما كتب
+//      نفس المحتوى تحت مفتاحين (نسختين بتتحدّثوا مستقلين) أو ردّ على فترة
+//      **غير** اللي الواجهة سألت عنها فالـ probe بتاعها (`get_meta` بالتواريخ
+//      الأصلية) يفضل يقول "مش متكاش" للأبد. الرفض بصوت عالي أنضف من قصّ صامت.
+//      الواجهة هي اللي بتقصّ **قبل** ما تسأل، والحد هنا هو الحارس الأخير.
+//   3. `get_config` بقى بيرجّع `storeStartDate` — الواجهة بتقارنه بنسختها
+//      وبتحذّر لو الطبقتين اتفرّقوا (نشر ناقص لواحدة منهم).
+//   4. `diag` بقى فيه صف للحد.
+//   ⚠️ **صفر CACHE_VERSION bump** (فضلت v11): لا شكل الاستعلام ولا شكل الصف
+//      ولا أي منطق تصنيف اتغيّر. المفاتيح المتكاشة لفترات قبل الحد بقت غير
+//      مقروءة بس (الواجهة مش هتطلبها والـ Worker بيرفضها) وبتنتهي بالـ TTL
+//      لوحدها — bump هنا كان هيرمي كاش **صحيح** لكل الفترات بعد الحد بلا سبب.
+//
 // skills: worker-builder v1.1.0 · constants v1.2.0 · dashboard-builder v2.1.0 ·
 //         order-lifecycle v1.1.0 — 30-08-2026
 // ══════════════════════════════════════════════════════════════════
@@ -176,7 +198,7 @@
 // §CONSTANTS
 // ══════════════════════════════════════════════════════
 const TOOL_NAME     = 'performance_dashboard';
-const WORKER_VERSION = 'v3.5.0'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
+const WORKER_VERSION = 'v3.6.0'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
 const CACHE_VERSION = 'v11'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا) → v11(hasRE على كل صف أوردر — عشان الواجهة تحسب «كام أوردر فيه نشاط إرجاع/استبدال» لأي جزء من الفترة بعد التقسيم الشهري)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
@@ -196,6 +218,13 @@ const ROWS_MAX_DAYS = 45;
 function daysBetweenStr(a, b) {
   return Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / 86400000) + 1;
 }
+
+// §CONSTANTS::STORE_START_DATE — أول يوم تشغيل للمتجر (قرار أحمد 31-08-2026).
+// اللي قبل التاريخ ده **مش موجود** بالنسبة للأداة: مفيش سحب من شوبيفاي، مفيش
+// مفتاح كاش، ومفيش رقم على الشاشة.
+// ⚠️ نفس القيمة بالحرف موجودة في index.html (`STORE_START_DATE`). الطبقتين
+// **لازم** يتغيّروا مع بعض — عشان كده get_config بيرجّعها والواجهة بتقارنها.
+const STORE_START_DATE = '2026-05-01';
 
 // §CONSTANTS::S1 — قيم manual_status حرفياً (ecommoda-order-lifecycle §2 — casing load-bearing)
 // v2.0.0: أضاف القيم الوسيطة (Confirmed, Confirmed + Edit, Pending Edit,
@@ -330,6 +359,17 @@ function validateDateRange(dateFrom, dateTo) {
   }
   if (dateFrom > dateTo) {
     return 'تاريخ البداية بعد تاريخ النهاية';
+  }
+  // §HELPERS::STORE_START_DATE guard (v3.6.0) — الحارس الأخير للحد الأدنى.
+  // بيرفض بدل ما يقصّ: القصّ الصامت بيولّد مفتاحين لنفس المحتوى (أو رد على
+  // فترة غير المطلوبة فالـ probe يفضل يقول "مش متكاش") — شوف v3.6.0 فوق.
+  // الترتيب مقصود: dateFrom < dateTo مفحوصة فوق، فـ dateTo قبل الحد معناها
+  // الفترة **كلها** قبل بداية المتجر.
+  if (dateTo < STORE_START_DATE) {
+    return `الفترة كلها قبل بداية تشغيل المتجر (${STORE_START_DATE}) — مفيش بيانات قبل التاريخ ده`;
+  }
+  if (dateFrom < STORE_START_DATE) {
+    return `تاريخ البداية قبل بداية تشغيل المتجر (${STORE_START_DATE}) — الأداة مبتسحبش أي بيانات قبل التاريخ ده`;
   }
   return null;
 }
@@ -1439,7 +1479,7 @@ export default {
       // ─── §HANDLER::DIAG ────────────────────────────────────
       // worker-builder Step 5A ⑨ — إلزامي: diag + get_config
       if (action === 'get_config') {
-        return json({ ok: true, workerVersion: WORKER_VERSION, cacheVersion: CACHE_VERSION }, 200);
+        return json({ ok: true, workerVersion: WORKER_VERSION, cacheVersion: CACHE_VERSION, storeStartDate: STORE_START_DATE }, 200);
       }
 
       if (action === 'diag') {
@@ -1482,6 +1522,7 @@ export default {
           checks.push({ check: 'KV read', ok: false, detail: e.message });
         }
 
+        checks.push({ check: 'بداية تشغيل المتجر (STORE_START_DATE)', ok: true, detail: `${STORE_START_DATE} — أي فترة قبلها بتترفض بـ 400. لازم تطابق نفس الثابت في index.html` });
         checks.push({ check: 'Origin', ok: true, detail: request.headers.get('Origin') || '(بدون)' });
 
         return json({ ok: checks.every(c => c.ok), workerVersion: WORKER_VERSION, checks }, 200);
