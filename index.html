@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- skills: html-builder v2.2.0 · dashboard-builder v2.1.0 · order-lifecycle v1.1.0 · constants v1.4.1 — 01-09-2026 -->
+<!-- skills: html-builder v6.0.0 · dashboard-builder v3.1.0 · order-lifecycle v1.2.0 · constants v1.4.3 — 01-09-2026 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة الأداء — EcomModa</title>
@@ -820,8 +820,8 @@
     </div>
 
     <div class="app-header-btns">
-      <button class="hbtn" id="verMismatchBtn" style="display:none;border-color:var(--amber);color:var(--amber);background:var(--amber-light);"
-              onclick="showVersionMismatch()">⚠️ نسخة الـ Worker مختلفة</button>
+      <button class="hbtn" id="verStaleBtn" style="display:none;border-color:var(--amber);color:var(--amber);background:var(--amber-light);"
+              onclick="showWorkerStale()">⚠️ الـ Worker نسخة قديمة</button>
       <button class="hbtn active-user" id="activeUserBtn" onclick="doLogout()">👤 —</button>
       <button class="hbtn" id="aboutBtn" onclick="openAbout()">ℹ️ عن الأداة</button>
       <button class="hbtn ver-btn" id="verBtn" onclick="openChangelog()"></button>
@@ -1051,6 +1051,15 @@
     <div class="eco-modal-body">
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">01-09-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>الهيدر وشريط التابات كانوا لسه بيرفرفوا عند التمرير البطيء.</b> قفل الهيدر بيقلّل ارتفاعه، والمتصفح بيعوّض الفرق ده من موضع التمرير نفسه — فالقفل كان بيرجّع الصفحة لفوق، والرجوع لفوق بيفتح الهيدر تاني، واللوب يفضل ماشي. الحل إن الأداة بقت <b>بتقيس</b> فرق الارتفاع الفعلي وقت التحميل وتبني عليه مسافة الأمان بدل رقم ثابت مكتوب في الكود. القياس بيتعاد لوحده لو عرض الشاشة اتغيّر.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>تحذير نسخة الـ Worker كان بيولّع على طول من غير سبب.</b> كان بيقارن رقم نسخة الواجهة برقم نسخة الـ Worker — وهما رقمان <b>مستقلان عن قصد</b> في الأداة دي، فاختلافهم هو الوضع الطبيعي. النتيجة تحذير دايم اتعوّد الكل يتجاهله، فالحالة الحقيقية (نشر ناقص أو رجوع لنسخة قديمة) كانت هتعدّي بلا أي إشارة. دلوقتي التحذير بيولّع <b>بس</b> لو الـ Worker المنشور أقدم من أقل نسخة الواجهة بتشتغل معاها.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الضغط على مربّع الشهر بقى بيقرا الكاش لو عمره أقل من ١٥ دقيقة</b> بدل ٥. الكاش عمره ١٥ دقيقة أصلاً، فالضغطة في الخمس-عشر دقيقة دي كانت بتعمل دورة سحب كاملة من شوبيفاي وترجّع <b>نفس</b> الأرقام. اللي عايز سحب فوري مضمون يستخدم <b>زرار التحديث</b> — بيفرض السحب دايمًا بلا أي حارس.</span></li>
+        </ul>
+      </div>
+
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.7.0</span><span class="cl-ver-date">01-09-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>أوردرات أول ٣ ساعات في اليوم كانت بتتحسب على اليوم اللي قبله.</b> الفلترة اللي بتقصّ أطراف الفترة كانت بتقرا تاريخ الأوردر بتوقيت جرينتش، بينما الفترة اللي إنت مختارها والتاريخ اللي ظاهر في الجدول الاتنين بتوقيت القاهرة — يعني أوردر اتعمل ١ بالليل يوم ٥ كان بيتعدّ يوم ٤ ويختفي من يوم ٥. الأثر كان على <b>كل رقم على الشاشة</b> (الكروت والدونات والتحذيرات كلها بتتحسب من نفس الصفوف). دلوقتي المقارنة بتوقيت القاهرة زي شوبيفاي بالظبط.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>خانتَي "WORKER URL" و"ADMIN WORKER URL" اتشالوا من الإعدادات.</b> الرابطين بقوا مكتوبين في الأداة نفسها — مش سر أصلاً (الحماية في الـ SECRET)، وكان معناهم خطوة إعداد زيادة على كل موظف واحتمال رابط متكتب غلط. <b>WORKER SECRET</b> وحده هو اللي فضل في الإعدادات. الرابط لسه بيتعرض للقراءة تحت السر عشان الدعم يشوفه.</span></li>
@@ -1443,7 +1452,7 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 حقل "فيه نشاط إرجاع/استبدال" للصف  │ Worker │ §AGGREGATE-ORDERS │ pushOrderRow (hasRE)
 مسح النوم الثابت بين الدفعات        │ Worker │ §SHOPIFY   │ fetchStage1 / fetchStage2
 زرار الفحص الذاتي 🩺                │ HTML   │ §SHELL-JS  │ runDiag (→ ?action=diag)
-تحذير اختلاف نسخة الـ Worker        │ HTML   │ §SHELL-JS  │ checkWorkerVersion / showVersionMismatch (→ ?action=get_config)
+تحذير نسخة الـ Worker              │ HTML   │ §SHELL-JS  │ checkWorkerVersion / showWorkerStale / cmpVersion (→ ?action=get_config)
 ─────────────────────────────────────────────────────  v3.6.0 (31-08-2026)
 بداية تشغيل المتجر — حد أدنى صلب   │ Worker │ §CONSTANTS │ STORE_START_DATE (+ validateDateRange)
 نفس الحد في الواجهة (قصّ قبل السؤال)│ HTML   │ §CONFIG    │ STORE_START_DATE / STORE_START_YM
@@ -1455,6 +1464,10 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 ─────────────────────────────────────────────────────  v3.7.0 (01-09-2026)
 فلترة الأطراف بتوقيت القاهرة       │ HTML   │ §DASH-JS   │ visibleRows (cairoDateStr + toCairo)
 رابط الـ Worker constant مش إعداد   │ HTML   │ §CONFIG    │ WORKER_URL / ADMIN_WORKER_URL
+─────────────────────────────────────────────────────  v3.8.0 (01-09-2026)
+باند قفل الهيدر **مقيس** مش ثابت   │ HTML   │ §STICKY-JS │ measureSticky / stickyDelta / STICK_ON (let)
+حارس نسخة الـ Worker = حد أدنى     │ HTML   │ §CONFIG · §SHELL-JS │ MIN_WORKER_VERSION / cmpVersion / showWorkerStale / verStaleBtn
+حارس حداثة مربّع الشهر = TTL_OPEN  │ HTML   │ §DASH-JS   │ MONTH_BOX_FRESH_MINS (5 → 15)
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1468,10 +1481,12 @@ LS_SECRET = 'perfdash_worker_secret'  ← **مفتاح الـ localStorage ال�
                    (`perfdash_worker_url` و`admin_worker_url` بيتمسحوا مرة
                    واحدة عند التحميل — بقايا من قبل #28)
 TOOL_VERSION            = نسخة الواجهة (مصدر واحد — الهيدر + شاشة الدخول + الـ Changelog)
-EXPECTED_WORKER_VERSION = نسخة الـ Worker اللي الواجهة دي اتكتبت عليها.
-  ⚠️ **مش** نفس TOOL_VERSION — الاتنين مستقلين عن قصد في الأداة دي. تحذير
-  الهيدر بيقارن الـ Worker المنشور بالقيمة دي (بيكشف Promote ناقص)، مش
-  بـ TOOL_VERSION (اللي اختلافه عن الـ Worker طبيعي ومقصود).
+MIN_WORKER_VERSION      = **أقل** نسخة Worker الواجهة دي بتشتغل معاها ('3.6.0'
+  — النسخة اللي ضافت storeStartDate في get_config). ⚠️ **مالهاش أي علاقة بـ
+  TOOL_VERSION** ومتزامنهاش معاه. تحذير الهيدر بيولّع بس لو الـ Worker المنشور
+  **أقدم** منها (cmpVersion رقمية) — يعني rollback أو بناء فاشل أو Promote
+  ناقص. ⚠️ صيانة: أي endpoint/حقل جديد الواجهة تعتمد عليه → ارفعها لنسخة
+  الـ Worker بتاعته في نفس التسليم.
 state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
                 qty, value, bucket, s1, s2, note, cycleNote }, ...]
                 note      = تشخيص السطر  (REDELIVERY / FULFIL_MISM)
@@ -1498,8 +1513,9 @@ v3.5.0 — KEY VARIABLES (التقسيم الشهري)
 GATE_MIN_MISSING_MONTHS = 1 — شهر واحد ناقص بيتحمّل تلقائيًا؛ البوابة من
   شهرين فما فوق. البوابة **بالتكلفة مش بوجود نقص**: مفتاح الـ meta بياخد نفس
   TTL الـ data، والشهر المفتوح ١٥ دقيقة — فـ"ناقص" هو الوضع الطبيعي.
-MONTH_BOX_FRESH_MINS = 5 — حارس حداثة الضغطة على مربّع الشهر: أقل من كده
-  بيقرا من الكاش بدل دورة GraphQL كاملة.
+MONTH_BOX_FRESH_MINS = 15 — حارس حداثة الضغطة على مربّع الشهر: أقل من كده
+  بيقرا من الكاش بدل دورة GraphQL كاملة. ⚠️ العتبة = TTL_OPEN في الـ Worker
+  (٩٠٠ ثانية)، مش رقم حر — تحتها الكاش لسه حي والرد هيبقى نفس الرد.
 SHORT_RANGE_MAX_DAYS = 31 — الشبكة **هجينة**: فترة أقصر من كده ومش على حدود
   شهر وشهرها مش متكاش → بتتسحب بمفتاحها هي بدل شهر كامل (والبوابة ممنوعة
   عليها). لو شهرها متكاش أصلاً → بتتقرا منه وتتفلتر محليًا.
@@ -1571,8 +1587,12 @@ NOTES
   الـ chunk على حدود الاختيار بيكسر ده ويولّد مفتاح يتيم جديد كل يوم.
 - ⚠️ **الضغط على مربّع الشهر بيسحب من شوبيفاي مباشرة** — الاستثناء الموثّق
   الوحيد من قاعدة "التحديث بزرار أو تغيير فترة بس". ومعاه حارس حداثة
-  (MONTH_BOX_FRESH_MINS): كاش أطزج من ٥ دقايق بيتقرا بدل سحب جديد. أي مصدر
-  تاني لتغيير الفترة (preset · شهر محدد · تعديل يدوي) لسه كاش-أولاً.
+  (MONTH_BOX_FRESH_MINS = TTL_OPEN = ١٥ دقيقة): كاش أطزج من كده بيتقرا بدل
+  سحب جديد. ⚠️ والأثر إن المربّع بقى **كاش-أولاً فعليًا على الشهر المفتوح**
+  (مفتاح موجود = عمره بالتعريف أقل من TTL بتاعه)، والسحب الفوري بقى مسؤولية
+  زرار التحديث (mode:'open' — بيفرض دايمًا بلا حارس). على الشهور المقفولة
+  (TTL ٦/٢٤ ساعة) الاستثناء قايم زي ما هو. أي مصدر تاني لتغيير الفترة
+  (preset · شهر محدد · تعديل يدوي) لسه كاش-أولاً.
 - ⚠️ **get_data بالتسلسل و get_meta بالتوازي** — مش تناقض: التاني قراءة KV
   بحتة مبتلمسش شوبيفاي ومش بتتحسب في سقف الـ subrequests.
 - ⚠️ **شهر واحد بيفشل = التحميل كله بيفشل ومفيش أي رقم بيتعرض** — والرسالة
@@ -1643,11 +1663,18 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.7.0';
-// نسخة الـ Worker اللي الواجهة دي اتكتبت عليها — **مش** نفس TOOL_VERSION.
-// الاتنين مستقلين عن قصد في الأداة دي (CLAUDE.md)، فالمقارنة لازم تبقى مع
-// القيمة دي عشان تكشف Promote ناقص بدل ما تحذّر من اختلاف ترقيم مقصود.
-const EXPECTED_WORKER_VERSION = 'v3.6.1';
+const TOOL_VERSION = 'v3.8.0';
+// ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
+// **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
+// 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
+// رقمين **مستقلين بالتصميم** — والاختلاف بينهم وضع طبيعي وموثّق في CLAUDE.md.
+// النتيجة إن التحذير كان بيولّع على أي فرق ترقيم مقصود، والموظف بيتعوّد
+// يتجاهله، فالحالة اللي الزرار موجود عشانها (Worker متجمّد بعد rollback أو
+// بناء فاشل أو Promote ناقص) بقت بلا إشارة. حماية وهمية أسوأ من مفيش حماية.
+// القيمة = نسخة الـ Worker اللي ضافت أحدث حاجة الواجهة معتمدة عليها:
+// `storeStartDate` في `get_config` (v3.6.0). ⚠️ صيانة: أي endpoint/حقل جديد
+// الواجهة تعتمد عليه → ارفع القيمة دي لنسخة الـ Worker بتاعته في نفس التسليم.
+const MIN_WORKER_VERSION = '3.6.0';
 let workerLiveVersion = '';
 let workerLiveStoreStart = '';
 
@@ -1781,39 +1808,59 @@ async function runDiag() {
   } finally { btn.disabled = false; }
 }
 
-// ─── §SHELL-JS::checkWorkerVersion ───
-// ⚠️ المقارنة مع EXPECTED_WORKER_VERSION **مش** مع TOOL_VERSION: نسخة الـ Worker
-// ونسخة الواجهة في الأداة دي مستقلتين عن قصد وطبيعي يختلفوا (CLAUDE.md). اللي
-// بيتفحص هنا هو "الـ Worker المنشور هو اللي الواجهة دي اتكتبت عليه؟" — بيكشف
-// Promote ناقص أو Worker شبح، مش اختلاف ترقيم مقصود.
+// ─── §SHELL-JS::cmpVersion — مقارنة رقمية، مش نصية ───
+// "10" أصغر من "9" لو اتقارنوا كنص — ودي بالظبط الحالة اللي بتخلي حارس
+// النسخة يسكت في اللحظة اللي المفروض يتكلم فيها.
+function cmpVersion(a, b) {
+  const pa = String(a).replace(/^v/, '').split('.').map(Number);
+  const pb = String(b).replace(/^v/, '').split('.').map(Number);
+  for (let i = 0; i < 3; i++) {
+    const d = (pa[i] || 0) - (pb[i] || 0);
+    if (d) return d;
+  }
+  return 0;
+}
+
+// ─── §SHELL-JS::checkWorkerVersion (Standards #29) ───
+// السؤال الصح مش «النسختين متطابقتين؟» — ده اختلاف طبيعي هنا — لكن
+// **«الـ Worker جديد كفاية للصفحة دي؟»**. فالتحذير بيولّع بس لو الـ Worker
+// المنشور **أقدم** من MIN_WORKER_VERSION، يعني rollback أو بناء فاشل أو
+// Promote ناقص.
 async function checkWorkerVersion() {
   if (!isConfigured()) return;
   try {
     const res = await apiGet('get_config');
-    const live = res.workerVersion || '';
-    const btn  = document.getElementById('verMismatchBtn');
+    const btn = document.getElementById('verStaleBtn');
     if (!btn) return;
-    workerLiveVersion = live;
+    workerLiveVersion = res.workerVersion || '';
     // ⚠️ STORE_START_DATE لازم يبقى **نفس القيمة** في الطبقتين. لو الواجهة
     // اتنشرت والـ Worker لأ (أو العكس)، الأداة بتفضل شكلها سليم بينما
-    // الفلترة بتحصل في طبقة واحدة بس — فالاختلاف بيتحسب mismatch زيه زي
-    // اختلاف النسخة، ونفس الزرار بيوضّحه.
+    // الفلترة بتحصل في طبقة واحدة بس. ⚠️ ودي **مش** مقارنة نسخة: القيمة
+    // ثابت متعاقد عليه لازم يتطابق بالحرف، فمقارنته بالتساوي مابتولّعش تحذير
+    // كاذب — العكس، غيابها هو اللي بيسيب نشر نص الطبقة بلا أي إشارة.
     workerLiveStoreStart = res.storeStartDate || '';
-    const verMismatch   = !!live && live !== EXPECTED_WORKER_VERSION;
+    const stale         = !!workerLiveVersion && cmpVersion(workerLiveVersion, MIN_WORKER_VERSION) < 0;
     const startMismatch = !!workerLiveStoreStart && workerLiveStoreStart !== STORE_START_DATE;
-    btn.style.display = (verMismatch || startMismatch) ? '' : 'none';
+    // الليبل بيتكتب وقت العرض بس — علشان الزرار المخفي ما يفضلش شايل نص
+    // آخر حالة اتفحصت (نص كاذب على عنصر مخفي بيلخبط أي فحص بعدين).
+    if (stale || startMismatch) {
+      btn.textContent = stale ? '⚠️ الـ Worker نسخة قديمة' : '⚠️ إعدادات الـ Worker مختلفة';
+      btn.style.display = '';
+    } else {
+      btn.style.display = 'none';
+    }
   } catch { /* الفحص ده مساعد — فشله ما يوقفش الأداة */ }
 }
-function showVersionMismatch() {
+function showWorkerStale() {
   const lines = [];
-  if (workerLiveVersion && workerLiveVersion !== EXPECTED_WORKER_VERSION) {
-    lines.push(`الـ Worker المنشور بيقول إنه ${workerLiveVersion}، والواجهة دي اتكتبت على ${EXPECTED_WORKER_VERSION}.`);
+  if (workerLiveVersion && cmpVersion(workerLiveVersion, MIN_WORKER_VERSION) < 0) {
+    lines.push(`الـ Worker نسخته ${workerLiveVersion} والواجهة محتاجة ${MIN_WORKER_VERSION} على الأقل.`);
   }
   if (workerLiveStoreStart && workerLiveStoreStart !== STORE_START_DATE) {
     lines.push(`بداية تشغيل المتجر مختلفة بين الطبقتين — الـ Worker: ${workerLiveStoreStart} · الواجهة: ${STORE_START_DATE}.`);
   }
   alert((lines.join('\n') || 'فيه اختلاف بين الواجهة والـ Worker المنشور.')
-      + '\n\nيعني على الأغلب فيه نشر ناقص (Promote) أو نسخة قديمة شغّالة. راجع Cloudflare → Workers → performance-dashboard-worker.');
+      + '\n\nالتحديث على ما يبدو ما نزلش. راجع Cloudflare → Workers → performance-dashboard-worker → Deployments و Promote.');
 }
 
 function openChangelog()  { document.getElementById('changelogOverlay').classList.add('open'); }
@@ -2145,6 +2192,10 @@ function resetRangePresetUI() {
 // ⚠️ ومعاه **حارس حداثة** (Step 3-د-٣): من غيره التنقّل بين الشهور للمقارنة
 // بيسحب الشهر كامل في كل ضغطة — أغسطس ← يوليو ← أغسطس = تلات دورات GraphQL
 // كاملة في دقيقة، الأخيرة بلا أي فايدة.
+// ⚠️ v3.8.0: العتبة بقت = TTL_OPEN (١٥ دقيقة) بدل ٥ — فعلى **الشهر المفتوح**
+// المربّع بقى كاش-أولاً فعليًا (مفتاح موجود = عمره بالتعريف أقل من TTL بتاعه)،
+// والسحب الفوري بقى مسؤولية زرار التحديث (refreshData → mode:'open'، بيفرض
+// دايمًا بلا حارس). على الشهور المقفولة (TTL ٦/٢٤ ساعة) الاستثناء قايم زي ما هو.
 async function selectMonthBox(ym) {
   if (!currentEmployee || state.loading) return;
   activeMonthYm = ym;
@@ -2335,8 +2386,12 @@ function initDateRange() {
 // "تطبيق" إجباري في كل فتح للأداة، واللي فلتر التاريخ الموحّد شايله عمدًا
 // (date-range-filter.md §1 و§5).
 const GATE_MIN_MISSING_MONTHS = 1;
-// حارس حداثة مربّع الشهر (Step 3-د-٣): أقل من كده = اقرا من الكاش بدل سحب كامل.
-const MONTH_BOX_FRESH_MINS    = 5;
+// حارس حداثة مربّع الشهر (Step 3-د-٣ · dashboard-builder v3.1.0). العتبة =
+// **TTL_OPEN في الـ Worker** (٩٠٠ ثانية = ١٥ دقيقة)، مش رقم حر: تحتها الكاش
+// لسه حي وصالح، فالضغطة كانت بتفرض دورة GraphQL كاملة ترجّع **نفس** الصفوف
+// المتكاشة. لازم يتغيّر مع TTL_OPEN لو اتغيّر.
+// ⛔ وممنوع "علاج" التناقض بتقصير TTL_OPEN — بيزوّد السحب بدل ما يقلله.
+const MONTH_BOX_FRESH_MINS    = 15;
 // الشبكة **هجينة** (Step 3-د-١، الخيار التالت "الأفضل"): الأداة دي افتراضها
 // `اليوم`، فإخضاعها لشبكة شهرية مطلقة معناه سحب شهر كامل عشان تعرض يوم وإعادته
 // كل ربع ساعة — تراجع مش تحسين. القاعدة المطبّقة:
@@ -2883,10 +2938,40 @@ function switchMainTab(page) {
 // ══════════════════════════════════════════════════════
 const TAB_IDS = ['main', 'orders'];
 
-// ── Sticky/compact toggle (Hysteresis + rAF throttle — راجع ecommoda-html-builder references/tabs-and-modals.md § 1b) ──
-const STICK_ON  = 40;
-const STICK_OFF = 12;
-let stickyRafPending = false;
+// ── Sticky/compact toggle (Hysteresis **مقيسة** + rAF throttle — راجع
+//    ecommoda-html-builder references/tabs-and-modals.md § 1b · Standards #33) ──
+// 🔴 v3.8.0: العتبتين الثابتتين (12/40) كانوا **لسه بيرفرفوا**. السبب إن قفل
+// الهيدر بيقلّل ارتفاعه **فوق منطقة العرض**، والمتصفح (scroll anchoring) بيحافظ
+// على المحتوى مكانه فبيطرح فرق الارتفاع من scrollY نفسه:
+//   y=42 → يقفل → الهيدر يقلّ (فرق عشرات البكسلات) → scrollY يرتد لـ ~0
+//        → 0 < STICK_OFF → يفتح → scrollY يرجع 42 → يقفل → … لوب
+// يعني الفعل بيحرّك شرطه بقفزة أكبر من الباند كله، والـ rAF بيبطّأ اللوب مش
+// بيمنعه. والفرق ده بيختلف من أداة لأداة حسب الهيدر — **فمينفعش يتكتب رقم
+// ثابت، لازم يتقاس**.
+const STICK_OFF = 12;              // تحت الرقم ده يترجع مفتوح
+let STICK_ON = 140;                // بيتحسب من الارتفاع الفعلي — دي قيمة مبدئية آمنة بس
+let stickyDelta = 0, stickyW = 0, stickyRafPending = false;
+
+// بيقيس كام بكسل ارتفاع الهيدر بيقلّ لما يتقفل — والقياس ده هو اللي بيحدد عرض
+// الـ hysteresis، لأن نفس الفرق بيرتد على scrollY وقت القفل. التبديل جوّه الدالة
+// بيحصل والترانزيشن مطفي وفي نفس الفريم — مفيش paint بين القراءتين.
+function measureSticky() {
+  const stickyWrap = document.getElementById('stickyWrap');
+  if (!stickyWrap) return;
+  const wasStuck = stickyWrap.classList.contains('stuck');
+  const nodes = [stickyWrap, ...stickyWrap.querySelectorAll('*')];
+  const prev  = nodes.map(n => n.style.transition);
+  nodes.forEach(n => n.style.transition = 'none');
+  stickyWrap.classList.remove('stuck');  const open = stickyWrap.offsetHeight;
+  stickyWrap.classList.add('stuck');     const shut = stickyWrap.offsetHeight;
+  stickyWrap.classList.toggle('stuck', wasStuck);
+  stickyWrap.offsetHeight;                                  // reflow قبل رجوع الترانزيشن
+  nodes.forEach((n, i) => n.style.transition = prev[i]);
+  stickyDelta = Math.max(0, open - shut);
+  STICK_ON = Math.max(40, stickyDelta + STICK_OFF + 24);    // ← الباند أوسع من الارتداد
+  stickyW = window.innerWidth;
+}
+
 function onPageScroll() {
   if (stickyRafPending) return;
   stickyRafPending = true;
@@ -2901,6 +2986,16 @@ function onPageScroll() {
   });
 }
 window.addEventListener('scroll', onPageScroll, { passive: true });
+
+// ⚠️ إعادة القياس على تغيّر **العرض** بس. ارتفاع الشاشة بيتغيّر عشرات المرات على
+// الموبايل (شريط عنوان المتصفح بيطلع وينزل)، والقياس بيلمس الكلاس — فربطه بالـ
+// resize الخام بيعمل رفرفة بنفسه.
+let stickyResizeTimer;
+window.addEventListener('resize', () => {
+  if (window.innerWidth === stickyW) return;
+  clearTimeout(stickyResizeTimer);
+  stickyResizeTimer = setTimeout(measureSticky, 150);
+});
 
 function updateTabChip() {
   const label = document.getElementById(state.activePage === 'main' ? 'mainTabMain' : 'mainTabOrders').textContent.trim();
@@ -4602,6 +4697,9 @@ renderVersionUI();
 initDateRange();
 buildTabChipMenu();
 updateTabChip();
+// ⚠️ **بعد** رسم التابات والـ chip — قبلها ارتفاع الهيدر لسه مش نهائي فالقياس
+// بيطلع غلط والباند بيرجع ضيق (§ 1b).
+measureSticky();
 loadEmployeesList();
 checkWorkerVersion();
 // ⚠️ التحميل بقى بعد الدخول (finishLogin) مش هنا — v3.5.0. قبل كده كانت دورة
