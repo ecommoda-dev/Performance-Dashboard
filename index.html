@@ -322,6 +322,11 @@
   @media (max-width: 1400px) { .kpi-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
   @media (max-width: 760px)  { .kpi-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
   @media (max-width: 460px)  { .kpi-grid { grid-template-columns: 1fr; } }
+  /* تاب المحافظات = ٤ كروت. مودِفاير بمُحدِّد أقوى (كلاسين) فبيغلب قواعد
+     .kpi-grid جوّه كل الـ media queries فوق مهما كان الترتيب. */
+  .kpi-grid.kpi-grid-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  @media (max-width: 1100px) { .kpi-grid.kpi-grid-4 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 560px)  { .kpi-grid.kpi-grid-4 { grid-template-columns: 1fr; } }
   .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 14px; cursor: pointer; transition: box-shadow .15s, transform .1s; min-width: 0; }
   .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.09); transform: translateY(-1px); }
   .kpi-card.drill-active { box-shadow: 0 0 0 2px var(--accent); }
@@ -625,6 +630,42 @@
   .legend-desc { color: var(--text-muted); }
   .legend-desc b { color: var(--text); }
   .details-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
+
+  /* ── §GEO — تاب المحافظات والمناطق (v3.9.0) ── */
+  .kpi-card-static { cursor: default; }
+  .kpi-card-static:hover { box-shadow: var(--shadow); transform: none; }
+  /* قيمة نصية (اسم محافظة) بدل رقم — الخط الرقمي و direction:ltr بيبوّظوا العربي */
+  .geo-value-text { font-family: var(--font-body); direction: rtl; font-size: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .geo-section-hdr { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 22px 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
+  .geo-section-hdr .kpi-icon { font-size: 16px; }
+  .geo-section-sub { font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
+  .geo-section-sub code { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  .geo-table-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; margin-bottom: 20px; }
+  .geo-table-note { padding: 9px 14px; font-size: 11.5px; color: var(--text-muted); border-bottom: 1px solid var(--border); background: var(--surface-2); line-height: 1.6; }
+  .geo-table-note b { color: var(--text-secondary); }
+  .geo-table tbody tr { cursor: pointer; }
+  .geo-table .geo-name { text-align: start; font-weight: 700; white-space: nowrap; }
+  .geo-table .geo-name .chart-legend-dot { display: inline-block; vertical-align: -1px; margin-inline-end: 6px; }
+  .geo-table .geo-name-th { text-align: start; }
+  .geo-table .geo-strong { font-weight: 800; }
+  /* الرقم فوق ونسبته تحته في نفس الخلية — الخمس أعمدة الأخيرة بيجمعوا 100% */
+  .geo-table .geo-n   { display: block; font-family: var(--font-mono); direction: ltr; font-weight: 700; }
+  .geo-table .geo-pct { display: block; font-family: var(--font-mono); direction: ltr; font-size: 10.5px; color: var(--text-muted); }
+  .geo-table .clr-muted { color: var(--text-muted); }
+  .geo-share { width: 100%; min-width: 54px; height: 5px; background: var(--surface-2); border-radius: 3px; overflow: hidden; margin-bottom: 3px; }
+  .geo-share-fill { height: 100%; background: var(--accent); border-radius: 3px; }
+  .geo-table thead th.geo-sortable { cursor: pointer; user-select: none; }
+  .geo-table thead th.geo-sortable:hover { background: var(--accent-light); color: var(--accent); }
+  .geo-table thead th.is-sorted { color: var(--accent); }
+  .geo-sort-arrow { font-size: 8.5px; margin-inline-start: 3px; }
+  .geo-table tbody tr.geo-row-active { background: var(--accent-light); }
+  .geo-table tbody tr.geo-row-active:hover { background: var(--accent-light); }
+  .geo-table tfoot .geo-total-row td { background: var(--surface-2); border-top: 2px solid var(--border-strong); font-weight: 800; cursor: default; }
+  /* بانر أحمر — الحالة اللي التاب فيها معطّل فعليًا (نسخة Worker قديمة أو
+     صلاحية عنوان ناقصة)، متميّز عن التحذير الكهرماني العادي */
+  .warn-note-red { background: #fef2f2 !important; border-color: #fecaca !important; color: #991b1b !important; }
+  .warn-note-red code { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; }
+
   .details-placeholder { padding: 30px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
   .details-more { padding: 10px; text-align: center; }
 
@@ -835,6 +876,7 @@
   <div class="main-tabs-bar" id="mainTabsBar">
     <button class="main-tab-btn active" id="mainTabMain" onclick="switchMainTab('main')">💰 المبيعات</button>
     <button class="main-tab-btn" id="mainTabOrders" onclick="switchMainTab('orders')">📦 الأوردرات</button>
+    <button class="main-tab-btn" id="mainTabGeo" onclick="switchMainTab('geo')">🗺️ المحافظات</button>
   </div>
 
   </div><!-- /.sticky-header-wrap -->
@@ -1052,6 +1094,12 @@
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">01-09-2026</span></div>
         <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تاب «🗺️ المحافظات»</b> — تحليل كامل لكل محافظة في الفترة المختارة: عدد الأوردرات · صافي المبيعات وحصتها من الإجمالي · إجمالي القيمة · الفاقد · وتقسيمة التسليمات مقابل المرتجعات والإلغاءات وقيد التنفيذ وخارج التصنيف. الأعمدة قابلة للترتيب، والضغط على أي محافظة بيعرض أوردراتها في جدول تحت. ومعاه دونات لتوزيع الأوردرات وعمود لأعلى ١٠ محافظات بصافي المبيعات.
+            <br>⚠️ المحافظة بتتقرا من <b>عنوان الشحن</b> (<code>province</code>) — <b>مش</b> المدينة: المدينة حقل حر بيكتبه العميل («6اكتوبر» · «القاهرة» · «فيصل» كلهم في نفس الأوردرات)، فالتجميع عليها كان هيولّد عشرات المجموعات لنفس المحافظة.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>قسم «🚚 مناطق التوزيع» في نفس التاب</b> — نفس التحليل بالظبط على ميتافيلد الأوردر <code>custom.zone</code> بتسمياته العربية: <b>قاهرة وجيزة (مناديب)</b> · <b>محافظات (بوسطة)</b> · <b>شو روم</b> · <b>غير محدد</b>. الأوردر اللي الميتافيلد مش متكتب عليه خالص بيتحسب مع «غير محدد»، وأي قيمة برّه الأربعة بتتعرض <b>خام</b> بدل ما تتبلع في دلو «أخرى».
+            <br>⚠️ المنطقة بتتكتب يدويًا ومش مشتقة من العنوان — فالجدولين <b>بُعدين مستقلين</b>، مش نسختين من نفس الرقم.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>(Worker) كل صف بقى فيه المحافظة والمنطقة.</b> نفس مبدأ باقي الأرقام في الأداة: الحقلان على <b>الصف</b> مش رقم مجمّع جاهز، عشان يتحسبوا صح لأي جزء من الفترة بعد التقسيم الشهري. <code>CACHE_VERSION</code> اترفع من <code>v11</code> لـ <code>v12</code> — أول فتح لكل شهر بعد النشر هيسحب من شوبيفاي من الأول (مرة واحدة).</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>الفحص الذاتي (diag) بقى بيفحص قراءة المحافظة والمنطقة.</b> <code>shippingAddress</code> هو الحقل الوحيد في الاستعلام اللي ممكن يرجع <code>null</code> <b>بصمت</b> لو صلاحية بيانات العملاء المحمية ناقصة — من غير أي خطأ من شوبيفاي، وكل المحافظات تبقى «غير محدد». التاب نفسه بيولّع بانر أحمر صريح لو الحالة دي حصلت.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>الهيدر وشريط التابات كانوا لسه بيرفرفوا عند التمرير البطيء.</b> قفل الهيدر بيقلّل ارتفاعه، والمتصفح بيعوّض الفرق ده من موضع التمرير نفسه — فالقفل كان بيرجّع الصفحة لفوق، والرجوع لفوق بيفتح الهيدر تاني، واللوب يفضل ماشي. الحل إن الأداة بقت <b>بتقيس</b> فرق الارتفاع الفعلي وقت التحميل وتبني عليه مسافة الأمان بدل رقم ثابت مكتوب في الكود. القياس بيتعاد لوحده لو عرض الشاشة اتغيّر.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>تحذير نسخة الـ Worker كان بيولّع على طول من غير سبب.</b> كان بيقارن رقم نسخة الواجهة برقم نسخة الـ Worker — وهما رقمان <b>مستقلان عن قصد</b> في الأداة دي، فاختلافهم هو الوضع الطبيعي. النتيجة تحذير دايم اتعوّد الكل يتجاهله، فالحالة الحقيقية (نشر ناقص أو رجوع لنسخة قديمة) كانت هتعدّي بلا أي إشارة. دلوقتي التحذير بيولّع <b>بس</b> لو الـ Worker المنشور أقدم من أقل نسخة الواجهة بتشتغل معاها.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الضغط على مربّع الشهر بقى بيقرا الكاش لو عمره أقل من ١٥ دقيقة</b> بدل ٥. الكاش عمره ١٥ دقيقة أصلاً، فالضغطة في الخمس-عشر دقيقة دي كانت بتعمل دورة سحب كاملة من شوبيفاي وترجّع <b>نفس</b> الأرقام. اللي عايز سحب فوري مضمون يستخدم <b>زرار التحديث</b> — بيفرض السحب دايمًا بلا أي حارس.</span></li>
@@ -1264,7 +1312,7 @@
       <details class="about-sec" open>
         <summary>📋 وصف الأداة</summary>
         <div class="about-sec-body">
-          <p>داشبورد فيه تابين: <b>المبيعات</b> (اسمها القديم "الرئيسية") بتجاوب "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. و<b>الأوردرات</b> بتجاوب "كام أوردر في كل مرحلة؟" — عدّ أوردرات مش جنيه. التابين بيشتركوا في نفس فلتر التاريخ ونفس نداء <code>get_data</code> — التبديل بينهم فوري من غير أي تحميل إضافي.</p>
+          <p>داشبورد فيه تلات تابات: <b>المبيعات</b> (اسمها القديم "الرئيسية") بتجاوب "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. و<b>الأوردرات</b> بتجاوب "كام أوردر في كل مرحلة؟" — عدّ أوردرات مش جنيه. و<b>المحافظات</b> بتجاوب "الأداء ده اتوزّع جغرافيًا إزاي؟" — نفس الأرقام مقسّمة على محافظة الشحن، وتحتها نفس التقسيم على مناطق التوزيع (<code>custom.zone</code>). التلاتة بيشتركوا في نفس فلتر التاريخ ونفس نداء <code>get_data</code> — التبديل بينهم فوري من غير أي تحميل إضافي.</p>
           <h4>بداية البيانات</h4>
           <p>الأداة بتبدأ من <b>1 مايو 2026</b> — يوم بداية تشغيل المتجر. أي يوم قبل كده متعامَل معاه كأن المتجر ماكانش شغّال: مفيش سحب من شوبيفاي ومفيش رقم بيتعرض. عشان كده التقويم مش بيسمح باختيار قبل التاريخ ده، مربعات الشهور بتقف عند مايو 2026، وفترة سريعة مداها كله قبله (زي "العام السابق") بتبان معطّلة. الفترة اللي بتبدأ قبل الحد بتتقصّ عليه تلقائيًا مع سطر بيوضّح ده. ولو الفترة السابقة (اللي الـ Δ% بتتحسب منها) مش داخلة كلها بعد الحد، المقارنة بتتشال بالكامل بدل ما تتحسب على فترة مقصوصة.</p>
           <h4>المستخدمون</h4>
@@ -1371,15 +1419,15 @@
           <h4>الـ Endpoints الرئيسية</h4>
           <table>
             <tr><th>action</th><th>الوصف</th></tr>
-            <tr><td><code>get_data</code></td><td>boxes/rows/warnings (الرئيسية) + orderBoxes/orderRows/orderWarnings (الأوردرات) معًا (POST — dateFrom/dateTo/forceRefresh)</td></tr>
+            <tr><td><code>get_data</code></td><td>boxes/rows/warnings (الرئيسية) + orderBoxes/orderRows/orderWarnings (الأوردرات) معًا (POST — dateFrom/dateTo/forceRefresh). كل صف في <code>rows</code> و<code>orderRows</code> فيه كمان <code>prov</code> (محافظة الشحن) و<code>zone</code> (<code>custom.zone</code>) — تاب المحافظات بيتحسب منهم</td></tr>
             <tr><td><code>get_meta</code></td><td>عمر بيانات الفترة + عدد أوردراتها، من غير أي Shopify fetch (GET). وظيفتان: عرض عمر البيانات، و<b>probe</b> بيقول أنهي شهور متكاشة قبل ما التحميل يبدأ</td></tr>
             <tr><td><code>clear_cache</code></td><td>مسح كاش الفترة أو كل الكاش — للصيانة (مش متاح من الـ UI حالياً)</td></tr>
             <tr><td><code>check_employee</code></td><td>يتحقق هل اسم المستخدم موجود وله PIN مسجّل (GET)</td></tr>
             <tr><td><code>register_pin</code></td><td>تسجيل PIN لأول مرة لموظف (POST)</td></tr>
             <tr><td><code>verify_employee</code></td><td>التحقق من PIN عند تسجيل الدخول (POST)</td></tr>
             <tr><td><code>log_logout</code></td><td>تسجيل خروج الموظف (GET)</td></tr>
-            <tr><td><code>diag</code></td><td>فحص ذاتي بدون كتابة — متغيّرات/bindings/صلاحيات شوبيفاي/D1/KV (GET)</td></tr>
-            <tr><td><code>get_config</code></td><td>يرجّع WORKER_VERSION للمقارنة مع نسخة الواجهة (GET)</td></tr>
+            <tr><td><code>diag</code></td><td>فحص ذاتي بدون كتابة — متغيّرات/bindings/صلاحيات شوبيفاي/D1/KV + قراءة المحافظة والمنطقة على أوردر حقيقي (GET)</td></tr>
+            <tr><td><code>get_config</code></td><td>يرجّع WORKER_VERSION + CACHE_VERSION + storeStartDate — الواجهة بتقارنهم بـ MIN_WORKER_VERSION وSTORE_START_DATE عندها (GET)</td></tr>
           </table>
         </div>
       </details>
@@ -1409,7 +1457,7 @@ Bar chart مقارنة المربعات الأساسية + أرقام على ا�
 كاش (KV، TTL متدرّج — v3.3.0)   │ Worker │ §CACHE     │ ttlFor / get_data / get_meta
 مؤشر آخر تحديث (age دايماً)      │ HTML   │ §DASH-JS   │ freshnessState / renderFreshness
 ──────────────── v2.0.0 — تاب "الأوردرات" (عدّ، مش فلوس) ─────
-تبديل التابين (فوري، بدون fetch)  │ HTML   │ §TABS-JS   │ switchMainTab
+تبديل التابات (فوري، بدون fetch) │ HTML   │ §TABS-JS   │ switchMainTab / TAB_DEFS
 7 مربعات أوردرات + فرعية + الهوية │ HTML   │ §ORDERS-JS │ renderOrderBoxes / orderSub
 دونات توزيع الأوردرات            │ HTML   │ §ORDERS-JS │ renderOrdersPie (Chart.js)
 تفاصيل drill-down للأوردرات      │ HTML   │ §ORDERS-DETAILS│ showOrderDetails / renderOrderDetails
@@ -1468,6 +1516,18 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 باند قفل الهيدر **مقيس** مش ثابت   │ HTML   │ §STICKY-JS │ measureSticky / stickyDelta / STICK_ON (let)
 حارس نسخة الـ Worker = حد أدنى     │ HTML   │ §CONFIG · §SHELL-JS │ MIN_WORKER_VERSION / cmpVersion / showWorkerStale / verStaleBtn
 حارس حداثة مربّع الشهر = TTL_OPEN  │ HTML   │ §DASH-JS   │ MONTH_BOX_FRESH_MINS (5 → 15)
+── v3.9.0 — تاب المحافظات والمناطق ──────────────────────────
+المحافظة والمنطقة على كل صف     │ Worker │ §SHARED    │ provinceOf / zoneOf → pushRow / pushOrderRow
+تجميع المحافظات والمناطق         │ HTML   │ §GEO-JS    │ computeGeoGroups (dim = 'prov' | 'zone')
+تعريب المحافظات والمناطق         │ HTML   │ §GEO-JS    │ PROVINCE_AR / ZONE_AR / ZONE_ORDER
+كروت ملخّص التاب                 │ HTML   │ §GEO-JS    │ renderGeoKpis (+ GEO_MIN_SAMPLE)
+جدول المحافظات/المناطق + الترتيب │ HTML   │ §GEO-JS    │ renderGeoTable / sortGeoGroups / setGeoSort
+دونات + عمود المحافظات           │ HTML   │ §GEO-JS    │ renderGeoProvCharts (GEO_TOP_N)
+دونات + عمود المناطق             │ HTML   │ §GEO-JS    │ renderGeoZoneCharts
+حارس «الحقل ناقص / العنوان ناقص»│ HTML   │ §GEO-JS    │ geoDataGuard
+أوردرات المجموعة المختارة        │ HTML   │ §GEO-DETAILS│ showGeoDetails / renderGeoDetailsTableWrap
+تعريف التابات من مصدر واحد       │ HTML   │ §TABS-JS   │ TAB_DEFS / TAB_IDS / switchMainTab
+فحص قراءة العنوان في diag        │ Worker │ §HANDLER   │ action=diag (صف «قراءة المحافظة»)
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1481,17 +1541,27 @@ LS_SECRET = 'perfdash_worker_secret'  ← **مفتاح الـ localStorage ال�
                    (`perfdash_worker_url` و`admin_worker_url` بيتمسحوا مرة
                    واحدة عند التحميل — بقايا من قبل #28)
 TOOL_VERSION            = نسخة الواجهة (مصدر واحد — الهيدر + شاشة الدخول + الـ Changelog)
-MIN_WORKER_VERSION      = **أقل** نسخة Worker الواجهة دي بتشتغل معاها ('3.6.0'
-  — النسخة اللي ضافت storeStartDate في get_config). ⚠️ **مالهاش أي علاقة بـ
+MIN_WORKER_VERSION      = **أقل** نسخة Worker الواجهة دي بتشتغل معاها ('3.7.0'
+  — النسخة اللي ضافت prov/zone على كل صف، وهي أحدث حاجة الواجهة معتمدة عليها). ⚠️ **مالهاش أي علاقة بـ
   TOOL_VERSION** ومتزامنهاش معاه. تحذير الهيدر بيولّع بس لو الـ Worker المنشور
   **أقدم** منها (cmpVersion رقمية) — يعني rollback أو بناء فاشل أو Promote
   ناقص. ⚠️ صيانة: أي endpoint/حقل جديد الواجهة تعتمد عليه → ارفعها لنسخة
   الـ Worker بتاعته في نفس التسليم.
 state.rows = [{ orderId, orderName, orderTotalPieces, createdAt, sku,
-                qty, value, bucket, s1, s2, note, cycleNote }, ...]
+                qty, value, bucket, s1, s2, note, cycleNote, prov, zone }, ...]
                 note      = تشخيص السطر  (REDELIVERY / FULFIL_MISM)
                 cycleNote = تشخيص الأوردر (CYCLE_OVERLAP / MULTI_CYCLE) — حقل
                             منفصل عن note عن قصد، عشان الجديد ما يخفيش القديم
+                prov      = v3.9.0 — اسم محافظة الشحن الإنجليزي زي ما شوبيفاي
+                            بترجّعه (shippingAddress.province)، أو null لو
+                            مفيش عنوان شحن. التعريب في PROVINCE_AR، واسم مش
+                            موجود فيها **بيتعرض خام** عشان يبان.
+                zone      = v3.9.0 — قيمة custom.zone الخام (Cairo+Giza ·
+                            Other_Regions · Show_Room · BLANK)، أو null لو
+                            الميتافيلد مش متكتب. التعريب في ZONE_AR، و
+                            null بيتجمّع مع BLANK في «غير محدد».
+                ⚠️ الاتنين على **الصف** مش أرقام مجمّعة في الـ payload — نفس
+                   سبب hasRE: الـ payload بيوصف شهر كامل والمعروض جزء منه.
 state.prevRows = نفس شكل state.rows بس للفترة السابقة (v1.4.0 — كانت بتتجاب
                  من الـ Worker وبتترمى، دلوقتي بتتخزن لحساب Δ% في وضع عدد القطع)
 v3.6.0 — KEY VARIABLES (بداية تشغيل المتجر)
@@ -1544,10 +1614,29 @@ state.orderBoxes / state.prevOrderBoxes = ⚠️ v3.5.0 — **محسوبة في 
   الجاهز = كارت بيعدّ أوردرات مالهاش صف على الشاشة. نفس المنطق بالظبط على
   state.warnings / state.orderWarnings / ordersScanned / candidatesFetched.
 state.orderRows = [{ orderId, orderName, orderTotalPieces, createdAt, s1, s2,
-                     bucket, cycleNote, hasRE }, ...]
+                     bucket, cycleNote, hasRE, prov, zone }, ...]
                   (صف واحد لكل أوردر — مختلف عن state.rows اللي صف لكل سطر/SKU)
                   hasRE = الأوردر ده كان مرشّح للمرحلة 2 (v3.5.0) — منه بيتحسب
                   سطر "كام أوردر فيه نشاط إرجاع/استبدال" لأي جزء من الفترة
+                  prov / zone = v3.9.0 — نفس الحقلين اللي في state.rows بالظبط
+                  (تاب المحافظات بيقرا العدّ من هنا والفلوس من state.rows)
+
+v3.9.0 — KEY VARIABLES (تاب المحافظات)
+PROVINCE_AR = تعريب أسماء محافظات شوبيفاي — **المفتاح هو الاسم الإنجليزي**
+  (province) مش provinceCode. الاختيار مقصود: اسم مش في الخريطة بيتعرض خام
+  فالنقص بيبان، بينما كود غلط في خريطة أكواد بيتعرض **باسم محافظة تانية** —
+  رقم غلط شكله سليم.
+ZONE_AR / ZONE_ORDER = القايمة المقفولة في تعريف الميتافيلد (٤ قيم) بتسمياتها
+  العربية وألوانها. null → BLANK («غير محدد»)، وأي قيمة برّه الأربعة بتتعرض
+  خام بلون أحمر بدل ما تتبلع في دلو "أخرى".
+GEO_MIN_SAMPLE = 10 — أقل عدد أوردرات عشان المحافظة تترشّح لكارت "أعلى معدل
+  مرتجع + إلغاء". نفس علة MIN_DELTA_BASE: مقام ≈ 1 بيطلّع نسبة بلا معنى.
+  ⚠️ الجدول نفسه بيعرض **كل** المحافظات من غير أي استبعاد.
+GEO_TOP_N = 10 — عدد الأعمدة في رسم "أعلى محافظات بصافي المبيعات".
+state.geoSortKey / geoSortDir = عمود واتجاه ترتيب جدول المحافظات (جدول المناطق
+  ترتيبه ثابت بـ ZONE_ORDER — ٤ صفوف، الترتيب المنطقي أوضح من الرقمي).
+state.geoDetailsKey = 'prov:<name>' | 'zone:<value>' — المجموعة المختارة.
+  مستقل تمامًا عن detailsKey و orderDetailsKey (التلاتة مش بيمسحوا بعض).
 ORDER_BUCKET_LABELS = خريطة bucket (مستوى الأوردر) → التسمية العربية — لازم تطابق
                       ORDER_BUCKET في الـ Worker حرفيًا (مستقلة تمامًا عن BUCKET_LABELS)
 state.orderDetailsKey / orderDetailsBuckets / orderDetailsSearch / orderDetailsLimit =
@@ -1663,7 +1752,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.8.0';
+const TOOL_VERSION = 'v3.9.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -1674,7 +1763,10 @@ const TOOL_VERSION = 'v3.8.0';
 // القيمة = نسخة الـ Worker اللي ضافت أحدث حاجة الواجهة معتمدة عليها:
 // `storeStartDate` في `get_config` (v3.6.0). ⚠️ صيانة: أي endpoint/حقل جديد
 // الواجهة تعتمد عليه → ارفع القيمة دي لنسخة الـ Worker بتاعته في نفس التسليم.
-const MIN_WORKER_VERSION = '3.6.0';
+// ⚠️ v3.9.0: اترفعت لـ 3.7.0 — النسخة اللي ضافت `prov`/`zone` على كل صف
+// (تاب المحافظات والمناطق). الصيانة دي **إلزامية في نفس التسليم**: من غيرها
+// الحارس بيسكت على Worker قديم والتاب الجديد بيرندر «غير محدد» لكل حاجة.
+const MIN_WORKER_VERSION = '3.7.0';
 let workerLiveVersion = '';
 let workerLiveStoreStart = '';
 
@@ -1972,6 +2064,18 @@ const state = {
   // مرة واحدة، والعكس. الوضع الافتراضي: كله مطوي.
   breakdownsOpen: false,       // تاب المبيعات — كل الكروت (IP_PREP · IP_SHIP · LOST · NET)
   orderBreakdownsOpen: false,  // تاب الأوردرات — كل الكروت (OB_PREP · OB_SHIP · OB_LOST · OB_DELIV)
+
+  // ══ v3.9.0 — تاب "المحافظات" (محافظة الشحن + منطقة التوزيع) ══
+  // ⚠️ مفيش أي بيانات إضافية هنا: التاب بيتحسب بالكامل من state.rows و
+  //    state.orderRows (`prov`/`zone` على كل صف) — صفر fetch إضافي، وبيتغيّر
+  //    مع الفترة زي التابين التانيين تلقائيًا.
+  geoSortKey:  'netSales',   // عمود الترتيب في جدول المحافظات
+  geoSortDir:  'desc',
+  geoDetailsOpen:  false,
+  geoDetailsKey:   null,     // 'prov:<name>' | 'zone:<value>' — المجموعة المختارة
+  geoDetailsTitle: '',
+  geoDetailsLimit: DETAILS_ROW_LIMIT,
+  geoDetailsSearch: '',
 };
 
 // §TOOL-JS::toggleBreakdown — يطوي/يفتح **كل** كروت التاب مرة واحدة
@@ -2883,6 +2987,30 @@ function renderShell() {
       </div>
     </div>
 
+    <div id="geoPageContent" class="${state.activePage === 'geo' ? '' : 'hidden'}">
+      <div id="geoGuardNote"></div>
+      <div class="kpi-grid kpi-grid-4" id="geoKpis"></div>
+
+      <div class="geo-section-hdr"><span class="kpi-icon">🗺️</span>المحافظات <span class="geo-section-sub">محافظة عنوان الشحن (<code>shippingAddress.province</code>) — مش المدينة</span></div>
+      <div class="chart-grid" id="geoProvCharts"></div>
+      <div class="geo-table-card" id="geoProvTable"></div>
+
+      <div class="geo-section-hdr"><span class="kpi-icon">🚚</span>مناطق التوزيع <span class="geo-section-sub">من ميتافيلد الأوردر <code>custom.zone</code> — مستقل تمامًا عن المحافظة</span></div>
+      <div class="chart-grid" id="geoZoneCharts"></div>
+      <div class="geo-table-card" id="geoZoneTable"></div>
+
+      <div class="details-section${state.geoDetailsOpen ? ' open' : ''}" id="geoDetailsSection">
+        <div class="details-hdr" onclick="toggleGeoDetails()">
+          <div class="details-hdr-right">
+            <span class="details-caret">▶</span>
+            <span class="details-title">📋 أوردرات المجموعة المختارة</span>
+            <span class="details-scope" id="geoDetailsScope"></span>
+          </div>
+        </div>
+        <div class="details-body" id="geoDetailsBody"></div>
+      </div>
+    </div>
+
     <div id="ordersPageContent" class="${state.activePage === 'orders' ? '' : 'hidden'}">
       ${orderWarnBits.length ? `<div class="warn-note">⚠️ ${orderWarnBits.join(' · ')} — اضغط على المربع المعني لمراجعة الأوردرات.</div>` : ''}
       <div class="kpi-grid" id="orderOverviewKpis"></div>
@@ -2910,6 +3038,8 @@ function renderShell() {
   renderDetails();
   renderOrderBoxes();
   renderOrderDetails();
+  renderGeo();
+  renderGeoDetails();
 }
 
 // ══════════════════════════════════════════════════════
@@ -2917,15 +3047,26 @@ function renderShell() {
 // بيانات التابين الاتنين محمّلة مسبقاً من نفس get_data response، فالتبديل هنا
 // بيتحكم بس في العرض (hidden class) — صفر fetch إضافي، صفر إعادة تحميل.
 // ══════════════════════════════════════════════════════
+// v3.9.0 — مصدر واحد لتعريف التابات: الزرار + الحاوية + الترتيب. قبل كده
+// الأسماء كانت متكررة حرفيًا في switchMainTab و updateTabChip و buildTabChipMenu،
+// فإضافة تاب تالت كانت بتحتاج تعديل التلاتة يدويًا (ونسيان واحد = تاب بيشتغل
+// من الزرار وبيختفي من قايمة الـ chip على الموبايل).
+const TAB_DEFS = {
+  main:   { btn: 'mainTabMain',   pane: 'mainPageContent' },
+  orders: { btn: 'mainTabOrders', pane: 'ordersPageContent' },
+  geo:    { btn: 'mainTabGeo',    pane: 'geoPageContent' },
+};
+
 function switchMainTab(page) {
+  if (!TAB_DEFS[page]) return;
   if (state.activePage !== page) {
     state.activePage = page;
-    document.getElementById('mainTabMain')?.classList.toggle('active', page === 'main');
-    document.getElementById('mainTabOrders')?.classList.toggle('active', page === 'orders');
-    document.getElementById('mainPageContent')?.classList.toggle('hidden', page !== 'main');
-    document.getElementById('ordersPageContent')?.classList.toggle('hidden', page !== 'orders');
+    for (const [id, def] of Object.entries(TAB_DEFS)) {
+      document.getElementById(def.btn)?.classList.toggle('active', id === page);
+      document.getElementById(def.pane)?.classList.toggle('hidden', id !== page);
+    }
     // مفتاح "طريقة العرض" (قيمة/عدد قطع) خاص بصفحة الرئيسية بس — بيتخفي في
-    // الأوردرات. ⚠️ الإخفاء على الـ .range-fg كله مش على الـ toggle جوّه بس،
+    // باقي التابات. ⚠️ الإخفاء على الـ .range-fg كله مش على الـ toggle جوّه بس،
     // وإلا الليبل "طريقة العرض" بيفضل معلّق في الصف بلا أي عنصر تحته.
     document.getElementById('viewToggleFg')?.classList.toggle('hidden', page !== 'main');
   }
@@ -2936,7 +3077,7 @@ function switchMainTab(page) {
 // ══════════════════════════════════════════════════════
 // §STICKY-JS — Freeze on Scroll (html-builder v1.1.0 §1b)
 // ══════════════════════════════════════════════════════
-const TAB_IDS = ['main', 'orders'];
+const TAB_IDS = Object.keys(TAB_DEFS);
 
 // ── Sticky/compact toggle (Hysteresis **مقيسة** + rAF throttle — راجع
 //    ecommoda-html-builder references/tabs-and-modals.md § 1b · Standards #33) ──
@@ -2998,7 +3139,8 @@ window.addEventListener('resize', () => {
 });
 
 function updateTabChip() {
-  const label = document.getElementById(state.activePage === 'main' ? 'mainTabMain' : 'mainTabOrders').textContent.trim();
+  const btn = document.getElementById(TAB_DEFS[state.activePage]?.btn || TAB_DEFS.main.btn);
+  const label = (btn?.textContent || '').trim();
   const labelEl = document.getElementById('activeTabChipLabel');
   if (labelEl) labelEl.textContent = label;
   document.querySelectorAll('#tabChipMenu .tab-chip-item').forEach(el => {
@@ -3009,7 +3151,8 @@ function buildTabChipMenu() {
   const menu = document.getElementById('tabChipMenu');
   if (!menu) return;
   menu.innerHTML = TAB_IDS.map(id => {
-    const btn = document.getElementById(id === 'main' ? 'mainTabMain' : 'mainTabOrders');
+    const btn = document.getElementById(TAB_DEFS[id].btn);
+    if (!btn) return '';
     return `<div class="tab-chip-item ${id === state.activePage ? 'active' : ''}" data-tab="${id}"
       onclick="event.stopPropagation(); switchMainTab('${id}');">${btn.textContent.trim()}</div>`;
   }).join('');
@@ -4355,6 +4498,755 @@ function renderOrderDetailsTableWrap() {
       </table>
     </div>
     ${sorted.length > shown.length ? `<div class="details-more"><button class="btn" onclick="showMoreOrderDetails()">عرض المزيد (${fmtInt(sorted.length - shown.length)} أوردر متبقي)</button></div>` : ''}
+  `;
+}
+
+// ══════════════════════════════════════════════════════
+// §GEO-JS — تاب "المحافظات" (محافظة الشحن + منطقة التوزيع) — v3.9.0
+// نفس بيانات get_data (state.rows / state.orderRows) — صفر fetch إضافي وصفر
+// endpoint جديد. الحقلان `prov` و`zone` بيجوا **على كل صف** من الـ Worker
+// (v3.7.0)، فكل رقم هنا بيتحسب من الصفوف المعروضة بالظبط زي التابين التانيين.
+//
+// 🔴 **بعدان مستقلان تمامًا، وممنوع خلطهم:**
+//   · المحافظة = `shippingAddress.province` — عنوان الشحن الفعلي على الأوردر.
+//     ⚠️ **مش `city`**: المدينة حقل حر بيكتبه العميل ("6اكتوبر" · "القاهرة" ·
+//     "فيصل" — كلهم في نفس الأوردرات المقيسة)، فالتجميع عليها بيولّد عشرات
+//     المجموعات لنفس المحافظة. المحافظة قايمة مقفولة من شوبيفاي.
+//   · المنطقة  = ميتافيلد `custom.zone` — تقسيمة **التوزيع** (مندوب/بوسطة/شو
+//     روم)، بتتكتب يدويًا ومش مشتقة من العنوان. أوردر في القاهرة ممكن يكون
+//     `Other_Regions` والعكس — فالقسمين مش نسختين من بعض ولا بيتحققوا من بعض.
+// ══════════════════════════════════════════════════════
+
+// ─── §GEO-JS::PROVINCE_AR — تعريب أسماء محافظات شوبيفاي ───
+// المفتاح هو **الاسم الإنجليزي زي ما شوبيفاي بترجّعه** في `shippingAddress.province`،
+// مش `provinceCode`. الاختيار مقصود (نفس التعليق في `provinceOf` في الـ Worker):
+// اسم مش موجود هنا بيتعرض **خام** فالنقص بيبان، بينما خريطة أكواد فيها كود غلط
+// بتعرض **اسم محافظة تانية** — رقم غلط شكله سليم.
+// القايمة دي هي قايمة مصر الكاملة في شوبيفاي (٢٧ محافظة + الملغيتين: حلوان
+// و٦ أكتوبر — لسه في القايمة وعليهم أوردرات تاريخية).
+const PROVINCE_AR = {
+  'Cairo':          'القاهرة',
+  'Giza':           'الجيزة',
+  'Alexandria':     'الإسكندرية',
+  'Qalyubia':       'القليوبية',
+  'Dakahlia':       'الدقهلية',
+  'Al Sharqia':     'الشرقية',
+  'Gharbia':        'الغربية',
+  'Monufia':        'المنوفية',
+  'Beheira':        'البحيرة',
+  'Kafr el-Sheikh': 'كفر الشيخ',
+  'Damietta':       'دمياط',
+  'Port Said':      'بورسعيد',
+  'Ismailia':       'الإسماعيلية',
+  'Suez':           'السويس',
+  'North Sinai':    'شمال سيناء',
+  'South Sinai':    'جنوب سيناء',
+  'Red Sea':        'البحر الأحمر',
+  'Matrouh':        'مرسى مطروح',
+  'New Valley':     'الوادي الجديد',
+  'Faiyum':         'الفيوم',
+  'Beni Suef':      'بني سويف',
+  'Minya':          'المنيا',
+  'Asyut':          'أسيوط',
+  'Sohag':          'سوهاج',
+  'Qena':           'قنا',
+  'Luxor':          'الأقصر',
+  'Aswan':          'أسوان',
+  // محافظتان ملغيتان إداريًا (اتضمّوا للقاهرة والجيزة) — لسه في قايمة شوبيفاي
+  'Helwan':         'حلوان',
+  '6th of October': '٦ أكتوبر',
+};
+
+// ─── §GEO-JS::ZONE_AR — تعريب قيم custom.zone ───
+// القايمة المقفولة في تعريف الميتافيلد على شوبيفاي = ٤ قيم بالظبط.
+// ⚠️ `BLANK` قيمة **مكتوبة فعلًا** على الأوردر ومعناها "المنطقة ما اتحدّدتش"،
+//    والميتافيلد **الغايب تمامًا** معناه نفس الحاجة عمليًا — فالاتنين بيتجمّعوا
+//    في نفس الصف. (`zoneKeyOf` بتحوّل null → 'BLANK'.)
+// ⚠️ أي قيمة تانية (تعريف الميتافيلد نفسه بيحذّر من قيم غير صالحة على المتجر)
+//    بتتعرض **خام بلون أحمر** بدل ما تتبلع في دلو "أخرى" — نفس قاعدة
+//    BUCKET/BUCKET_LABELS: كود مجهول يتعرض كنص خام، مايتخفيش.
+const ZONE_AR = {
+  'Cairo+Giza':    { label: 'قاهرة وجيزة (مناديب)', colour: '#2563eb' },
+  'Other_Regions': { label: 'محافظات (بوسطة)',      colour: '#7c3aed' },
+  'Show_Room':     { label: 'شو روم',                colour: '#16a34a' },
+  'BLANK':         { label: 'غير محدد',              colour: '#94a3b8' },
+};
+const ZONE_ORDER = ['Cairo+Giza', 'Other_Regions', 'Show_Room', 'BLANK'];
+
+// مفتاح المجموعة لما المحافظة مش معروفة (مفيش عنوان شحن على الأوردر أصلًا).
+const GEO_NONE = '__NONE__';
+
+// أقل عدد أوردرات في المحافظة عشان معدلاتها تتقارن أو تترشّح لكارت "أعلى معدل".
+// نفس منطق MIN_DELTA_BASE: نسبة محسوبة من مقام ≈ ١ مش رقم — محافظة فيها أوردر
+// واحد اترجع بتطلّع "معدل مرتجع ١٠٠%" وتتصدّر الكارت.
+const GEO_MIN_SAMPLE = 10;
+
+// لوحة ألوان للمحافظات (categorical) — بتتكرر لو المحافظات أكتر من طولها،
+// والرسوم بتعرض أعلى N بس فالتكرار عمليًا مش بيحصل.
+const GEO_PALETTE = [
+  '#2563eb', '#16a34a', '#d97706', '#7c3aed', '#dc2626',
+  '#0891b2', '#db2777', '#65a30d', '#ea580c', '#4f46e5',
+];
+
+function provKeyOf(r) { return r.prov || GEO_NONE; }
+function zoneKeyOf(r) { return r.zone || 'BLANK'; }
+
+function provLabel(key) {
+  if (key === GEO_NONE) return 'غير محدد';
+  return PROVINCE_AR[key] || key;          // اسم مش في الخريطة → خام، عشان يبان
+}
+function zoneLabel(key) { return ZONE_AR[key]?.label || key; }
+function zoneColour(key) { return ZONE_AR[key]?.colour || '#dc2626'; }
+
+// ─── §GEO-JS::computeGeoGroups ───
+// بيرجّع صف واحد لكل مجموعة (محافظة أو منطقة) فيه الفلوس والعدّ مع بعض.
+// 🔴 **الفلوس والعدّ بيتحسبوا بنفس الدالتين اللي التابين التانيين بيستخدموهم**
+//    (`computeBoxesFromRows` / `computeOrderBoxesFromRows`) على مجموعة جزئية —
+//    مش بتعريف جديد هنا. لو اتكتب تعريف تاني، أول تعديل في التصنيف هيخلي
+//    "صافي المبيعات" في تاب المبيعات ≠ مجموع نفس العمود هنا، والفرق مايبانش.
+// ⚠️ الفلوس دايمًا بوضع **القيمة** (مش `state.viewMode`): مفتاح "قيمة/عدد قطع"
+//    مخفي في التاب ده، فربط الأعمدة بيه كان هيخلي عمود اسمه "صافي المبيعات"
+//    يعرض عدد قطع من غير ما الليبل يتغيّر.
+function computeGeoGroups(dim) {
+  const keyOf = dim === 'zone' ? zoneKeyOf : provKeyOf;
+
+  const pieceBy = new Map();   // key → rows[]        (مستوى القطعة/الفلوس)
+  const orderBy = new Map();   // key → orderRows[]   (مستوى الأوردر/العدّ)
+  const push = (map, k, r) => { const a = map.get(k); if (a) a.push(r); else map.set(k, [r]); };
+
+  (state.rows      || []).forEach(r => push(pieceBy, keyOf(r), r));
+  (state.orderRows || []).forEach(r => push(orderBy, keyOf(r), r));
+
+  // الاتحاد — مجموعة ممكن يبقى فيها أوردرات بلا صفوف قطع (نظريًا) أو العكس،
+  // فالمرور على مفاتيح واحدة منهم بس بيسقّط صفوف بصمت.
+  const keys = new Set([...pieceBy.keys(), ...orderBy.keys()]);
+
+  const groups = [...keys].map(key => {
+    const money  = computeBoxesFromRows(pieceBy.get(key) || [], 'value');
+    const counts = computeOrderBoxesFromRows(orderBy.get(key) || []);
+
+    const delivered   = counts.deliveryBasic + counts.deliveryExchange + counts.deliveryPartialReturn;
+    // مرتجع رفض الاستلام (الفلوس ما اتحصّلتش) + مرتجع كامل بعد الاستلام
+    // (اتحصّلت واترجّعت) — رقمان مختلفان في الطبيعة، بس الاتنين "الأوردر رجع"
+    // من زاوية أداء المحافظة، فبيتجمّعوا في عمود واحد **ويتفصلوا في الـ tooltip**.
+    const returned    = counts.lostRTO + counts.lostFullReturn;
+    const cancelled   = counts.lostCancelled;
+    const inProgress  = counts.pendingConfirm + counts.prepConfirmed + counts.prepExchange + counts.prepReturn
+                      + counts.shippedConfirmed + counts.shippedExchange + counts.shippedReturn;
+    const unclassified = counts.unclassified;
+    const orders      = counts.totalOrders;
+
+    // 🔴 المقام = **إجمالي أوردرات المجموعة** (قرار أحمد 01-09-2026) — يعني
+    //    النسب الخمسة بتجمع 100% دايمًا. ⚠️ الأثر المعروف والمقبول: على فترة
+    //    لسه مفتوحة كل النسب بتطلع منخفضة لأن "قيد التنفيذ" بياخد نصيبه —
+    //    وعشان كده عمود "قيد التنفيذ" **معروض جنبهم دايمًا** بدل ما يكون
+    //    مقام مخفي، ومعدل التسليم بيتقري في سياقه.
+    const pct = n => orders ? (n / orders) * 100 : 0;
+
+    return {
+      key,
+      label:      dim === 'zone' ? zoneLabel(key) : provLabel(key),
+      isUnknown:  dim === 'zone' ? !ZONE_AR[key] : (key !== GEO_NONE && !PROVINCE_AR[key]),
+      isNone:     dim === 'zone' ? key === 'BLANK' : key === GEO_NONE,
+      orders, delivered, returned, cancelled, inProgress, unclassified,
+      rto: counts.lostRTO, fullReturn: counts.lostFullReturn,
+      delivRate:  pct(delivered),
+      returnRate: pct(returned),
+      cancelRate: pct(cancelled),
+      progRate:   pct(inProgress),
+      unclRate:   pct(unclassified),
+      netSales:   money.netSales,
+      totalValue: money.totalValue,
+      lost:       money.lost,
+    };
+  });
+
+  const totals = groups.reduce((t, g) => {
+    ['orders','delivered','returned','cancelled','inProgress','unclassified','netSales','totalValue','lost']
+      .forEach(k => t[k] += g[k]);
+    return t;
+  }, { orders:0, delivered:0, returned:0, cancelled:0, inProgress:0, unclassified:0, netSales:0, totalValue:0, lost:0 });
+
+  return { groups, totals };
+}
+
+// ─── §GEO-JS::sortGeoGroups ───
+// المجموعات المجهولة/«غير محدد» بتتربّط مع باقي الصفوف عادي (مش متثبّتة تحت):
+// «غير محدد» كبيرة = إشارة تشغيلية تستاهل تبان في الأعلى، مش تتخبّى في آخر جدول.
+function sortGeoGroups(groups, key, dir) {
+  const sign = dir === 'asc' ? 1 : -1;
+  return [...groups].sort((a, b) => {
+    const d = (a[key] || 0) - (b[key] || 0);
+    return d !== 0 ? d * sign : a.label.localeCompare(b.label, 'ar');
+  });
+}
+
+function setGeoSort(key) {
+  if (state.geoSortKey === key) state.geoSortDir = state.geoSortDir === 'desc' ? 'asc' : 'desc';
+  else { state.geoSortKey = key; state.geoSortDir = 'desc'; }
+  renderGeo();
+}
+
+// ─── §GEO-JS::geoDataGuard ───
+// الحقلان `prov`/`zone` بيجوا من الـ Worker v3.7.0 مع CACHE_VERSION v12. الحالتان
+// اللي ممكن يخلّوا التاب يرندر "غير محدد" لكل حاجة **مختلفتان في السبب والعلاج**،
+// ودمجهم في رسالة واحدة بيخلي الرسالة بلا إجراء:
+//   ① الحقل **مش موجود** على الصف (undefined) → Worker أقدم من v3.7.0.
+//      ⚠️ الحارس ده احتياطي بحت — showWorkerStale() المفروض يمسكها قبل كده،
+//      بس هو بيقارن نسخة معلنة والحارس ده بيقرا البيانات نفسها.
+//   ② الحقل موجود وقيمته **null** لكل الأوردرات → `shippingAddress` بيرجع null
+//      من شوبيفاي، وده غالبًا صلاحية بيانات العملاء المحمية ناقصة في التطبيق
+//      (وقتها `?action=diag` بيقولها صراحةً).
+function geoDataGuard() {
+  const rows = state.orderRows || [];
+  if (!rows.length) return '';
+  if (rows.every(r => r.prov === undefined)) {
+    return `<div class="warn-note warn-note-red">⛔ الصفوف الجاية من الـ Worker مفيهاش حقل المحافظة أصلًا — الـ Worker المنشور أقدم من <b>v3.7.0</b>.
+      التاب ده معطّل فعليًا لحد ما النسخة الصح تتنشر (Cloudflare → Workers → performance-dashboard-worker → Deployments → Promote).</div>`;
+  }
+  if (rows.every(r => !r.prov)) {
+    return `<div class="warn-note warn-note-red">⛔ كل الأوردرات في الفترة دي راجعة من شوبيفاي <b>بدون عنوان شحن</b> (<code>shippingAddress = null</code>) — فمفيش محافظة تتحسب.
+      ده عرض صلاحية مش عرض بيانات: شغّل <b>فحص ذاتي (diag)</b> من الإعدادات، وشوف صف «قراءة المحافظة».</div>`;
+  }
+  return '';
+}
+
+// ─── §GEO-JS::renderGeo ───
+function renderGeo() {
+  const guard = document.getElementById('geoGuardNote');
+  if (!guard) return;                      // التاب مش مرسوم (viewState مش ready)
+  guard.innerHTML = geoDataGuard();
+
+  const prov = computeGeoGroups('prov');
+  const zone = computeGeoGroups('zone');
+
+  renderGeoKpis(prov);
+  renderGeoProvCharts(prov);
+  renderGeoTable('geoProvTable', 'prov', prov, 'المحافظة');
+  renderGeoZoneCharts(zone);
+  renderGeoTable('geoZoneTable', 'zone', zone, 'المنطقة');
+}
+
+// ─── §GEO-JS::renderGeoKpis ───
+function renderGeoKpis({ groups, totals }) {
+  const el = document.getElementById('geoKpis');
+  if (!el) return;
+
+  const active   = groups.filter(g => g.orders > 0);
+  const byNet    = sortGeoGroups(active, 'netSales', 'desc');
+  const top1     = byNet[0];
+  const top3Net  = byNet.slice(0, 3).reduce((s, g) => s + g.netSales, 0);
+  const top3Pct  = totals.netSales ? (top3Net / totals.netSales) * 100 : 0;
+
+  // ⚠️ الحد الأدنى للعيّنة إلزامي هنا: محافظة فيها أوردر واحد اترجع بتطلّع
+  //    "معدل خسارة 100%" وتتصدّر الكارت — رقم بلا معنى بياكل مصداقية الشاشة
+  //    (نفس علة MIN_DELTA_BASE على مربع "تحت التأكيد").
+  const eligible = active.filter(g => g.orders >= GEO_MIN_SAMPLE && !g.isNone);
+  const worst    = [...eligible].sort((a, b) =>
+    (b.returnRate + b.cancelRate) - (a.returnRate + a.cancelRate))[0];
+
+  const noneProv = groups.find(g => g.isNone);
+
+  // ⚠️ الكروت دي **مش قابلة للضغط** (مفيش drill مخصص ليها) — و`.kpi-card`
+  //    الافتراضي بيدّي `cursor: pointer`. `.kpi-card-static` بتلغيه، عشان
+  //    مايبانش إن فيه فعل مستني الضغط وهو مش موجود.
+  el.innerHTML = `
+    <div class="kpi-card kpi-card-static">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">🗺️</span>محافظات فيها أوردرات</span>
+      </div>
+      <div class="kpi-value-row"><div class="kpi-value">${fmtInt(active.length)}</div></div>
+      <div class="kpi-delta neutral">من ${fmtInt(Object.keys(PROVINCE_AR).length)} محافظة في قايمة شوبيفاي${
+        noneProv && noneProv.orders ? ` · <b class="clr-red">${fmtInt(noneProv.orders)}</b> أوردر بلا عنوان شحن` : ''}</div>
+    </div>
+    <div class="kpi-card kpi-card-static">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">🥇</span>أعلى محافظة (صافي المبيعات)</span>
+      </div>
+      <div class="kpi-value-row"><div class="kpi-value geo-value-text">${top1 ? esc(top1.label) : '—'}</div></div>
+      <div class="kpi-delta neutral">${top1 ? `${fmtMoney(top1.netSales)} · ${fmtPct(totals.netSales ? (top1.netSales / totals.netSales) * 100 : 0)} من الإجمالي` : 'مفيش بيانات في الفترة'}</div>
+    </div>
+    <div class="kpi-card kpi-card-static">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">🎯</span>تركّز أعلى ٣ محافظات</span>
+        ${infoIcon('نصيب أعلى ٣ محافظات (بصافي المبيعات) من صافي مبيعات الفترة كلها. رقم عالي = الاعتماد مركّز في مناطق قليلة.')}
+      </div>
+      <div class="kpi-value-row"><div class="kpi-value">${fmtPct(top3Pct)}</div></div>
+      <div class="kpi-delta neutral">${byNet.slice(0, 3).map(g => esc(g.label)).join(' · ') || '—'}</div>
+    </div>
+    <div class="kpi-card kpi-card-static">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">⚠️</span>أعلى معدل مرتجع + إلغاء</span>
+        ${infoIcon(`المعدل = (مرتجعات + إلغاءات) ÷ <b>إجمالي</b> أوردرات المحافظة.<br>
+          المحافظات اللي أوردراتها أقل من <b>${GEO_MIN_SAMPLE}</b> مستبعدة من الكارت ده —
+          مقام صغير بيطلّع نسبة بلا معنى (محافظة بأوردر واحد اترجع = 100%).<br>
+          الجدول تحت بيعرض كل المحافظات من غير أي استبعاد.`)}
+      </div>
+      <div class="kpi-value-row"><div class="kpi-value geo-value-text ${worst ? 'clr-red' : ''}">${worst ? esc(worst.label) : '—'}</div></div>
+      <div class="kpi-delta neutral">${worst
+        ? `${fmtPct(worst.returnRate + worst.cancelRate)} · من ${fmtInt(worst.orders)} أوردر`
+        : `مفيش محافظة وصلت ${GEO_MIN_SAMPLE} أوردر في الفترة`}</div>
+    </div>
+  `;
+}
+
+// ─── §GEO-JS::renderGeoTable — نفس الجدول للبعدين (المحافظة/المنطقة) ───
+function renderGeoTable(elId, dim, { groups, totals }, headLabel) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+
+  // المنطقة: ترتيب ثابت بالقايمة المقفولة (٤ صفوف بس — الترتيب المنطقي أوضح
+  // من ترتيب بالرقم)، والقيم الغريبة بتتحط بعدهم. المحافظة: ترتيب المستخدم.
+  const sorted = dim === 'zone'
+    ? [...groups].sort((a, b) => {
+        const ia = ZONE_ORDER.indexOf(a.key), ib = ZONE_ORDER.indexOf(b.key);
+        return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+      })
+    : sortGeoGroups(groups, state.geoSortKey, state.geoSortDir);
+
+  if (!sorted.length) {
+    el.innerHTML = `<div class="details-empty">مفيش أوردرات في الفترة المختارة.</div>`;
+    return;
+  }
+
+  const arrow = k => (dim === 'zone' || state.geoSortKey !== k) ? '' :
+    `<span class="geo-sort-arrow">${state.geoSortDir === 'desc' ? '▼' : '▲'}</span>`;
+  const th = (k, label, hint) => dim === 'zone'
+    ? `<th title="${esc(hint || label)}">${label}</th>`
+    : `<th class="geo-sortable${state.geoSortKey === k ? ' is-sorted' : ''}" title="${esc(hint || label)}" onclick="setGeoSort('${k}')">${label}${arrow(k)}</th>`;
+
+  // خلية "عدد · نسبة" — النسبة من **إجمالي أوردرات الصف**، فالخمسة بيجمعوا 100%
+  const cell = (n, pctVal, cls) =>
+    `<td class="col-num"><span class="geo-n ${cls || ''}">${fmtInt(n)}</span><span class="geo-pct">${fmtPct(pctVal)}</span></td>`;
+
+  const shareOf = g => totals.netSales ? (g.netSales / totals.netSales) * 100 : 0;
+
+  const body = sorted.map(g => {
+    const active = state.geoDetailsKey === `${dim}:${g.key}` ? ' geo-row-active' : '';
+    const dot = dim === 'zone'
+      ? `<span class="chart-legend-dot" style="background:${zoneColour(g.key)}"></span>`
+      : '';
+    return `
+    <tr class="${active}" onclick="showGeoDetails('${dim}', ${JSON.stringify(g.key).replace(/"/g, '&quot;')})">
+      <td class="geo-name">${dot}${esc(g.label)}${g.isUnknown ? '<span class="note-pill">قيمة غير معروفة</span>' : ''}</td>
+      <td class="col-num">${fmtInt(g.orders)}</td>
+      <td class="col-num geo-strong">${fmtMoney(g.netSales)}</td>
+      <td class="col-num">
+        <div class="geo-share"><div class="geo-share-fill" style="width:${Math.min(shareOf(g), 100).toFixed(1)}%"></div></div>
+        <span class="geo-pct">${fmtPct(shareOf(g))}</span>
+      </td>
+      <td class="col-num">${fmtMoney(g.totalValue)}</td>
+      <td class="col-num clr-red">${fmtMoney(g.lost)}</td>
+      ${cell(g.delivered,  g.delivRate,  'clr-green')}
+      ${cell(g.returned,   g.returnRate, 'clr-red')}
+      ${cell(g.cancelled,  g.cancelRate, 'clr-red')}
+      ${cell(g.inProgress, g.progRate,   '')}
+      ${cell(g.unclassified, g.unclRate, g.unclassified ? 'clr-red' : 'clr-muted')}
+    </tr>`;
+  }).join('');
+
+  const tPct = n => totals.orders ? (n / totals.orders) * 100 : 0;
+
+  el.innerHTML = `
+    <div class="geo-table-note">
+      ${dim === 'zone'
+        ? 'المنطقة بتتكتب يدويًا في ميتافيلد الأوردر — مش مشتقة من العنوان، فمقارنتها بجدول المحافظات فوق مقارنة بين بُعدين مستقلين مش تحقّق من نفس الرقم.'
+        : 'اضغط على أي عمود للترتيب بيه · اضغط على أي صف لعرض أوردراته تحت.'}
+      النسب في الأعمدة الخمسة الأخيرة من <b>إجمالي أوردرات الصف</b> — فمجموعهم 100% دايمًا.
+    </div>
+    <div class="details-scroll">
+      <table class="details-table geo-table">
+        <thead>
+          <tr>
+            <th class="geo-name-th">${headLabel}</th>
+            ${th('orders',     'الأوردرات')}
+            ${th('netSales',   'صافي المبيعات', 'قيمة القطع اللي وصلت العميل وفلوسها اتحصّلت — نفس تعريف مربع «صافي المبيعات» في تاب المبيعات')}
+            <th title="نصيب الصف من إجمالي صافي المبيعات في الفترة — الترتيب بيه مطابق حرفيًا لعمود «صافي المبيعات»، فمالوش زرار ترتيب لوحده">الحصة</th>
+            ${th('totalValue', 'إجمالي القيمة', 'قيمة كل القطع اللي اتعملت في الصف بغض النظر عن مصيرها = قيد التنفيذ + فاقد + صافي')}
+            ${th('lost',       'الفاقد', 'إلغاء + رفض استلام + مرتجع + محذوف قبل الشحن — بالقيمة')}
+            ${th('delivered',  'تسليمات', 'تسليم أساسي + تسليم مع استبدال + تسليم مع استرجاع جزئي')}
+            ${th('returned',   'مرتجعات', 'رفض استلام (RTO) + مرتجع كامل بعد الاستلام')}
+            ${th('cancelled',  'إلغاءات', 'إلغاء قبل الشحن')}
+            ${th('inProgress', 'قيد التنفيذ', 'تحت التأكيد + تحت التجهيز + خرج للشحن — لسه ما استقرّتش')}
+            ${th('unclassified', 'خارج التصنيف', 'أوردرات مطابقتش أي مربع — بتتعرض لوحدها بدل ما تتبلع في «قيد التنفيذ»')}
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+        <tfoot>
+          <tr class="geo-total-row">
+            <td class="geo-name">الإجمالي</td>
+            <td class="col-num">${fmtInt(totals.orders)}</td>
+            <td class="col-num geo-strong">${fmtMoney(totals.netSales)}</td>
+            <td class="col-num"><span class="geo-pct">100.0%</span></td>
+            <td class="col-num">${fmtMoney(totals.totalValue)}</td>
+            <td class="col-num clr-red">${fmtMoney(totals.lost)}</td>
+            ${cell(totals.delivered,    tPct(totals.delivered),    'clr-green')}
+            ${cell(totals.returned,     tPct(totals.returned),     'clr-red')}
+            ${cell(totals.cancelled,    tPct(totals.cancelled),    'clr-red')}
+            ${cell(totals.inProgress,   tPct(totals.inProgress),   '')}
+            ${cell(totals.unclassified, tPct(totals.unclassified), totals.unclassified ? 'clr-red' : 'clr-muted')}
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  `;
+}
+
+// ─── §GEO-JS::renderGeoProvCharts — دونات توزيع الأوردرات + عمود أعلى ١٠ بصافي المبيعات ───
+let geoProvPieChart = null, geoProvBarChart = null;
+const GEO_TOP_N = 10;
+
+function renderGeoProvCharts({ groups, totals }) {
+  const host = document.getElementById('geoProvCharts');
+  if (!host) return;
+
+  host.innerHTML = `
+    <div class="chart-card">
+      <div class="chart-card-hdr"><span class="kpi-icon">🥧</span>توزيع الأوردرات على المحافظات</div>
+      <div class="chart-card-sub">أعلى ٨ محافظات بالعدد — والباقي مجمّع في شريحة واحدة · ${fmtInt(totals.orders)} أوردر</div>
+      <div class="chart-card-body">
+        <div class="chart-canvas-wrap"><canvas id="geoProvPie"></canvas></div>
+        <div class="chart-legend" id="geoProvPieLegend"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-hdr"><span class="kpi-icon">📊</span>أعلى ${GEO_TOP_N} محافظات بصافي المبيعات</div>
+      <div class="chart-card-sub">النسبة على العمود = نصيب المحافظة من صافي مبيعات <b>المحافظات المعروضة</b>، مش من الإجمالي</div>
+      <div class="chart-card-body">
+        <div class="chart-canvas-wrap bar-wrap"><canvas id="geoProvBar"></canvas></div>
+      </div>
+    </div>
+  `;
+
+  // ── الدونات: أعلى ٨ بالعدد + "باقي المحافظات" ──
+  const byOrders = sortGeoGroups(groups.filter(g => g.orders > 0), 'orders', 'desc');
+  const head = byOrders.slice(0, 8);
+  const tail = byOrders.slice(8);
+  const tailOrders = tail.reduce((s, g) => s + g.orders, 0);
+  const segments = head.map((g, i) => ({
+    label: g.label, value: g.orders, colour: GEO_PALETTE[i % GEO_PALETTE.length], key: g.key,
+  }));
+  if (tailOrders) segments.push({ label: `باقي المحافظات (${fmtInt(tail.length)})`, value: tailOrders, colour: '#cbd5e1', key: null });
+
+  const total = totals.orders || segments.reduce((s, x) => s + x.value, 0);
+  const legend = document.getElementById('geoProvPieLegend');
+  if (legend) {
+    legend.innerHTML = segments.map(sg => {
+      const pct = total ? (sg.value / total) * 100 : 0;
+      const active = sg.key && state.geoDetailsKey === `prov:${sg.key}` ? ' drill-active' : '';
+      const click = sg.key ? ` onclick="showGeoDetails('prov', ${JSON.stringify(sg.key).replace(/"/g, '&quot;')})"` : '';
+      return `<div class="chart-legend-item${active}"${click}>
+        <span class="chart-legend-dot" style="background:${sg.colour}"></span>
+        <span class="chart-legend-label">${esc(sg.label)}</span>
+        <span class="chart-legend-val">${fmtInt(sg.value)}</span>
+        <span class="chart-legend-pct">${fmtPct(pct)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  const pieCanvas = document.getElementById('geoProvPie');
+  if (pieCanvas && typeof Chart !== 'undefined') {
+    if (geoProvPieChart) { geoProvPieChart.destroy(); geoProvPieChart = null; }
+    geoProvPieChart = new Chart(pieCanvas.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: segments.map(x => x.label),
+        datasets: [{ data: segments.map(x => x.value), backgroundColor: segments.map(x => x.colour), borderColor: '#ffffff', borderWidth: 2, hoverOffset: 6 }],
+      },
+      plugins: [makeDonutValueLabelsPlugin()],
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '62%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            rtl: true,
+            bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
+            titleFont: { family: "'Noto Sans Arabic', sans-serif" },
+            callbacks: { label: (ctx) => ' ' + fmtInt(ctx.parsed) + ` (${(total ? (ctx.parsed / total) * 100 : 0).toFixed(1)}%)` },
+          },
+        },
+        onClick: (evt, els) => { const sg = els.length && segments[els[0].index]; if (sg && sg.key) showGeoDetails('prov', sg.key); },
+      },
+    });
+  }
+
+  // ── العمود: أعلى ١٠ بصافي المبيعات ──
+  const byNet = sortGeoGroups(groups.filter(g => g.netSales > 0), 'netSales', 'desc').slice(0, GEO_TOP_N);
+  const barCanvas = document.getElementById('geoProvBar');
+  if (!barCanvas || typeof Chart === 'undefined') return;
+  if (geoProvBarChart) { geoProvBarChart.destroy(); geoProvBarChart = null; }
+  const maxVal = Math.max(...byNet.map(g => g.netSales), 1);
+
+  geoProvBarChart = new Chart(barCanvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: byNet.map(g => g.label),
+      datasets: [{ data: byNet.map(g => g.netSales), backgroundColor: byNet.map((_, i) => GEO_PALETTE[i % GEO_PALETTE.length]), borderRadius: 6, maxBarThickness: 44 }],
+    },
+    plugins: [makeBarValueLabelsPlugin(fmtMoney)],
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 26 } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, maxRotation: 40, minRotation: 0 } },
+        y: { beginAtZero: true, max: maxVal * 1.24, ticks: { display: false }, grid: { color: '#f1f5f9' } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          rtl: true,
+          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
+          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
+          callbacks: { label: (ctx) => ' ' + fmtMoney(ctx.parsed.y) },
+        },
+      },
+      onClick: (evt, els) => { const g = els.length && byNet[els[0].index]; if (g) showGeoDetails('prov', g.key); },
+    },
+  });
+}
+
+// ─── §GEO-JS::renderGeoZoneCharts ───
+let geoZonePieChart = null, geoZoneBarChart = null;
+
+function renderGeoZoneCharts({ groups, totals }) {
+  const host = document.getElementById('geoZoneCharts');
+  if (!host) return;
+
+  const ordered = [...groups].sort((a, b) => {
+    const ia = ZONE_ORDER.indexOf(a.key), ib = ZONE_ORDER.indexOf(b.key);
+    return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib);
+  });
+
+  host.innerHTML = `
+    <div class="chart-card">
+      <div class="chart-card-hdr"><span class="kpi-icon">🥧</span>توزيع الأوردرات على المناطق</div>
+      <div class="chart-card-sub">القايمة مقفولة على ٤ قيم في تعريف الميتافيلد · ${fmtInt(totals.orders)} أوردر</div>
+      <div class="chart-card-body">
+        <div class="chart-canvas-wrap"><canvas id="geoZonePie"></canvas></div>
+        <div class="chart-legend" id="geoZonePieLegend"></div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-card-hdr"><span class="kpi-icon">📊</span>صافي المبيعات لكل منطقة</div>
+      <div class="chart-card-sub">نفس تقسيمة الدونات — بالقيمة بدل العدد</div>
+      <div class="chart-card-body">
+        <div class="chart-canvas-wrap bar-wrap"><canvas id="geoZoneBar"></canvas></div>
+      </div>
+    </div>
+  `;
+
+  const total = totals.orders || 1;
+  const legend = document.getElementById('geoZonePieLegend');
+  if (legend) {
+    legend.innerHTML = ordered.map(g => {
+      const pct = (g.orders / total) * 100;
+      const active = state.geoDetailsKey === `zone:${g.key}` ? ' drill-active' : '';
+      return `<div class="chart-legend-item${active}" onclick="showGeoDetails('zone', ${JSON.stringify(g.key).replace(/"/g, '&quot;')})">
+        <span class="chart-legend-dot" style="background:${zoneColour(g.key)}"></span>
+        <span class="chart-legend-label">${esc(g.label)}</span>
+        <span class="chart-legend-val">${fmtInt(g.orders)}</span>
+        <span class="chart-legend-pct">${fmtPct(pct)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  const pieCanvas = document.getElementById('geoZonePie');
+  if (pieCanvas && typeof Chart !== 'undefined') {
+    if (geoZonePieChart) { geoZonePieChart.destroy(); geoZonePieChart = null; }
+    geoZonePieChart = new Chart(pieCanvas.getContext('2d'), {
+      type: 'doughnut',
+      data: {
+        labels: ordered.map(g => g.label),
+        datasets: [{ data: ordered.map(g => g.orders), backgroundColor: ordered.map(g => zoneColour(g.key)), borderColor: '#ffffff', borderWidth: 2, hoverOffset: 6 }],
+      },
+      plugins: [makeDonutValueLabelsPlugin()],
+      options: {
+        responsive: true, maintainAspectRatio: false, cutout: '62%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            rtl: true,
+            bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
+            titleFont: { family: "'Noto Sans Arabic', sans-serif" },
+            callbacks: { label: (ctx) => ' ' + fmtInt(ctx.parsed) + ` (${((ctx.parsed / total) * 100).toFixed(1)}%)` },
+          },
+        },
+        onClick: (evt, els) => { const g = els.length && ordered[els[0].index]; if (g) showGeoDetails('zone', g.key); },
+      },
+    });
+  }
+
+  const barCanvas = document.getElementById('geoZoneBar');
+  if (!barCanvas || typeof Chart === 'undefined') return;
+  if (geoZoneBarChart) { geoZoneBarChart.destroy(); geoZoneBarChart = null; }
+  const maxVal = Math.max(...ordered.map(g => g.netSales), 1);
+
+  geoZoneBarChart = new Chart(barCanvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: ordered.map(g => g.label),
+      datasets: [{ data: ordered.map(g => g.netSales), backgroundColor: ordered.map(g => zoneColour(g.key)), borderRadius: 6, maxBarThickness: 56 }],
+    },
+    plugins: [makeBarValueLabelsPlugin(fmtMoney)],
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      layout: { padding: { top: 26 } },
+      scales: {
+        x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10.5 } } },
+        y: { beginAtZero: true, max: maxVal * 1.24, ticks: { display: false }, grid: { color: '#f1f5f9' } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          rtl: true,
+          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
+          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
+          callbacks: { label: (ctx) => ' ' + fmtMoney(ctx.parsed.y) },
+        },
+      },
+      onClick: (evt, els) => { const g = els.length && ordered[els[0].index]; if (g) showGeoDetails('zone', g.key); },
+    },
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// §GEO-DETAILS — جدول أوردرات المجموعة المختارة
+// state مستقل تمامًا عن details* و orderDetails* — التلاتة مش بيمسحوا بعض.
+// ══════════════════════════════════════════════════════
+function showGeoDetails(dim, key) {
+  const compound = `${dim}:${key}`;
+  // ضغطة تانية على نفس الصف = إلغاء الاختيار (زي ما التابين التانيين بيعملوا
+  // لما تضغط على نفس المربع).
+  if (state.geoDetailsKey === compound) {
+    state.geoDetailsKey = null;
+    state.geoDetailsOpen = false;
+  } else {
+    state.geoDetailsKey   = compound;
+    state.geoDetailsTitle = dim === 'zone' ? zoneLabel(key) : provLabel(key);
+    state.geoDetailsOpen  = true;
+  }
+  state.geoDetailsLimit  = DETAILS_ROW_LIMIT;
+  state.geoDetailsSearch = '';
+  document.getElementById('geoDetailsSection')?.classList.toggle('open', state.geoDetailsOpen);
+  renderGeo();
+  renderGeoDetails();
+  if (state.geoDetailsOpen) {
+    document.getElementById('geoDetailsSection')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
+function toggleGeoDetails() {
+  state.geoDetailsOpen = !state.geoDetailsOpen;
+  document.getElementById('geoDetailsSection')?.classList.toggle('open', state.geoDetailsOpen);
+}
+function onGeoDetailsSearch(v) {
+  state.geoDetailsSearch = v;
+  state.geoDetailsLimit  = DETAILS_ROW_LIMIT;
+  renderGeoDetailsTableWrap();
+}
+function showMoreGeoDetails() {
+  state.geoDetailsLimit += DETAILS_ROW_LIMIT;
+  renderGeoDetailsTableWrap();
+}
+
+// أوردرات المجموعة المختارة — من state.orderRows المعروضة (نفس الفلترة الزمنية)
+function geoSelectedRows() {
+  if (!state.geoDetailsKey) return [];
+  const sep = state.geoDetailsKey.indexOf(':');
+  const dim = state.geoDetailsKey.slice(0, sep);
+  const key = state.geoDetailsKey.slice(sep + 1);
+  const keyOf = dim === 'zone' ? zoneKeyOf : provKeyOf;
+  return (state.orderRows || []).filter(r => keyOf(r) === key);
+}
+function searchFilteredGeoRows() {
+  const q = (state.geoDetailsSearch || '').trim().toLowerCase();
+  const rows = geoSelectedRows();
+  if (!q) return rows;
+  return rows.filter(r =>
+    String(r.orderName || '').toLowerCase().includes(q) ||
+    String(r.orderId   || '').toLowerCase().includes(q) ||
+    String(r.s1        || '').toLowerCase().includes(q) ||
+    String(r.s2        || '').toLowerCase().includes(q));
+}
+
+function renderGeoDetails() {
+  const scope = document.getElementById('geoDetailsScope');
+  const body  = document.getElementById('geoDetailsBody');
+  if (!scope || !body) return;
+
+  if (!state.geoDetailsKey) {
+    scope.textContent = '— اضغط على أي محافظة أو منطقة لعرض أوردراتها';
+    body.innerHTML = `<div class="details-placeholder">اضغط على أي صف في الجدولين فوق (أو على شريحة في أي رسم) وهتظهر أوردرات المجموعة دي هنا.</div>`;
+    return;
+  }
+
+  scope.textContent = `— ${state.geoDetailsTitle} · ${state.range.from} → ${state.range.to}`;
+  body.innerHTML = `
+    <div class="details-search-row">
+      <div class="details-search-wrap">
+        <input type="text" id="geoDetailsSearchInput" class="details-search-input${state.geoDetailsSearch ? ' has-value' : ''}"
+               value="${esc(state.geoDetailsSearch)}"
+               oninput="onGeoDetailsSearch(this.value); toggleSearchActiveState(this)">
+        <span class="details-search-icon">🔍</span>
+      </div>
+    </div>
+    <div id="geoDetailsTableWrap"></div>
+  `;
+  renderGeoDetailsTableWrap();
+}
+
+function renderGeoDetailsTableWrap() {
+  const wrap = document.getElementById('geoDetailsTableWrap');
+  if (!wrap) return;
+
+  const rows = searchFilteredGeoRows();
+  const totalPieces = rows.reduce((s, r) => s + (r.orderTotalPieces || 0), 0);
+
+  const summary = `
+    <div class="details-summary-row">
+      <span class="details-summary-item">عدد الأوردرات: <b>${fmtInt(rows.length)}</b></span>
+      <span class="details-summary-item">إجمالي عدد القطع فيهم: <b>${fmtInt(totalPieces)}</b></span>
+    </div>`;
+
+  if (!rows.length) {
+    wrap.innerHTML = summary + `<div class="details-empty">مفيش أوردرات مطابقة${state.geoDetailsSearch ? ' للبحث' : ''} في الفترة المختارة.</div>`;
+    return;
+  }
+
+  const sorted = [...rows].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  const shown  = sorted.slice(0, state.geoDetailsLimit);
+
+  const tbody = shown.map(r => `
+    <tr class="${r.cycleNote === 'CYCLE_OVERLAP' ? 'has-cycle-overlap' : ''}">
+      <td>${orderLink(r.orderName || r.orderId, r.orderId)}</td>
+      <td class="col-num">${fmtInt(r.orderTotalPieces)}</td>
+      <td class="col-num">${fmtRowDate(r.createdAt)}</td>
+      <td>${esc(provLabel(provKeyOf(r)))}</td>
+      <td>${esc(zoneLabel(zoneKeyOf(r)))}</td>
+      <td>${orderBucketPill(r.bucket)}${cyclePill(r.cycleNote)}</td>
+      <td>${esc(r.s1 || '—')}</td>
+      <td>${esc(r.s2 || '—')}</td>
+    </tr>`).join('');
+
+  wrap.innerHTML = summary + reasonLegend(shown) + `
+    <div class="details-scroll">
+      <table class="details-table">
+        <thead>
+          <tr>
+            <th>رقم الأوردر</th>
+            <th>عدد القطع</th>
+            <th>التاريخ</th>
+            <th>المحافظة</th>
+            <th>المنطقة</th>
+            <th>الحالة</th>
+            <th>حالة الأوردر (S1)</th>
+            <th>حالة الإرجاع (S2)</th>
+          </tr>
+        </thead>
+        <tbody>${tbody}</tbody>
+      </table>
+    </div>
+    ${sorted.length > shown.length ? `<div class="details-more"><button class="btn" onclick="showMoreGeoDetails()">عرض المزيد (${fmtInt(sorted.length - shown.length)} أوردر متبقي)</button></div>` : ''}
   `;
 }
 
