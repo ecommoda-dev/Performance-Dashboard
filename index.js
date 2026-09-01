@@ -209,15 +209,30 @@
 //      `query-cost-guide.md` §6 (`…T23:59:59`) مش لازمة هنا، والصيغة الحالية
 //      (المقفولة في Data Contract §6) سليمة — متتغيّرش.
 //
-// skills: worker-builder v1.1.0 · constants v1.4.1 · dashboard-builder v2.1.0 ·
-//         order-lifecycle v1.1.0 — 01-09-2026
+// v3.6.2 (01-09-2026): **توثيق بحت — صفر تغيير في أي رقم أو تصنيف**، وصفر
+//   CACHE_VERSION bump. بندان من مراجعة على أحدث المهارات:
+//   1. G-14 (`ecommoda-order-lifecycle` v1.2.0) اتسجّلت فوق `isCancelledOrRTO`.
+//   2. تعليق `WORKER_VERSION` كان بيقول إن الواجهة بتقارنها بـ `TOOL_VERSION`
+//      — الواجهة بقت بتقارنها بـ `MIN_WORKER_VERSION` (html-builder v4.0.0).
+//
+// skills: worker-builder v2.0.0 · constants v1.4.3 · dashboard-builder v3.1.0 ·
+//         order-lifecycle v1.2.0 — 01-09-2026
+// ⚠️ البندان الكاسران في worker-builder v2.0.0 **مش منطبقين على الأداة دي**،
+//    واتأكدوا بالفحص مش بالافتراض:
+//    · «انتظار التأكيد بعد ميوتيشن غير متزامنة» — الأداة **قراءة فقط**، مفيش
+//      ولا `mutation` في الملف (`grep -c "mutation" index.js` = 0 خارج التعليقات).
+//    · «`get_logs_export` يرجّع cap/total/truncated» — مفيش أي endpoint بيقرا
+//      السجل هنا (بتكتب في D1 بس: `login` · `logout`).
 // ══════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════
 // §CONSTANTS
 // ══════════════════════════════════════════════════════
 const TOOL_NAME     = 'performance_dashboard';
-const WORKER_VERSION = 'v3.6.1'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
+// get_config بيرجّعها — والواجهة بتقارنها بـ MIN_WORKER_VERSION عندها (**مش**
+// بـ TOOL_VERSION): السؤال هو «الـ Worker جديد كفاية؟» مش «النسختين متطابقتين؟»،
+// لأن الرقمين مستقلين بالتصميم هنا (html-builder v4.0.0 · Standards #29).
+const WORKER_VERSION = 'v3.6.2';
 const CACHE_VERSION = 'v11'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا) → v11(hasRE على كل صف أوردر — عشان الواجهة تحسب «كام أوردر فيه نشاط إرجاع/استبدال» لأي جزء من الفترة بعد التقسيم الشهري)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
@@ -693,6 +708,18 @@ async function fetchStage2(env, token, candidateIds) {
 // §AGGREGATE::isCancelledOrRTO — §4.1، يسبق أي فحص تاني. manual_status مش مستخدم هنا أبداً
 // ⚠️ v2.0.0: نفس الدالة دي بالظبط بتُستخدم في computeOrderBoxes() تحت — مصدر
 // واحد للحقيقة لقرار ملغي/RTO، سواء بمستوى القطعة أو مستوى الأوردر.
+//
+// ⚠️ **فجوة موثّقة — G-14 (`ecommoda-order-lifecycle` v1.2.0، 01-09-2026):**
+// المقارنة تحت بتسأل عن `FULFILLED` **بالظبط**، فأوردر ملغي حالته
+// `PARTIALLY_FULFILLED` (اتلغى وجزء من بضاعته طالع برّه المخزن فعلاً) بيتصنّف
+// **إلغاء نضيف** وكأنه مات في المخزن — يعني الحدث بيختفي من تقارير الـ RTO
+// خالص بدل ما يتحط في دلو غلط ويبان. جرد على المتجر ده (01-09-2026):
+// `fulfillment_status:partial status:cancelled` رجّع **صفر** أوردر، وآخر ٥٠
+// أوردر ملغي كلهم `UNFULFILLED` ما عدا اتنين `FULFILLED` — يعني الحالة نظرية
+// لحد دلوقتي.
+// ⛔ **قرار أحمد 01-09-2026: تتسجّل بس، ما تتصلّحش هنا.** تحريك الدلو بيغيّر
+// أرقام تاريخية في كل أداة في الستاك ومحتاج قرار مستقل (قاعدة 13: علّم،
+// ماتحركش). وممنوع "تصليحها" بتوسيع المقارنة وسط مهمة تانية.
 function isCancelledOrRTO(order) {
   if (!order.cancelledAt) return null;
   return order.displayFulfillmentStatus === 'FULFILLED' ? 'RTO' : 'CANCELLED';
