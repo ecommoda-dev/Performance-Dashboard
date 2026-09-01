@@ -215,6 +215,33 @@
 //   2. تعليق `WORKER_VERSION` كان بيقول إن الواجهة بتقارنها بـ `TOOL_VERSION`
 //      — الواجهة بقت بتقارنها بـ `MIN_WORKER_VERSION` (html-builder v4.0.0).
 //
+// v3.7.0 (01-09-2026): 🆕 **تاب «المحافظات والمناطق»** — حقلان جديدان على كل صف.
+//   الطلب: تحليل أداء كل محافظة (مبيعات · عدد · نسبة تسليم/مرتجع/إلغاء)، وجنبه
+//   نفس التحليل على مناطق التوزيع من ميتافيلد `custom.zone`.
+//   1. `fetchStage1` بقى بيجيب `shippingAddress { province provinceCode }` و
+//      `zone: metafield(namespace:"custom", key:"zone")`. التكلفة **منخفضة**
+//      (object جوّه النود + metafield تالت — مفيش connection جديدة ولا صفحات).
+//   2. كل صف في `rows[]` و`orderRows[]` بقى فيه `prov` و`zone`.
+//      ⚠️ **على الصف، مش رقم مجمّع في الـ payload** — نفس سبب `hasRE` في v3.5.0
+//      بالظبط: بعد التقسيم الشهري الـ payload بيوصف **شهر تقويمي كامل**،
+//      والمعروض هو اختيار المستخدم بعد فلترة الأطراف بـ `createdAt`. أي تجميع
+//      جاهز هنا بيبقى رقم غلط شكله سليم على أي فترة مش مطابقة لحدود الشهر.
+//   3. `prov` = **اسم المحافظة الإنجليزي زي ما شوبيفاي بترجّعه** (`province`)،
+//      مش `provinceCode`. الاتنين متاحين والاختيار مقصود: خريطة التعريب في
+//      الواجهة مبنية على الأسماء اللي اتقاست فعليًا من المتجر، فاسم مش موجود
+//      في الخريطة بيتعرض **خام** (يبان) — بينما كود غلط في خريطة أكواد بيتعرض
+//      **باسم محافظة تانية** (رقم غلط شكله سليم). الفولباك: الاسم → الكود →
+//      `null` (بيتعرض «غير محدد» في الواجهة).
+//   4. `zone` = قيمة الميتافيلد الخام (`Cairo+Giza` · `Other_Regions` ·
+//      `Show_Room` · `BLANK`) أو `null` لو الميتافيلد مش موجود. التعريب في
+//      الواجهة، والقيمة الغريبة بتتعرض خام — نفس قاعدة `BUCKET`/`BUCKET_LABELS`.
+//   ⚠️ **`shippingAddress` ممكن يرجع `null`** (أوردر بلا عنوان شحن، أو صلاحية
+//      بيانات العملاء المحمية ناقصة في التطبيق). الحالة دي بتوصل للواجهة
+//      كـ `prov: null` وبتتعرض كصف «غير محدد» — والواجهة بتولّع بانر صريح لو
+//      **كل** الصفوف كده، لأن ده عرض صلاحية مش عرض بيانات.
+//   → CACHE_VERSION **v11 → v12** (شكل الصف اتغيّر — من غير الرفع الشهور
+//     المتكاشة بترجّع صفوف بلا الحقلين والتاب بيرندر فاضي بلا أي خطأ).
+//
 // skills: worker-builder v2.0.0 · constants v1.4.3 · dashboard-builder v3.1.0 ·
 //         order-lifecycle v1.2.0 — 01-09-2026
 // ⚠️ البندان الكاسران في worker-builder v2.0.0 **مش منطبقين على الأداة دي**،
@@ -232,8 +259,8 @@ const TOOL_NAME     = 'performance_dashboard';
 // get_config بيرجّعها — والواجهة بتقارنها بـ MIN_WORKER_VERSION عندها (**مش**
 // بـ TOOL_VERSION): السؤال هو «الـ Worker جديد كفاية؟» مش «النسختين متطابقتين؟»،
 // لأن الرقمين مستقلين بالتصميم هنا (html-builder v4.0.0 · Standards #29).
-const WORKER_VERSION = 'v3.6.2';
-const CACHE_VERSION = 'v11'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا) → v11(hasRE على كل صف أوردر — عشان الواجهة تحسب «كام أوردر فيه نشاط إرجاع/استبدال» لأي جزء من الفترة بعد التقسيم الشهري)
+const WORKER_VERSION = 'v3.7.0';
+const CACHE_VERSION = 'v12'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا) → v11(hasRE على كل صف أوردر — عشان الواجهة تحسب «كام أوردر فيه نشاط إرجاع/استبدال» لأي جزء من الفترة بعد التقسيم الشهري) → v12(prov/zone على كل صف — تاب المحافظات والمناطق؛ الحقلين على الصف مش مجمّعين في الـ payload عشان يتحسبوا لأي جزء من الفترة)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
 const LINE_ITEMS_PAGE     = 25;   // lineItems(first: 25) — absolute max
@@ -422,6 +449,30 @@ function numericIdFromGid(gid) {
   return (gid || '').split('/').pop();
 }
 
+// §SHARED::geoOf — المحافظة والمنطقة لأوردر واحد (v3.7.0)
+// ⛔ **الأولوية للاسم مش للكود، وده مقصود.** الاتنين بيتجابوا من شوبيفاي، بس
+// التعريب في الواجهة مبني على أسماء المحافظات اللي اتقاست فعليًا من المتجر:
+//   · اسم مش موجود في خريطة التعريب  → بيتعرض **خام** (المشكلة بتبان)
+//   · كود غلط في خريطة أكواد          → بيتعرض **باسم محافظة تانية** (رقم غلط
+//                                        شكله سليم — بالظبط اللي بنتجنبه)
+// الكود فولباك بس لأوردر فيه provinceCode من غير province.
+// بترجّع null لما مفيش عنوان شحن أصلاً — الواجهة بتعرضها «غير محدد».
+function provinceOf(order) {
+  const addr = order.shippingAddress;
+  if (!addr) return null;
+  return addr.province || addr.provinceCode || null;
+}
+
+// §SHARED::zoneOf — قيمة custom.zone الخام (Cairo+Giza · Other_Regions ·
+// Show_Room · BLANK) أو null لو الميتافيلد مش متكتب على الأوردر.
+// ⛔ ممنوع تعريبها هنا — الـ Worker بيملك الأكواد والواجهة بتملك الكلام
+// (نفس فصل BUCKET / BUCKET_LABELS). قيمة برّه الأربعة بتعدّي زي ما هي عشان
+// تبان في الواجهة بدل ما تتبلع في دلو "تاني".
+function zoneOf(order) {
+  const v = order.zone?.value;
+  return (v == null || v === '') ? null : v;
+}
+
 // §SHARED::isLineFulfilled — على مستوى السطر، مش الأوردر.
 // unfulfilledQuantity = 0 يعني كل كمية السطر اتشحنت. بيتستخدم كـ **تأكيد إضافي**
 // (assertion) بس — أبداً مش بيحدد الـ bucket، عشان مايختفيش أي جنيه من التصنيف
@@ -543,6 +594,12 @@ async function fetchStage1(env, token, dateFrom, dateTo) {
           displayFulfillmentStatus
           s1: metafield(namespace: "custom", key: "manual_status") { value }
           s2: metafield(namespace: "custom", key: "status_2_r_e")  { value }
+          # v3.7.0 — تاب المحافظات والمناطق. الاتنين تكلفتهم منخفضة: object جوّه
+          # النود (مش connection، مفيش صفحات) + metafield تالت على نفس النود.
+          # ⚠️ shippingAddress ممكن يرجع null — أوردر بلا عنوان شحن، أو صلاحية
+          # بيانات العملاء المحمية ناقصة في التطبيق. geoOf() بتتعامل مع الحالتين.
+          shippingAddress { province provinceCode }
+          zone: metafield(namespace: "custom", key: "zone") { value }
           lineItems(first: ${LINE_ITEMS_PAGE}) {
             pageInfo { hasNextPage }
             nodes {
@@ -828,6 +885,11 @@ function pushRow(rows, ctx, li, qty, value, bucket, note = null) {
     // و cycleNote تشخيص الأوردر. الفصل بيمنع الوسم الجديد من إخفاء القديم،
     // وبيخلي العرض يقدر يفصل الوسمين زي ما القاعدة بتطلب.
     cycleNote:        ctx.cycleNote,
+    // v3.7.0 — المحافظة والمنطقة على **الصف**، مش رقم مجمّع في الـ payload:
+    // بعد التقسيم الشهري الـ payload بيوصف شهر كامل والمعروض جزء منه، فأي
+    // تجميع جاهز هنا بيبقى رقم غلط شكله سليم على أي فترة مش على حدود شهر.
+    prov:             ctx.prov,
+    zone:             ctx.zone,
   });
 }
 
@@ -882,6 +944,8 @@ function computeBoxes(stage1Orders, stage2Map) {
       s1: s1Val,
       s2: s2Val,
       cycleNote:        cycNote,
+      prov:             provinceOf(order),
+      zone:             zoneOf(order),
     };
 
     // §4.1 — ملغي/RTO: كل قيمة السطر (Q×P) بتروح للفاقد، مش بس الفرق (Q−C)
@@ -1151,6 +1215,9 @@ function pushOrderRow(rows, order, bucket, cycNote = null, hasRE = false) {
     // الواجهة بتفلتر أطراف الفترة بـ createdAt، فأي رقم مجمّع بيوصف الشهر
     // كامل مش المعروض — رقم غلط شكله سليم. من الصف بيتحسب لأي جزء صح.
     hasRE:            !!hasRE,
+    // v3.7.0 — نفس السبب بالظبط: المحافظة والمنطقة على الصف (تاب المحافظات)
+    prov:             provinceOf(order),
+    zone:             zoneOf(order),
   });
 }
 
@@ -1576,6 +1643,35 @@ export default {
           checks.push({ check: 'KV read', ok: true, detail: 'تم' });
         } catch (e) {
           checks.push({ check: 'KV read', ok: false, detail: e.message });
+        }
+
+        // v3.7.0 — تاب المحافظات بيقف بالكامل على shippingAddress، وده الحقل
+        // الوحيد في الاستعلام اللي ممكن يرجع **null بصمت** لو صلاحية بيانات
+        // العملاء المحمية ناقصة في التطبيق — مفيش أي خطأ من شوبيفاي، بس كل
+        // المحافظات بتبقى "غير محدد". أرخص فحص حقيقي: أوردر واحد.
+        try {
+          const token2 = await getAccessToken(env);
+          const probe = await shopifyGQL(env, token2,
+            `{ orders(first: 1, sortKey: CREATED_AT, reverse: true) { nodes { name shippingAddress { province } zone: metafield(namespace: "custom", key: "zone") { value } } } }`);
+          const node = probe.data?.orders?.nodes?.[0];
+          if (!node) {
+            checks.push({ check: 'قراءة المحافظة (shippingAddress.province)', ok: true, detail: 'مفيش أوردرات للفحص' });
+          } else {
+            const prov = node.shippingAddress?.province || null;
+            checks.push({
+              check: 'قراءة المحافظة (shippingAddress.province)',
+              ok: !!node.shippingAddress,
+              detail: node.shippingAddress
+                ? `${node.name} → ${prov || '(العنوان موجود بس province فاضي)'}`
+                : `${node.name} → shippingAddress = null. لو ده متكرر على كل الأوردرات، السبب غالبًا صلاحية بيانات العملاء المحمية ناقصة — وتاب المحافظات هيعرض "غير محدد" لكل حاجة`,
+            });
+            checks.push({
+              check: 'قراءة المنطقة (custom.zone)', ok: true,
+              detail: node.zone?.value ? `${node.name} → ${node.zone.value}` : `${node.name} → الميتافيلد مش متكتب (بيتعرض "غير محدد")`,
+            });
+          }
+        } catch (e) {
+          checks.push({ check: 'قراءة المحافظة (shippingAddress.province)', ok: false, detail: e.message });
         }
 
         checks.push({ check: 'بداية تشغيل المتجر (STORE_START_DATE)', ok: true, detail: `${STORE_START_DATE} — أي فترة قبلها بتترفض بـ 400. لازم تطابق نفس الثابت في index.html` });
