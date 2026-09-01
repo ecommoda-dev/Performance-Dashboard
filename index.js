@@ -1,5 +1,5 @@
 // ══════════════════════════════════════════════════════════════════
-// Performance Dashboard Worker — لوحة الأداء (v3.3.0).
+// Performance Dashboard Worker — لوحة الأداء (v3.6.1).
 // المرجع: docs/performance-dashboard-data-contract-v2.1.0.md (v2.1.0 — معتمد)
 //         + ecommoda-order-lifecycle / references/piece-level-valuation.md (v1.1.0)
 //         + ecommoda-order-lifecycle / references/classification-rules.md (عدّ الأوردرات)
@@ -190,15 +190,34 @@
 //      مقروءة بس (الواجهة مش هتطلبها والـ Worker بيرفضها) وبتنتهي بالـ TTL
 //      لوحدها — bump هنا كان هيرمي كاش **صحيح** لكل الفترات بعد الحد بلا سبب.
 //
-// skills: worker-builder v1.1.0 · constants v1.2.0 · dashboard-builder v2.1.0 ·
-//         order-lifecycle v1.1.0 — 30-08-2026
+// v3.6.1 (01-09-2026): مراجعة على أحدث نسخ المهارات — صفر تغيير في أي رقم:
+//   1. سطر النسخة في أول الملف كان لسه واقف على (v3.3.0) بينما
+//      `WORKER_VERSION` بقى `v3.6.0` — قارئ الملف كان بياخد نسخة غلط من أول
+//      سطر، وهي أول حاجة بتتقرا في أي مراجعة.
+//   2. `diag`: `LOCATION_ID` **مش مستخدم في كود الـ Worker ده ولا مرة**
+//      (`env.LOCATION_ID` مش موجود) — فغيابه كان بيقلب `ok` العام لـ false
+//      ويخلي الفحص يقول "فيه فحوصات فاشلة" على متغيّر مالوش أي أثر. بقى صف
+//      معلوماتي (`ok: true`) بيقول إنه غير مستخدم، و`SHOP_DOMAIN` وحده هو
+//      المتغيّر الحاسم.
+//   3. بصمة المهارات اتحدّثت (constants v1.2.0 → v1.4.1).
+//   ⚠️ صفر CACHE_VERSION bump (فضلت v11) — لا الاستعلام ولا شكل الصف ولا أي
+//      منطق تصنيف اتغيّر.
+//   ✅ اتأكد بالقياس المباشر على شوبيفاي (01-09-2026) إن
+//      `created_at:>=D created_at:<=D` **شامل اليوم كله بتوقيت المتجر**
+//      (`Africa/Cairo`): نفس الاستعلام رجّع أوردرات من `2026-08-24T21:06Z`
+//      لحد `2026-08-25T20:59Z` لفلتر يوم `2026-08-25`. يعني صيغة
+//      `query-cost-guide.md` §6 (`…T23:59:59`) مش لازمة هنا، والصيغة الحالية
+//      (المقفولة في Data Contract §6) سليمة — متتغيّرش.
+//
+// skills: worker-builder v1.1.0 · constants v1.4.1 · dashboard-builder v2.1.0 ·
+//         order-lifecycle v1.1.0 — 01-09-2026
 // ══════════════════════════════════════════════════════════════════
 
 // ══════════════════════════════════════════════════════
 // §CONSTANTS
 // ══════════════════════════════════════════════════════
 const TOOL_NAME     = 'performance_dashboard';
-const WORKER_VERSION = 'v3.6.0'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
+const WORKER_VERSION = 'v3.6.1'; // get_config بيرجّعها — الواجهة بتقارنها بـ TOOL_VERSION
 const CACHE_VERSION = 'v11'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا) → v11(hasRE على كل صف أوردر — عشان الواجهة تحسب «كام أوردر فيه نشاط إرجاع/استبدال» لأي جزء من الفترة بعد التقسيم الشهري)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
@@ -1485,16 +1504,26 @@ export default {
       if (action === 'diag') {
         // ⚠️ ممنوع عرض قيمة أي سر — أسماء وأطوال بس
         const secretKeys = ['WORKER_SECRET', 'CLIENT_ID', 'CLIENT_SECRET'];
-        const varKeys    = ['SHOP_DOMAIN', 'LOCATION_ID'];
+        // ⚠️ SHOP_DOMAIN وحده هو المتغيّر الحاسم هنا. LOCATION_ID **مش مستخدم
+        // في كود الأداة دي ولا مرة** (مفيش `env.LOCATION_ID` في أي سطر) —
+        // متسيب كـ var قياسي بس، فبيتعرض كصف معلوماتي مايقلبش `ok` العام.
+        // من غير الفصل ده، حذف var مالوش أي أثر كان بيخلي الفحص يقول
+        // "فيه فحوصات فاشلة" — إنذار كاذب بيدفن الفحوصات الحقيقية.
+        const requiredVarKeys = ['SHOP_DOMAIN'];
+        const optionalVarKeys = ['LOCATION_ID'];
         const checks = [];
 
         for (const k of secretKeys) {
           const v = env[k];
           checks.push({ check: `env.${k}`, ok: !!v, detail: v ? `موجود (${String(v).length} حرف)` : 'ناقص' });
         }
-        for (const k of varKeys) {
+        for (const k of requiredVarKeys) {
           const v = env[k];
           checks.push({ check: `env.${k}`, ok: !!v, detail: v ? String(v) : 'ناقص' });
+        }
+        for (const k of optionalVarKeys) {
+          const v = env[k];
+          checks.push({ check: `env.${k} (غير مستخدم)`, ok: true, detail: v ? `${String(v)} — موجود بس الكود مبيقراهوش` : 'ناقص — مالوش أي أثر على الأداة دي' });
         }
         checks.push({ check: 'DASH_KV binding', ok: !!env.DASH_KV, detail: env.DASH_KV ? 'موجود' : 'ناقص — get_data هيرمي على كل نداء' });
         checks.push({ check: 'DB binding (D1)',  ok: !!env.DB,      detail: env.DB      ? 'موجود' : 'ناقص — تسجيل الدخول هيفشل' });

@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- skills: html-builder v2.1.0 · dashboard-builder v2.1.0 · order-lifecycle v1.1.0 — 30-08-2026 -->
+<!-- skills: html-builder v2.2.0 · dashboard-builder v2.1.0 · order-lifecycle v1.1.0 · constants v1.4.1 — 01-09-2026 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة الأداء — EcomModa</title>
@@ -455,6 +455,8 @@
   .settings-label        { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; }
   .settings-input        { border: 1.5px solid var(--border-strong); border-radius: var(--radius-sm); padding: 9px 11px; font-family: var(--font-mono); font-size: 12px; color: var(--text-primary); outline: none; width: 100%; direction: ltr; background: var(--surface); transition: border-color .15s; }
   .settings-input:focus  { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,.08); }
+  /* الرابط بقى constant — بيتعرض للقراءة بس (html-builder v2.2.0 · #28) */
+  .settings-readonly     { border: 1.5px dashed var(--border-strong); border-radius: var(--radius-sm); padding: 9px 11px; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-secondary); background: var(--surface-2); direction: ltr; word-break: break-all; }
   .settings-modal-ftr    { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
   .btn-modal-cancel      { padding: 8px 14px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; cursor: pointer; }
   .btn-modal-cancel:hover { color: var(--text-primary); }
@@ -1018,9 +1020,17 @@
   <div class="settings-modal">
     <div class="settings-modal-hdr">⚙️ الإعدادات<button class="modal-close-x" onclick="closeSettings()">✕</button></div>
     <div class="settings-modal-body">
-      <div class="settings-field"><label class="settings-label">WORKER URL</label><input type="text" class="settings-input" id="cfgUrl"></div>
+      <!-- ⛔ WORKER URL و ADMIN WORKER URL **اتشالوا** من شاشة الإعدادات —
+           بقوا constants في §CONFIG (ecommoda-html-builder v2.2.0 · Standards
+           Changelog #28). الرابطين مش سر: الحماية في WORKER_SECRET + البوابة
+           على كل راوت، واسم الـ Worker بيتحدد وقت الإنشاء ومايتغيّرش.
+           WORKER SECRET وحده اللي فضل حقل + localStorage — هو السر الفعلي
+           والريبو Public. -->
       <div class="settings-field"><label class="settings-label">WORKER SECRET</label><input type="password" class="settings-input" id="cfgSecret"></div>
-      <div class="settings-field"><label class="settings-label">ADMIN WORKER URL</label><input type="text" class="settings-input" id="cfgAdminUrl"></div>
+      <div class="settings-field">
+        <label class="settings-label">WORKER URL</label>
+        <div class="settings-readonly" id="cfgUrlView"></div>
+      </div>
       <div class="settings-field" style="border-top:1.5px solid var(--border);padding-top:12px;">
         <label class="settings-label">فحص النظام</label>
         <button class="btn" id="diagBtn" onclick="runDiag()">🩺 افحص الأداة والاتصالات</button>
@@ -1040,7 +1050,16 @@
     <div class="eco-modal-hdr"><span>📋 سجل التحديثات</span><button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="eco-modal-body">
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">31-08-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">01-09-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>أوردرات أول ٣ ساعات في اليوم كانت بتتحسب على اليوم اللي قبله.</b> الفلترة اللي بتقصّ أطراف الفترة كانت بتقرا تاريخ الأوردر بتوقيت جرينتش، بينما الفترة اللي إنت مختارها والتاريخ اللي ظاهر في الجدول الاتنين بتوقيت القاهرة — يعني أوردر اتعمل ١ بالليل يوم ٥ كان بيتعدّ يوم ٤ ويختفي من يوم ٥. الأثر كان على <b>كل رقم على الشاشة</b> (الكروت والدونات والتحذيرات كلها بتتحسب من نفس الصفوف). دلوقتي المقارنة بتوقيت القاهرة زي شوبيفاي بالظبط.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>خانتَي "WORKER URL" و"ADMIN WORKER URL" اتشالوا من الإعدادات.</b> الرابطين بقوا مكتوبين في الأداة نفسها — مش سر أصلاً (الحماية في الـ SECRET)، وكان معناهم خطوة إعداد زيادة على كل موظف واحتمال رابط متكتب غلط. <b>WORKER SECRET</b> وحده هو اللي فضل في الإعدادات. الرابط لسه بيتعرض للقراءة تحت السر عشان الدعم يشوفه.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>الفحص الذاتي 🩺 مابقاش بيقول "فيه فحوصات فاشلة" على متغيّر مالوش أي أثر.</b> <span dir="ltr">LOCATION_ID</span> مش مستخدم في الأداة دي خالص، وكان غيابه بيقلب نتيجة الفحص كلها لأحمر ويدفن أي فحص حقيقي فاشل تحته.</span></li>
+        </ul>
+      </div>
+
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.6.0</span><span class="cl-ver-date">31-08-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>الأداة بقت تبدأ من 1 مايو 2026 — بداية تشغيل المتجر.</b> أي يوم قبل التاريخ ده اتعامل معاه كأن المتجر ماكانش شغّال: مفيش سحب من شوبيفاي، مفيش كاش، ومفيش رقم على الشاشة. عمليًا: تقويم "من تاريخ" و"إلى تاريخ" مش بيسمح باختيار قبل التاريخ ده · مربعات الشهور بتقف عند مايو 2026 · فترة سريعة مداها كله قبل الحد (زي "العام السابق") بقت <b>معطّلة</b> في القايمة · وفترة بتبدأ قبل الحد (زي "العام الحالي") بتبدأ من 1 مايو مع سطر بيوضّح السبب.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>مقارنة Δ% بتختفي لما مافيش فترة سابقة كاملة.</b> مربّع "مايو 2026" مالوش شهر سابق يتقارن بيه أصلاً، و"آخر ٩٠ يوم" الـ ٩٠ يوم اللي قبلها مش كلها بعد بداية المتجر. في الحالتين المقارنة بتتشال بالكامل بدل ما تتحسب على فترة سابقة <b>مقصوصة</b> — مقارنة ٩٠ يوم بـ ٣٣ يوم كانت هتطلّع نسبة شكلها سليم ومعناها غلط. الأرقام نفسها بتفضل زي ما هي، سطر الـ Δ بس هو اللي بيختفي.</span></li>
@@ -1433,11 +1452,21 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 تعطيل شهور/سنين قبل الحد في "شهر محدد"│ HTML  │ §DATERANGE │ refreshMonthOptionState / ensureRangeYearOptions
 إلغاء المقارنة لو الفترة السابقة ناقصة│ HTML │ §UTILS     │ getPreviousRange (بترجّع null)
 كشف تفرّق الطبقتين                 │ HTML   │ §SHELL-JS  │ checkWorkerVersion (storeStartDate)
+─────────────────────────────────────────────────────  v3.7.0 (01-09-2026)
+فلترة الأطراف بتوقيت القاهرة       │ HTML   │ §DASH-JS   │ visibleRows (cairoDateStr + toCairo)
+رابط الـ Worker constant مش إعداد   │ HTML   │ §CONFIG    │ WORKER_URL / ADMIN_WORKER_URL
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
-LS_URL    = 'perfdash_worker_url'
-LS_SECRET = 'perfdash_worker_secret'
+WORKER_URL       = رابط الـ Worker — **constant في §CONFIG**، مش حقل إعدادات ومش
+                   localStorage (ecommoda-html-builder v2.2.0 · Standards
+                   Changelog #28). الرابط مش سر: الحماية في WORKER_SECRET
+                   والبوابة على كل راوت، واسم الـ Worker ثابت من وقت الإنشاء.
+ADMIN_WORKER_URL = من ecommoda-constants §5b — مفيش مستهلك ليها في الأداة دي
+                   حاليًا، مكتوبة عشان أي إضافة جاية تلاقيها في مكانها القياسي.
+LS_SECRET = 'perfdash_worker_secret'  ← **مفتاح الـ localStorage الوحيد**
+                   (`perfdash_worker_url` و`admin_worker_url` بيتمسحوا مرة
+                   واحدة عند التحميل — بقايا من قبل #28)
 TOOL_VERSION            = نسخة الواجهة (مصدر واحد — الهيدر + شاشة الدخول + الـ Changelog)
 EXPECTED_WORKER_VERSION = نسخة الـ Worker اللي الواجهة دي اتكتبت عليها.
   ⚠️ **مش** نفس TOOL_VERSION — الاتنين مستقلين عن قصد في الأداة دي. تحذير
@@ -1598,14 +1627,27 @@ NOTES
 // ══════════════════════════════════════════════════════
 // §CONFIG
 // ══════════════════════════════════════════════════════
-const LS_URL       = 'perfdash_worker_url';
+// ─── §CONFIG::URLs — constants مش حقول إعدادات (html-builder v2.2.0 · #28) ───
+// الرابطين **مش سر**: الحماية الحقيقية في `WORKER_SECRET` (بوابة على كل راوت
+// في الـ Worker) مش في إخفاء الرابط، واسم الـ Worker بيتحدد وقت الإنشاء
+// ومايتغيّرش. تحويلهم لحقل إدخال كان بيحمّل الموظف خطوة إعداد بلا أي مكسب
+// أمني — وبيخلي "الأداة مش شغّالة" تبقى غالبًا رابط متكتب غلط.
+// ⚠️ WORKER_URL لازم يطابق `name` في wrangler.toml (CLAUDE.md § الروابط).
+const WORKER_URL       = 'https://performance-dashboard-worker.ecommoda-dev.workers.dev';
+// ecommoda-constants §5b — نفس القيمة حرفيًا في كل أدوات الستاك. مفيش
+// مستهلك ليها في الأداة دي دلوقتي (مفيش زرار "إدارة الموظفين")، بس بتتكتب
+// هنا عشان أي إضافة جاية تلاقيها في مكانها القياسي بدل ما تخترع واحدة.
+const ADMIN_WORKER_URL = 'https://employees-admin-panel-worker.ecommoda-dev.workers.dev';
+// السر الوحيد اللي فعلاً بيتخزّن عند الموظف — ومفتاح localStorage الوحيد.
 const LS_SECRET    = 'perfdash_worker_secret';
-const LS_ADMIN_URL = 'admin_worker_url';       // shared across all tools — never rename
-const TOOL_VERSION = 'v3.6.0';
+// مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
+// ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
+['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
+const TOOL_VERSION = 'v3.7.0';
 // نسخة الـ Worker اللي الواجهة دي اتكتبت عليها — **مش** نفس TOOL_VERSION.
 // الاتنين مستقلين عن قصد في الأداة دي (CLAUDE.md)، فالمقارنة لازم تبقى مع
 // القيمة دي عشان تكشف Promote ناقص بدل ما تحذّر من اختلاف ترقيم مقصود.
-const EXPECTED_WORKER_VERSION = 'v3.6.0';
+const EXPECTED_WORKER_VERSION = 'v3.6.1';
 let workerLiveVersion = '';
 let workerLiveStoreStart = '';
 
@@ -1624,21 +1666,23 @@ const QTY_SUFFIX = 'قطعة';
 const SHOPIFY_STORE_HANDLE = '6c7e1a-53';
 const DETAILS_ROW_LIMIT = 500;
 
+// الرابطين constants دلوقتي — بيرجعوا مباشرة، والـ trailing-slash fix لسه
+// بيتطبّق عليهم زي أي string ثابت تاني (html-builder v2.2.0).
 function getConfig() {
   return {
-    workerUrl:    localStorage.getItem(LS_URL)       || '',
-    workerSecret: localStorage.getItem(LS_SECRET)    || '',
-    adminUrl:     localStorage.getItem(LS_ADMIN_URL) || '',
+    workerUrl:    WORKER_URL.replace(/\/$/, ''),
+    workerSecret: localStorage.getItem(LS_SECRET) || '',
+    adminUrl:     ADMIN_WORKER_URL.replace(/\/$/, ''),
   };
 }
+// ⚠️ الشرط بقى على السر وحده — الرابط ثابت في الكود فمستحيل يكون ناقص.
 function isConfigured() {
-  const c = getConfig();
-  return c.workerUrl.startsWith('http') && c.workerSecret.length > 0;
+  return getConfig().workerSecret.length > 0;
 }
 
 async function apiRequest(action, { method = 'GET', params = {}, body = null } = {}) {
   const cfg = getConfig();
-  if (!isConfigured()) throw new Error('محتاج تظبط WORKER URL و WORKER SECRET من ⚙️ الإعدادات الأول');
+  if (!isConfigured()) throw new Error('محتاج تظبط WORKER SECRET من ⚙️ الإعدادات الأول');
 
   const base = cfg.workerUrl.replace(/\/$/, '');
   const url  = new URL(base);
@@ -1696,20 +1740,19 @@ function updateSettingsBtn() {
 }
 function openSettings() {
   const c = getConfig();
-  document.getElementById('cfgUrl').value      = c.workerUrl;
-  document.getElementById('cfgSecret').value   = c.workerSecret;
-  document.getElementById('cfgAdminUrl').value = c.adminUrl;
+  document.getElementById('cfgSecret').value = c.workerSecret;
+  // عرض للقراءة بس — عشان الفحص الذاتي/الدعم يشوفوا الرابط اللي الأداة
+  // بتضربه فعلاً من غير ما يرجع حقل إدخال.
+  const urlView = document.getElementById('cfgUrlView');
+  if (urlView) urlView.textContent = c.workerUrl;
   document.getElementById('settingsOverlay').classList.add('open');
 }
 function closeSettings() { document.getElementById('settingsOverlay').classList.remove('open'); }
 function closeSettingsOnBackdrop(e) { if (e.target === e.currentTarget) closeSettings(); }
 function saveSettings() {
-  const url    = document.getElementById('cfgUrl').value.trim();
   const secret = document.getElementById('cfgSecret').value.trim();
-  if (!url || !secret) { showToast('الرجاء إدخال الـ URL والـ Secret', 'error'); return; }
-  localStorage.setItem(LS_URL, url.replace(/\/$/, ''));
+  if (!secret) { showToast('الرجاء إدخال الـ WORKER SECRET', 'error'); return; }
   localStorage.setItem(LS_SECRET, secret);
-  localStorage.setItem(LS_ADMIN_URL, (document.getElementById('cfgAdminUrl').value.trim()).replace(/\/$/, ''));
   updateSettingsBtn();
   closeSettings();
   showToast('تم حفظ الإعدادات ✓', 'success');
@@ -2367,10 +2410,24 @@ function monthLabel(ym) {
 // الـ chunks بترجّع شهور كاملة، فالصفوف ممكن تتعدّى طرفي الفترة المختارة.
 // الفلترة دي هي اللي بتخلي "آخر ٧ أيام" تفضل ٧ أيام فعلًا وهي بتقرا من كاش
 // الشهر الكامل. ⚠️ بتعتمد على createdAt على كل صف — موجود في rows و orderRows.
+//
+// 🔴 **اليوم هنا يوم القاهرة، مش يوم UTC** (إصلاح v3.7.0). `createdAt` جاي من
+// شوبيفاي بـ Z، و`.slice(0,10)` عليه بتدي **تاريخ UTC** — بينما:
+//   · حدود الفترة (`range.from/to`) بتتولّد بـ `cairoDateStr(cairoNow())`،
+//   · والعمود "التاريخ" في الجدول بيتعرض بـ `fmtRowDate` = توقيت القاهرة،
+//   · و**شوبيفاي نفسها** بتفلتر `created_at:` بتوقيت المتجر (`Africa/Cairo`) —
+//     متأكَّد بالقياس 01-09-2026: فلتر يوم `2026-08-25` رجّع أوردرات من
+//     `2026-08-24T21:06Z` لحد `2026-08-25T20:59Z`.
+// يعني المقارنة بتاريخ UTC كانت بترمي كل أوردر اتعمل بين ١٢ و٣ الفجر بتوقيت
+// القاهرة (= ٢١:٠٠–٢٤:٠٠ UTC لليوم اللي قبله) من اليوم اللي هو فيه فعلًا،
+// وتحطّه في اليوم اللي قبله. الأثر كان على **كل رقم على الشاشة** (كل الكروت
+// والتحذيرات بتتحسب من الصفوف دي)، والهوية الحسابية مكانتش بتكشفه لأن
+// الطرفين بيتحسبوا من نفس الصفوف المفلترة غلط.
 function visibleRows(rows, range) {
   return (rows || []).filter(r => {
-    const d = String(r.createdAt || '').slice(0, 10);
-    return d && d >= range.from && d <= range.to;
+    if (!r.createdAt) return false;
+    const d = cairoDateStr(toCairo(r.createdAt));
+    return d >= range.from && d <= range.to;
   });
 }
 
@@ -2430,7 +2487,7 @@ function planChunks(range, metaByKey) {
 async function probeAndLoad() {
   if (!isConfigured()) {
     state.viewState = 'error';
-    state.lastError = { message: 'محتاج تظبط WORKER URL و WORKER SECRET من ⚙️ الإعدادات' };
+    state.lastError = { message: 'محتاج تظبط WORKER SECRET من ⚙️ الإعدادات' };
     setLoadState('error', state.lastError); renderShell(); return;
   }
   if (!currentEmployee) return;
