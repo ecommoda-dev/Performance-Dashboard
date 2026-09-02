@@ -633,6 +633,32 @@
   .geo-section-hdr .kpi-icon { font-size: 16px; }
   .geo-section-sub { font-size: 11.5px; font-weight: 600; color: var(--text-muted); }
   .geo-section-sub code { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; font-size: 11px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+  /* ── فلتر المحافظات (v3.11.0) — chips فوق التاب كله ── */
+  .geo-filter-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 13px 16px 14px; margin-bottom: 4px; }
+  .geo-filter-hdr { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+  .geo-filter-title { font-size: 13.5px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
+  .geo-filter-hint { font-size: 11.5px; color: var(--text-muted); }
+  .geo-filter-hint b { color: var(--text-secondary); }
+  .geo-filter-actions { margin-inline-start: auto; display: inline-flex; gap: 7px; }
+  .geo-filter-chips { display: flex; flex-wrap: wrap; gap: 7px; max-height: 168px; overflow-y: auto; }
+  .geo-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 11px; border-radius: 20px; cursor: pointer;
+    border: 1.5px solid var(--border); background: var(--surface);
+    font-family: var(--font-body); font-size: 12px; font-weight: 700; color: var(--text-secondary);
+    transition: all .12s; white-space: nowrap; user-select: none;
+  }
+  .geo-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .geo-chip.on { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .geo-chip .geo-chip-n { font-family: var(--font-mono); direction: ltr; font-size: 10.5px; opacity: .8; }
+  .geo-chip.on .geo-chip-n { opacity: .9; }
+  .geo-chip.is-unknown { border-style: dashed; }
+  /* محافظة بلا أوردرات في الفترة — بتفضل ظاهرة (القايمة كاملة) بس مش قابلة للاختيار */
+  .geo-chip.is-empty { opacity: .42; cursor: default; }
+  .geo-chip.is-empty:hover { border-color: var(--border); color: var(--text-secondary); }
+  /* شريط "الفلتر شغّال" — بيتكرر فوق كل قسم عشان الرقم عمره ما يتقري كإجمالي الفترة */
+  .geo-filter-flag { font-size: 11.5px; font-weight: 700; color: var(--accent); background: var(--accent-light); border: 1px solid var(--accent); border-radius: 8px; padding: 2px 9px; white-space: nowrap; }
+
   /* ── رسوم التاب: كارت بعرض الصفحة كاملة (مش عمودين) ──
      الرسم الواحد فيه ٢٩ محافظة × ٣ أعمدة، فالكارت بيتمدّ على العرض كله
      والكانفس جوّه بياخد min-width محسوب بعدد المجموعات + سكرول أفقي — بدل
@@ -1119,6 +1145,10 @@
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">02-09-2026</span></div>
         <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>فلتر المحافظات فوق التاب.</b> صف chips فيه <b>كل</b> محافظات شوبيفاي — اضغط على اللي يهمك (واحدة أو أكتر) والتاب <b>كله</b> يتقصّ عليها: الرسمين، الجدول، <b>قسم مناطق التوزيع</b>، وجدول الأوردرات تحت. مفيش اختيار = كل المحافظات. المحافظة اللي مالهاش أوردرات في الفترة بتبان <b>باهتة</b> ومش قابلة للاختيار بدل ما تتشال من القايمة.
+            <br>وكل قسم بيشيل شارة «🔎 مفلتر على N محافظة» طول ما الفلتر شغّال — عشان أي رقم في الجداول عمره ما يتقري كإجمالي الفترة وهو إجمالي الاختيار.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>الصفحة ما بقتش بتنطّ لتحت لوحدها.</b> الضغط على أي محافظة أو منطقة (في الرسم أو الجدول) كان بينزّلك تلقائيًا عند جدول الأوردرات — بيوديك بعيد عن اللي بتقارن فيه ويخليك ترجع بإيدك كل مرة. دلوقتي الجدول بيتحدّث في مكانه وإنت اللي تنزّل له لما تحتاجه.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>أسماء المحافظات تحت الرسوم بقت أفقية</b> مش مايلة بزاوية، في كل الرسوم البيانية في الأداة. الاسم الأفقي محتاج عرض أكبر، فالرسم في وضعه الافتراضي (كل المحافظات) بقى بيتمرّر أفقيًا — ولو عايزه كله في الشاشة استخدم فلتر المحافظات فوق. والأعمدة بقت أسمك لما المحافظات المعروضة قليلة بدل ما تبان خيوط في نص فراغ.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>التاب اتسمّى «🗺️ المحافظات والمناطق»</b> — الاسم القديم كان بيوصف نص التاب بس؛ قسم <b>مناطق التوزيع</b> موجود جوّاه من أول يوم وبنفس الحجم.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>رسمان جديدان بعرض الصفحة بدل الدونات.</b> لكل محافظة تلات أعمدة جنب بعض — <b class="clr-green-t">تسليمات</b> · <b class="clr-red-t">إلغاءات ومرتجعات</b> · <b class="clr-purple-t">قيد التنفيذ</b> — والرسم التاني بيعيد <b>نفس</b> التقسيمة بالجنيه بدل العدد وبنفس ترتيب المحافظات بالظبط، عشان الاتنين يتقروا مع بعض.
             <br>الرسم بيعرض <b>كل</b> المحافظات اللي في قايمة شوبيفاي — حتى اللي مالهاش ولا أوردر في الفترة، عشان الغياب يبان بدل ما يختفي.
@@ -1570,6 +1600,12 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 قايمة العرض الكاملة لأي بُعد     │ HTML   │ §GEO-JS    │ geoAllRows (كل محافظات شوبيفاي حتى الفاضية)
 رسمَان بعرض الصفحة لكل بُعد      │ HTML   │ §GEO-JS    │ renderGeoCharts / buildGeoStackChart / geoAxisTick
 جدول ٤+٤ أعمدة (عدد · قيمة)      │ HTML   │ §GEO-JS    │ renderGeoTable (thead سطرين + geo-sep)
+── v3.11.0 — فلتر المحافظات + ليبلات أفقية ──────────────────
+فلتر المحافظات (chips) على التاب │ HTML   │ §GEO-FILTER│ renderGeoFilter / toggleGeoProv / clearGeoProvFilter
+قصّ الصفوف قبل أي تجميع          │ HTML   │ §GEO-FILTER│ geoFilterRows / geoFilterActive / geoChipUniverse
+شارة «الفلتر شغّال» على كل قسم   │ HTML   │ §GEO-FILTER│ geoFilterFlag / geoProvFlag / geoZoneFlag
+ليبلات أفقية في كل bar chart     │ HTML   │ §GEO-JS · §TOOL-JS │ maxRotation: 0 (+ GEO_GROUP_W)
+إلغاء التمرير التلقائي للتفاصيل  │ HTML   │ §GEO-DETAILS│ showGeoDetails (بلا scrollIntoView)
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1680,6 +1716,15 @@ GEO_STATUS = التقسيمة التلاتية اللي التاب كله متب
 geoAllRows(dim, groups) = قايمة العرض: **كل** الـ 29 محافظة في قايمة شوبيفاي
   (حتى اللي مالهاش ولا أوردر — بصف أصفار من geoEmptyRow) + أي قيمة خام +
   «غير محدد»، مرتّبة بالعدد تنازليًا. المنطقة بترتيب ZONE_ORDER الثابت.
+state.geoProvSel = Set بمفاتيح المحافظات المختارة من الفلتر. **فاضية = مفيش
+  فلتر = كل المحافظات** (نمط الـ facets). أي اختيار بيقصّ الصفوف الخام قبل أي
+  تجميع (`geoFilterRows`) — فالتاب كله (الرسمين + الجدولين + **قسم المناطق** +
+  جدول الأوردرات تحت) بيتحسب من الاختيار. ⛔ ممنوع الفلترة على المجموعات بعد
+  ما تتحسب: قسم المناطق بيتجمّع على `zone` مش `prov`، فكان هيفضل بيعدّ كل
+  الأوردرات وتبقى الصفحة فيها رقمين بمقاسين جنب بعض من غير أي إشارة.
+GEO_GROUP_W = عرض المجموعة في رسوم التاب (٧٠px للمحافظة · ١٢٠px للمنطقة) —
+  مشتق من **أعرض ليبل** لأن الليبلات أفقية إجباريًا (مفيش ميلان). التمن سكرول
+  أفقي في العرض الافتراضي، ومخرجه فلتر المحافظات.
 state.geoSortKey / geoSortDir = عمود واتجاه ترتيب جدول المحافظات (جدول المناطق
   ترتيبه ثابت بـ ZONE_ORDER — ٤ صفوف، الترتيب المنطقي أوضح من الرقمي).
 state.geoDetailsKey = 'prov:<name>' | 'zone:<value>' — المجموعة المختارة.
@@ -1799,7 +1844,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.10.0';
+const TOOL_VERSION = 'v3.11.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -2116,6 +2161,10 @@ const state = {
   // ⚠️ مفيش أي بيانات إضافية هنا: التاب بيتحسب بالكامل من state.rows و
   //    state.orderRows (`prov`/`zone` على كل صف) — صفر fetch إضافي، وبيتغيّر
   //    مع الفترة زي التابين التانيين تلقائيًا.
+  // v3.11.0 — فلتر المحافظات. **Set فاضية = مفيش فلتر = كل المحافظات** (نمط
+  // الـ facets القياسي: مفيش اختيار يعني مفيش تضييق). أي محافظة مختارة بتقصّ
+  // **كل** التاب: الرسمين + الجدولين + قسم المناطق + جدول الأوردرات تحت.
+  geoProvSel:  new Set(),
   geoSortKey:  'mDelivered', // عمود الترتيب في جدول المحافظات (تسليمات بالقيمة)
   geoSortDir:  'desc',
   geoDetailsOpen:  false,
@@ -3036,12 +3085,13 @@ function renderShell() {
 
     <div id="geoPageContent" class="${state.activePage === 'geo' ? '' : 'hidden'}">
       <div id="geoGuardNote"></div>
+      <div class="geo-filter-card" id="geoFilterCard"></div>
 
-      <div class="geo-section-hdr"><span class="kpi-icon">🗺️</span>المحافظات <span class="geo-section-sub">محافظة عنوان الشحن (<code>shippingAddress.province</code>) — مش المدينة</span></div>
+      <div class="geo-section-hdr"><span class="kpi-icon">🗺️</span>المحافظات <span class="geo-section-sub">محافظة عنوان الشحن (<code>shippingAddress.province</code>) — مش المدينة</span><span id="geoProvFlag"></span></div>
       <div id="geoProvCharts"></div>
       <div class="geo-table-card" id="geoProvTable"></div>
 
-      <div class="geo-section-hdr"><span class="kpi-icon">🚚</span>مناطق التوزيع <span class="geo-section-sub">من ميتافيلد الأوردر <code>custom.zone</code> — مستقل تمامًا عن المحافظة</span></div>
+      <div class="geo-section-hdr"><span class="kpi-icon">🚚</span>مناطق التوزيع <span class="geo-section-sub">من ميتافيلد الأوردر <code>custom.zone</code> — مستقل تمامًا عن المحافظة</span><span id="geoZoneFlag"></span></div>
       <div id="geoZoneCharts"></div>
       <div class="geo-table-card" id="geoZoneTable"></div>
 
@@ -3698,7 +3748,7 @@ function renderMainBar(b) {
       maintainAspectRatio: false,
       layout: { padding: { top: 26 } },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10.5 } } },
+        x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10.5 }, maxRotation: 0, minRotation: 0 } },
         y: { beginAtZero: true, max: maxVal * 1.22, ticks: { display: false }, grid: { color: '#f1f5f9' } }, // beginAtZero — أبدًا مش من غير الصفر
       },
       plugins: {
@@ -4348,7 +4398,7 @@ function renderOrdersBar(b) {
       maintainAspectRatio: false,
       layout: { padding: { top: 26 } },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10.5 } } },
+        x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10.5 }, maxRotation: 0, minRotation: 0 } },
         y: { beginAtZero: true, max: maxVal * 1.22, ticks: { display: false }, grid: { color: '#f1f5f9' } }, // beginAtZero — أبدًا مش من غير الصفر
       },
       plugins: {
@@ -4648,6 +4698,125 @@ function provLabel(key) {
 function zoneLabel(key) { return ZONE_AR[key]?.label || key; }
 function zoneColour(key) { return ZONE_AR[key]?.colour || '#dc2626'; }
 
+// ══════════════════════════════════════════════════════
+// §GEO-FILTER — فلتر المحافظات (v3.11.0)
+// 🔴 قرار أحمد 02-09-2026: chips فوق التاب بتحدّد أنهي محافظات تتعرض —
+//    والفلتر بيقصّ **التاب كله** (الرسمين + الجدولين + قسم المناطق + جدول
+//    الأوردرات تحت)، مش قسم المحافظات لوحده.
+// ⚠️ **Set فاضية = مفيش فلتر = كل المحافظات** — نمط الـ facets القياسي.
+//    البديل (كله مختار في الأول وبتشيل منه) كان معناه ٢٨ ضغطة عشان تشوف
+//    محافظة واحدة.
+// 🔴 **الفلترة على الصفوف الخام، قبل أي تجميع** — مش على المجموعات بعد ما
+//    تتحسب. لو اتعملت على المجموعات، قسم المناطق كان هيفضل بيحسب من كل
+//    الأوردرات (لأنه بيتجمّع على `zone` مش على `prov`) والصفحة تعرض رقمين
+//    مقاسهم مختلف جنب بعض من غير أي إشارة.
+// ══════════════════════════════════════════════════════
+function geoFilterActive() { return !!(state.geoProvSel && state.geoProvSel.size); }
+
+function geoFilterRows(rows) {
+  if (!geoFilterActive()) return rows || [];
+  const sel = state.geoProvSel;
+  return (rows || []).filter(r => sel.has(provKeyOf(r)));
+}
+
+// قايمة الـ chips بتتبني من الصفوف **غير المفلترة** — لو اتبنت من المفلترة،
+// أول اختيار كان هيمسح باقي الـ chips من الشاشة ويقفل الطريق على تعديله.
+// بتعرض **كل** محافظات شوبيفاي (زي الرسم بالظبط)، والمحافظة اللي مالهاش
+// أوردرات في الفترة بتبان **معطّلة** بدل ما تتشال: اختيارها كان هيدّي صفحة
+// فاضية، وإخفاؤها كان هيخلي «القايمة كلها» تتغيّر شكلها مع كل فترة.
+function geoChipUniverse() {
+  const counts = new Map();
+  (state.orderRows || []).forEach(r => {
+    const k = provKeyOf(r);
+    counts.set(k, (counts.get(k) || 0) + 1);
+  });
+  const mk = key => ({ key, orders: counts.get(key) || 0, label: provLabel(key),
+    isUnknown: key !== GEO_NONE && !PROVINCE_AR[key], isNone: key === GEO_NONE });
+
+  const listed = Object.keys(PROVINCE_AR).map(mk);
+  const extra  = [...counts.keys()].filter(k => !PROVINCE_AR[k]).map(mk);   // «غير محدد» + قيم خام
+  // الموجود الأول (بالعدد تنازليًا)، والفاضي بعدهم بالاسم — نفس ترتيب الرسم.
+  return [...listed, ...extra].sort((a, b) =>
+    (b.orders - a.orders) || a.label.localeCompare(b.label, 'ar'));
+}
+
+function toggleGeoProv(key) {
+  const sel = state.geoProvSel;
+  if (sel.has(key)) sel.delete(key); else sel.add(key);
+  applyGeoFilter();
+}
+function clearGeoProvFilter() { state.geoProvSel.clear(); applyGeoFilter(); }
+function selectAllGeoProv() {
+  // «الكل» بيرجّع لحالة «مفيش فلتر» — مش بيملا الـ Set بكل المفاتيح. الفرق
+  // مهم: Set مليانة كانت هتقفل المحافظات على اللي موجود **في الفترة دي**،
+  // فتغيير الفترة بعدها كان هيخفي محافظة جديدة من غير ما حد ياخد باله.
+  clearGeoProvFilter();
+}
+
+function applyGeoFilter() {
+  // المجموعة المفتوحة تحت ممكن تكون اتشالت من الاختيار — سيبانها مفتوحة
+  // معناه جدول أوردرات فاضي بعنوان محافظة مش ظاهرة في أي رقم فوقه.
+  if (state.geoDetailsKey && geoFilterActive()) {
+    const sep = state.geoDetailsKey.indexOf(':');
+    const dim = state.geoDetailsKey.slice(0, sep);
+    const key = state.geoDetailsKey.slice(sep + 1);
+    if (dim === 'prov' && !state.geoProvSel.has(key)) {
+      state.geoDetailsKey = null;
+      state.geoDetailsOpen = false;
+      document.getElementById('geoDetailsSection')?.classList.remove('open');
+    }
+  }
+  renderGeo();
+  renderGeoDetails();
+}
+
+// ─── §GEO-FILTER::renderGeoFilter ───
+function renderGeoFilter() {
+  const el = document.getElementById('geoFilterCard');
+  if (!el) return;
+
+  const universe = geoChipUniverse();
+  if (!universe.length) { el.innerHTML = ''; el.style.display = 'none'; return; }
+  el.style.display = '';
+
+  const sel    = state.geoProvSel;
+  const active = geoFilterActive();
+  // ⚠️ الأوردرات المعروضة بتتعدّ من الصفوف المفلترة نفسها — مش بجمع أرقام
+  //    الـ chips، عشان الرقم اللي في السطر يبقى هو الرقم اللي في الجداول بالظبط.
+  const shown  = geoFilterRows(state.orderRows).length;
+  const total  = (state.orderRows || []).length;
+
+  const withOrders = universe.filter(g => g.orders > 0).length;
+
+  const chips = universe.map(g => {
+    const on   = sel.has(g.key);
+    const dead = g.orders === 0;
+    return `<span class="geo-chip${on ? ' on' : ''}${dead ? ' is-empty' : ''}${g.isUnknown ? ' is-unknown' : ''}"
+      ${dead ? '' : `onclick="toggleGeoProv(${JSON.stringify(g.key).replace(/"/g, '&quot;')})"`}
+      title="${esc(g.label)}${dead ? ' — مفيش أوردرات في الفترة المختارة' : ` · ${fmtInt(g.orders)} أوردر في الفترة`}">${
+      on ? '✓ ' : ''}${esc(g.label)}<span class="geo-chip-n">${fmtInt(g.orders)}</span></span>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="geo-filter-hdr">
+      <span class="geo-filter-title"><span class="kpi-icon">🔎</span>فلتر المحافظات</span>
+      <span class="geo-filter-hint">${active
+        ? `<b>${fmtInt(sel.size)}</b> محافظة مختارة · التاب كله بيعرض <b>${fmtInt(shown)}</b> أوردر من ${fmtInt(total)}`
+        : `مفيش اختيار = <b>كل المحافظات</b> (${fmtInt(withOrders)} محافظة فيها أوردرات من ${fmtInt(universe.length)} · ${fmtInt(total)} أوردر). اضغط على أي محافظة عشان تقصّ التاب كله عليها — والباهتة مالهاش أوردرات في الفترة دي.`}</span>
+      ${active ? `<span class="geo-filter-actions"><button class="hbtn" onclick="clearGeoProvFilter()">✕ مسح الاختيار</button></span>` : ''}
+    </div>
+    <div class="geo-filter-chips">${chips}</div>
+  `;
+}
+
+// شارة بتتحط جنب عنوان كل قسم لما الفلتر شغّال — من غيرها الرقم في أي جدول
+// بيتقري كإجمالي الفترة، وهو إجمالي **الاختيار**.
+function geoFilterFlag() {
+  return geoFilterActive()
+    ? `<span class="geo-filter-flag">🔎 مفلتر على ${fmtInt(state.geoProvSel.size)} محافظة</span>`
+    : '';
+}
+
 // ─── §GEO-JS::computeGeoGroups ───
 // بيرجّع صف واحد لكل مجموعة (محافظة أو منطقة) فيه الفلوس والعدّ مع بعض.
 // 🔴 **الفلوس والعدّ بيتحسبوا بنفس الدالتين اللي التابين التانيين بيستخدموهم**
@@ -4664,8 +4833,8 @@ function computeGeoGroups(dim) {
   const orderBy = new Map();   // key → orderRows[]   (مستوى الأوردر/العدّ)
   const push = (map, k, r) => { const a = map.get(k); if (a) a.push(r); else map.set(k, [r]); };
 
-  (state.rows      || []).forEach(r => push(pieceBy, keyOf(r), r));
-  (state.orderRows || []).forEach(r => push(orderBy, keyOf(r), r));
+  geoFilterRows(state.rows).forEach(r      => push(pieceBy, keyOf(r), r));
+  geoFilterRows(state.orderRows).forEach(r => push(orderBy, keyOf(r), r));
 
   // الاتحاد — مجموعة ممكن يبقى فيها أوردرات بلا صفوف قطع (نظريًا) أو العكس،
   // فالمرور على مفاتيح واحدة منهم بس بيسقّط صفوف بصمت.
@@ -4767,7 +4936,11 @@ function geoEmptyRow(key, dim) {
 //           أوضح من الرقمي)، والقيم الغريبة بعدهم.
 function geoAllRows(dim, groups) {
   const byKey = new Map(groups.map(g => [g.key, g]));
-  const base  = dim === 'zone' ? ZONE_ORDER : Object.keys(PROVINCE_AR);
+  // ⚠️ لما الفلتر شغّال، قايمة الأساس بقت **الاختيار نفسه** مش قايمة شوبيفاي
+  //    الكاملة — «كل المحافظات حتى الفاضية» قاعدة للعرض الافتراضي، ولو فضلت
+  //    شغّالة مع الفلتر كان الرسم هيعرض ٢٩ عمود فاضي جنب المحافظة المختارة.
+  const base  = dim === 'zone' ? ZONE_ORDER
+              : (geoFilterActive() ? [...state.geoProvSel] : Object.keys(PROVINCE_AR));
   const listed = base.map(k => byKey.get(k) || geoEmptyRow(k, dim));
   const extra  = groups.filter(g => !base.includes(g.key));
   if (dim === 'zone') return [...listed, ...extra];
@@ -4821,6 +4994,11 @@ function renderGeo() {
   const guard = document.getElementById('geoGuardNote');
   if (!guard) return;                      // التاب مش مرسوم (viewState مش ready)
   guard.innerHTML = geoDataGuard();
+
+  renderGeoFilter();
+  const flag = geoFilterFlag();
+  const pf = document.getElementById('geoProvFlag'); if (pf) pf.innerHTML = flag;
+  const zf = document.getElementById('geoZoneFlag'); if (zf) zf.innerHTML = flag;
 
   const prov = computeGeoGroups('prov');
   const zone = computeGeoGroups('zone');
@@ -4978,23 +5156,32 @@ function renderGeoCharts(elId, dim, { groups, totals }) {
   const isProv = dim !== 'zone';
   // عرض أدنى محسوب بعدد المجموعات — تحته الأعمدة التلاتة بتبقى خطوط، وفوقه
   // الكارت بيتمدّ على عرض الصفحة عادي (min-width مع width:100%).
-  // ⚠️ ٤٦px للمجموعة مختارة عشان الـ ٢٩ محافظة + «غير محدد» يقعدوا في عرض
-  //    شاشة عادية من غير سكرول أصلًا (≈١٤٠٠px)، والسكرول يفضل موجود كشبكة
-  //    أمان للشاشات الضيقة بدل ما التلات أعمدة تتحول لخطوط.
-  const minW = Math.max(680, rows.length * (isProv ? 46 : 120));
+  // 🔴 عرض المجموعة مشتق من **أعرض ليبل** بعد قرار «مفيش ليبلات مايلة»
+  //    (02-09-2026). أعرض اسم محافظة مقيس = ٦١px («مرسى مطروح»)، وأعرض اسم
+  //    منطقة = ٨٩px («قاهرة وجيزة (مناديب)») — بزيادة أمان للخط الفعلي.
+  //    ⚠️ الأثر المقصود والمقبول: العرض الافتراضي (كل المحافظات) بقى أوسع من
+  //    الشاشة وبيتمرّر أفقيًا. المخرج هو **فلتر المحافظات** فوق — تقصّه على
+  //    اللي بتقارنه ويقعد كله في الشاشة.
+  const GEO_GROUP_W = isProv ? 70 : 120;
+  const minW = Math.max(680, rows.length * GEO_GROUP_W);
+  const needsScroll = minW > 1180;
 
   const legend = GEO_STATUS.map(st =>
     `<span class="geo-lg-item"><span class="geo-lg-dot" style="background:${st.colour}"></span>${st.label}</span>`).join('');
 
   const withOrders = rows.filter(r => r.orders > 0).length;
   const scopeNote  = isProv
-    ? `كل الـ ${fmtInt(rows.length)} محافظة في قايمة شوبيفاي — منهم <b>${fmtInt(withOrders)}</b> فيها أوردرات في الفترة · مرتّبة بالعدد تنازليًا`
-    : `الأربع قيم المقفولة في تعريف الميتافيلد${rows.length > ZONE_ORDER.length ? ' + قيم خام برّه القايمة' : ''} · بترتيب القايمة الثابت`;
+    ? (geoFilterActive()
+        ? `<b>${fmtInt(rows.length)}</b> محافظة مختارة من الفلتر فوق · مرتّبة بالعدد تنازليًا`
+        : `كل الـ ${fmtInt(rows.length)} محافظة في قايمة شوبيفاي — منهم <b>${fmtInt(withOrders)}</b> فيها أوردرات في الفترة · مرتّبة بالعدد تنازليًا`)
+    : `الأربع قيم المقفولة في تعريف الميتافيلد${rows.length > ZONE_ORDER.length ? ' + قيم خام برّه القايمة' : ''} · بترتيب القايمة الثابت${
+        geoFilterActive() ? ' · <b>محسوبة من المحافظات المختارة بس</b>' : ''}`;
 
   host.innerHTML = `
     <div class="geo-chart-card">
       <div class="chart-card-hdr"><span class="kpi-icon">📦</span>عدد الأوردرات لكل ${isProv ? 'محافظة' : 'منطقة'}</div>
-      <div class="chart-card-sub">${scopeNote} · إجمالي ${fmtInt(totals.orders)} أوردر</div>
+      <div class="chart-card-sub">${scopeNote} · إجمالي ${fmtInt(totals.orders)} أوردر${
+        needsScroll ? ' · <b>↔ مرّر الرسم أفقيًا</b> لباقي المجموعات، أو قصّه من فلتر المحافظات فوق' : ''}</div>
       <div class="geo-chart-legend">${legend}</div>
       <div class="geo-chart-scroll">
         <div class="geo-chart-canvas" style="min-width:${minW}px"><canvas id="${elId}_ordersBar"></canvas></div>
@@ -5050,7 +5237,11 @@ function buildGeoStackChart(canvasId, dim, rows, fields, fmtFn, tickFn, totalOf)
         data: rows.map(r => r[fields[i]]),
         backgroundColor: st.colour,
         borderRadius: 4,
-        maxBarThickness: 26,
+        // ⚠️ ٥٤ مش ٢٦: السقف ده بيبقى مُلزِم **بس** لما المجموعات قليلة (بعد
+        //    الفلترة) — ساعتها الخانة بتبقى واسعة والعمود بـ٢٦px كان بيبان
+        //    خيط تايه في نص فراغ. مع كل المحافظات العرض الطبيعي ≈١٧px فالسقف
+        //    ما بيتفعّلش أصلاً.
+        maxBarThickness: 54,
       })),
     },
     options: {
@@ -5059,7 +5250,11 @@ function buildGeoStackChart(canvasId, dim, rows, fields, fmtFn, tickFn, totalOf)
       scales: {
         x: {
           grid: { display: false },
-          ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, maxRotation: 60, minRotation: 45, autoSkip: false },
+          // 🔴 قرار أحمد 02-09-2026: **مفيش ليبلات مايلة في أي bar chart**.
+          //    عشان كده عرض المجموعة الواحدة (`GEO_GROUP_W`) اتحسب على أساس
+          //    أعرض اسم في القايمة — الليبل الأفقي محتاج عرض، والسكرول الأفقي
+          //    هو التمن. ⛔ ممنوع ترجيع `maxRotation` كـ"حل" لضيق العرض.
+          ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, maxRotation: 0, minRotation: 0, autoSkip: false },
         },
         y: {
           beginAtZero: true,
@@ -5109,9 +5304,11 @@ function showGeoDetails(dim, key) {
   document.getElementById('geoDetailsSection')?.classList.toggle('open', state.geoDetailsOpen);
   renderGeo();
   renderGeoDetails();
-  if (state.geoDetailsOpen) {
-    document.getElementById('geoDetailsSection')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-  }
+  // ⛔ **ممنوع `scrollIntoView` هنا** (اتشال 02-09-2026 بقرار أحمد). الضغطة
+  //    على صف أو عمود هي فعل **فلترة**، والقفزة لجدول تحت الشاشة بتوديك بعيد
+  //    عن الحاجة اللي لسه بتقارن فيها وبتخليك ترجع بإيدك كل مرة. الجدول
+  //    بيتحدّث في مكانه وإنت بتنزّل له لما تحتاجه. نفس القرار اللي اتاخد قبل
+  //    كده على مربعات تاب المبيعات وتاب الأوردرات.
 }
 
 function toggleGeoDetails() {
@@ -5135,7 +5332,9 @@ function geoSelectedRows() {
   const dim = state.geoDetailsKey.slice(0, sep);
   const key = state.geoDetailsKey.slice(sep + 1);
   const keyOf = dim === 'zone' ? zoneKeyOf : provKeyOf;
-  return (state.orderRows || []).filter(r => keyOf(r) === key);
+  // ⚠️ الفلتر بينطبق هنا كمان: على بُعد المنطقة، من غيره الجدول كان هيعرض
+  //    أوردرات محافظات مش مختارة تحت رقم اتحسب من الاختيار بس.
+  return geoFilterRows(state.orderRows).filter(r => keyOf(r) === key);
 }
 function searchFilteredGeoRows() {
   const q = (state.geoDetailsSearch || '').trim().toLowerCase();
