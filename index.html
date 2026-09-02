@@ -602,6 +602,14 @@
   .details-table tbody td:first-child { border-inline-start: none; }
   .details-table tbody tr:first-child td { padding-top: 7px; }
   .details-table tbody tr:hover { background: var(--accent-light); }
+  /* 🐛 صف الإجمالي كان مش متسنتر: قاعدة التوسيط فوق مقيّدة بـ `tbody td` بس،
+     فخلايا الـ tfoot كانت بتقع على الافتراضي (بداية السطر في RTL) وتبان
+     مزاحة عن الأعمدة اللي فوقيها. */
+  .details-table tfoot td {
+    padding: 6px 12px; border-inline-start: 1px solid var(--border);
+    vertical-align: middle; white-space: nowrap; line-height: 1.3; text-align: center;
+  }
+  .details-table tfoot td:first-child { border-inline-start: none; }
   .details-table tbody tr.has-note { background: #fffdf5; }
   .details-table tbody tr.has-note:hover { background: var(--amber-light); }
   .col-num { font-family: var(--font-mono); direction: ltr; white-space: nowrap; }
@@ -637,9 +645,34 @@
   .geo-filter-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 13px 16px 14px; margin-bottom: 4px; }
   .geo-filter-hdr { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
   .geo-filter-title { font-size: 13.5px; font-weight: 800; display: inline-flex; align-items: center; gap: 6px; }
-  .geo-filter-hint { font-size: 11.5px; color: var(--text-muted); }
+  .geo-filter-hint { font-size: 11.5px; color: var(--text-muted); margin: 0 0 9px; line-height: 1.6; }
   .geo-filter-hint b { color: var(--text-secondary); }
   .geo-filter-actions { margin-inline-start: auto; display: inline-flex; gap: 7px; }
+  /* زرار المسح **أحمر** — فعل بيلغي اختيار المستخدم، فلازم يتميّز بصريًا عن
+     أي زرار عادي في الصف (نفس نمط «مسح كل الفلاتر» في باقي أدوات الستاك). */
+  .geo-clear-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 14px; border-radius: var(--radius-sm);
+    border: 1.5px solid var(--red); background: var(--red-light); color: var(--red);
+    font-family: inherit; font-size: 12px; font-weight: 800;
+    cursor: pointer; transition: all .15s; white-space: nowrap;
+  }
+  .geo-clear-btn:hover { background: var(--red); color: #fff; }
+  /* شارات الأرقام — بديل الجملة الرمادية الطويلة. الرقم بيبان كرقم (خط mono
+     وحجم أكبر ولون النص الأساسي) والكلام حواليه ثانوي، بدل ما الاتنين يبقوا
+     نفس الوزن ويتقروا كسطر واحد ممل. */
+  .geo-stat-row { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+  .geo-stat {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 11px; border-radius: 20px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    font-size: 11.5px; font-weight: 700; color: var(--text-secondary); white-space: nowrap;
+  }
+  .geo-stat b { font-family: var(--font-mono); direction: ltr; font-size: 12.5px; font-weight: 800; color: var(--text-primary); }
+  .geo-stat.is-on   { background: var(--accent-light); border-color: var(--accent); color: var(--accent); }
+  .geo-stat.is-on b { color: var(--accent); }
+  .geo-stat.is-all  { background: var(--green-light); border-color: var(--green); color: var(--green); }
+  .geo-stat.is-all b{ color: var(--green); }
   .geo-filter-chips { display: flex; flex-wrap: wrap; gap: 7px; max-height: 168px; overflow-y: auto; }
   .geo-chip {
     display: inline-flex; align-items: center; gap: 6px;
@@ -927,7 +960,8 @@
   <div class="main-tabs-bar" id="mainTabsBar">
     <button class="main-tab-btn active" id="mainTabMain" onclick="switchMainTab('main')">💰 المبيعات</button>
     <button class="main-tab-btn" id="mainTabOrders" onclick="switchMainTab('orders')">📦 الأوردرات</button>
-    <button class="main-tab-btn" id="mainTabGeo" onclick="switchMainTab('geo')">🗺️ المحافظات والمناطق</button>
+    <button class="main-tab-btn" id="mainTabGeo" onclick="switchMainTab('geo')">🗺️ المحافظات</button>
+    <button class="main-tab-btn" id="mainTabZones" onclick="switchMainTab('zones')">🚚 المناطق</button>
   </div>
 
   </div><!-- /.sticky-header-wrap -->
@@ -1145,6 +1179,12 @@
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">02-09-2026</span></div>
         <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>«المحافظات» و«المناطق» بقوا تابين منفصلين</b> بدل تاب واحد طويل. البُعدين مستقلين تمامًا (المحافظة من عنوان الشحن · المنطقة من ميتافيلد بيتكتب يدويًا)، فالفصل بيخلي كل تاب يجاوب على سؤال واحد بدل ما تنزّل نص صفحة عشان توصل للتاني.
+            <br><b>فلتر المحافظات بيتعرض في التابين</b> وبيقصّهم مع بعض — واللي واقف على تاب المناطق يقدر يوسّع الاختيار من مكانه.
+            <br>وكل تاب بقى له <b>اختياره المستقل</b> في جدول الأوردرات تحت: فتح محافظة مابيقفلش المنطقة اللي فاتحها في التاب التاني.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الأرقام فوق الجداول والرسوم بقت شارات ملوّنة</b> بدل جملة رمادية طويلة — الرقم بيبان كرقم، والكلام حواليه وصف. وزرار مسح الفلتر بقى <b>أحمر</b> واسمه «مسح المحافظات المختارة».</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>صف «الإجمالي» في الجداول ما كانش متسنتر</b> زي باقي الصفوف — قاعدة التوسيط كانت مقيّدة بصفوف الجدول بس ومش شاملة صف الإجمالي، فأرقامه كانت بتبان مزاحة عن الأعمدة اللي فوقيها.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>سطر «محافظة عنوان الشحن (<code>shippingAddress.province</code>) — مش المدينة» اتشال من فوق التاب.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>فلتر المحافظات فوق التاب.</b> صف chips فيه <b>كل</b> محافظات شوبيفاي — اضغط على اللي يهمك (واحدة أو أكتر) والتاب <b>كله</b> يتقصّ عليها: الرسمين، الجدول، <b>قسم مناطق التوزيع</b>، وجدول الأوردرات تحت. مفيش اختيار = كل المحافظات. المحافظة اللي مالهاش أوردرات في الفترة بتبان <b>باهتة</b> ومش قابلة للاختيار بدل ما تتشال من القايمة.
             <br>وكل قسم بيشيل شارة «🔎 مفلتر على N محافظة» طول ما الفلتر شغّال — عشان أي رقم في الجداول عمره ما يتقري كإجمالي الفترة وهو إجمالي الاختيار.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>الصفحة ما بقتش بتنطّ لتحت لوحدها.</b> الضغط على أي محافظة أو منطقة (في الرسم أو الجدول) كان بينزّلك تلقائيًا عند جدول الأوردرات — بيوديك بعيد عن اللي بتقارن فيه ويخليك ترجع بإيدك كل مرة. دلوقتي الجدول بيتحدّث في مكانه وإنت اللي تنزّل له لما تحتاجه.</span></li>
@@ -1381,7 +1421,7 @@
       <details class="about-sec" open>
         <summary>📋 وصف الأداة</summary>
         <div class="about-sec-body">
-          <p>داشبورد فيه تلات تابات: <b>المبيعات</b> (اسمها القديم "الرئيسية") بتجاوب "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. و<b>الأوردرات</b> بتجاوب "كام أوردر في كل مرحلة؟" — عدّ أوردرات مش جنيه. و<b>المحافظات والمناطق</b> بتجاوب "الأداء ده اتوزّع جغرافيًا إزاي؟" — كل محافظة مقسّمة على تلاتة: <b>تسليمات</b> · <b>إلغاءات ومرتجعات</b> · <b>قيد التنفيذ</b> (كل حاجة لسه مش نهائية)، بالعدد وبالقيمة مع بعض، وتحتها نفس التقسيم بالظبط على مناطق التوزيع (<code>custom.zone</code>). التلاتة بيشتركوا في نفس فلتر التاريخ ونفس نداء <code>get_data</code> — التبديل بينهم فوري من غير أي تحميل إضافي.</p>
+          <p>داشبورد فيه <b>أربع تابات</b>: <b>المبيعات</b> (اسمها القديم "الرئيسية") بتجاوب "كل جنيه دخل النظام راح فين؟" — على مستوى القطعة (Q/C/P) مش الأوردر، عشان الأرقام تتوازن حتى مع الاستبدال والمرتجع الجزئي. و<b>الأوردرات</b> بتجاوب "كام أوردر في كل مرحلة؟" — عدّ أوردرات مش جنيه. و<b>المحافظات</b> و<b>المناطق</b> بيجاوبوا "الأداء ده اتوزّع جغرافيًا إزاي؟" — كل مجموعة مقسّمة على تلاتة: <b>تسليمات</b> · <b>إلغاءات ومرتجعات</b> · <b>قيد التنفيذ</b> (كل حاجة لسه مش نهائية)، بالعدد وبالقيمة مع بعض. المحافظة من عنوان الشحن، والمنطقة من ميتافيلد الأوردر (<code>custom.zone</code>) — <b>بُعدين مستقلين تمامًا</b>، وعشان كده بقوا تابين منفصلين. <b>فلتر المحافظات</b> بيتعرض في التابين وبيقصّهم مع بعض. الأربعة بيشتركوا في نفس فلتر التاريخ ونفس نداء <code>get_data</code> — التبديل بينهم فوري من غير أي تحميل إضافي.</p>
           <h4>بداية البيانات</h4>
           <p>الأداة بتبدأ من <b>1 مايو 2026</b> — يوم بداية تشغيل المتجر. أي يوم قبل كده متعامَل معاه كأن المتجر ماكانش شغّال: مفيش سحب من شوبيفاي ومفيش رقم بيتعرض. عشان كده التقويم مش بيسمح باختيار قبل التاريخ ده، مربعات الشهور بتقف عند مايو 2026، وفترة سريعة مداها كله قبله (زي "العام السابق") بتبان معطّلة. الفترة اللي بتبدأ قبل الحد بتتقصّ عليه تلقائيًا مع سطر بيوضّح ده. ولو الفترة السابقة (اللي الـ Δ% بتتحسب منها) مش داخلة كلها بعد الحد، المقارنة بتتشال بالكامل بدل ما تتحسب على فترة مقصوصة.</p>
           <h4>المستخدمون</h4>
@@ -1606,6 +1646,13 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 شارة «الفلتر شغّال» على كل قسم   │ HTML   │ §GEO-FILTER│ geoFilterFlag / geoProvFlag / geoZoneFlag
 ليبلات أفقية في كل bar chart     │ HTML   │ §GEO-JS · §TOOL-JS │ maxRotation: 0 (+ GEO_GROUP_W)
 إلغاء التمرير التلقائي للتفاصيل  │ HTML   │ §GEO-DETAILS│ showGeoDetails (بلا scrollIntoView)
+── v3.12.0 — فصل «المحافظات» و«المناطق» لتابين ──────────────
+تاب مستقل لكل بُعد               │ HTML   │ §TABS-JS   │ TAB_DEFS.geo + TAB_DEFS.zones
+اختيار تفاصيل مستقل لكل بُعد     │ HTML   │ §GEO-DETAILS│ state.geoDetails[dim] (كل الدوال بتاخد dim)
+كارت الفلتر بيتعرض في التابين    │ HTML   │ §GEO-FILTER│ renderGeoFilter (hosts[])
+شارات الأرقام بدل الجمل الرمادية │ HTML   │ §GEO       │ .geo-stat / .geo-stat-row
+زرار مسح المحافظات (أحمر)        │ HTML   │ §GEO       │ .geo-clear-btn
+توسيط صف الإجمالي في الجداول     │ HTML   │ §CSS       │ .details-table tfoot td
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1727,7 +1774,12 @@ GEO_GROUP_W = عرض المجموعة في رسوم التاب (٧٠px للمح�
   أفقي في العرض الافتراضي، ومخرجه فلتر المحافظات.
 state.geoSortKey / geoSortDir = عمود واتجاه ترتيب جدول المحافظات (جدول المناطق
   ترتيبه ثابت بـ ZONE_ORDER — ٤ صفوف، الترتيب المنطقي أوضح من الرقمي).
-state.geoDetailsKey = 'prov:<name>' | 'zone:<value>' — المجموعة المختارة.
+state.geoDetails[dim] = { key · title · open · limit · search } لكل بُعد على حدة
+  ('prov' | 'zone'). **مستقلين من v3.12.0** لأن البُعدين بقوا تابين منفصلين —
+  مفتاح مشترك كان معناه إن فتح محافظة يقفل المنطقة المفتوحة في التاب التاني.
+  عناصر الـ DOM بتتولّد من الـ dim نفسه (`provDetailsBody` / `zoneDetailsBody`)
+  عشان مايبقاش فيه خريطة تانية تتنسى عند إضافة بُعد تالت.
+state.geoDetailsKey = (اتشال في v3.12.0) 'prov:<name>' | 'zone:<value>'.
   مستقل تمامًا عن detailsKey و orderDetailsKey (التلاتة مش بيمسحوا بعض).
 ORDER_BUCKET_LABELS = خريطة bucket (مستوى الأوردر) → التسمية العربية — لازم تطابق
                       ORDER_BUCKET في الـ Worker حرفيًا (مستقلة تمامًا عن BUCKET_LABELS)
@@ -1844,7 +1896,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.11.0';
+const TOOL_VERSION = 'v3.12.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -2167,11 +2219,16 @@ const state = {
   geoProvSel:  new Set(),
   geoSortKey:  'mDelivered', // عمود الترتيب في جدول المحافظات (تسليمات بالقيمة)
   geoSortDir:  'desc',
-  geoDetailsOpen:  false,
-  geoDetailsKey:   null,     // 'prov:<name>' | 'zone:<value>' — المجموعة المختارة
-  geoDetailsTitle: '',
-  geoDetailsLimit: DETAILS_ROW_LIMIT,
-  geoDetailsSearch: '',
+
+  // ══ v3.12.0 — «المحافظات» و«المناطق» بقوا تابين منفصلين ══
+  // ⚠️ كل بُعد بقى له **اختياره المستقل**: فتح محافظة في تاب المحافظات
+  //    مابيقفلش المنطقة المفتوحة في تاب المناطق. قبل الفصل كان مفتاح واحد
+  //    مشترك — وده كان منطقي وهما في صفحة واحدة، وبقى مربك لما بقوا تابين
+  //    (بترجع للتاب التاني تلاقي اختيارك اتمسح من غير ما تلمسه).
+  geoDetails: {
+    prov: { key: null, title: '', open: false, limit: DETAILS_ROW_LIMIT, search: '' },
+    zone: { key: null, title: '', open: false, limit: DETAILS_ROW_LIMIT, search: '' },
+  },
 };
 
 // §TOOL-JS::toggleBreakdown — يطوي/يفتح **كل** كروت التاب مرة واحدة
@@ -3087,23 +3144,39 @@ function renderShell() {
       <div id="geoGuardNote"></div>
       <div class="geo-filter-card" id="geoFilterCard"></div>
 
-      <div class="geo-section-hdr"><span class="kpi-icon">🗺️</span>المحافظات <span class="geo-section-sub">محافظة عنوان الشحن (<code>shippingAddress.province</code>) — مش المدينة</span><span id="geoProvFlag"></span></div>
+      <div class="geo-section-hdr"><span class="kpi-icon">🗺️</span>المحافظات<span id="geoProvFlag"></span></div>
       <div id="geoProvCharts"></div>
       <div class="geo-table-card" id="geoProvTable"></div>
+
+      <div class="details-section${state.geoDetails.prov.open ? ' open' : ''}" id="provDetailsSection">
+        <div class="details-hdr" onclick="toggleGeoDetails('prov')">
+          <div class="details-hdr-right">
+            <span class="details-caret">▶</span>
+            <span class="details-title">📋 أوردرات المحافظة المختارة</span>
+            <span class="details-scope" id="provDetailsScope"></span>
+          </div>
+        </div>
+        <div class="details-body" id="provDetailsBody"></div>
+      </div>
+    </div>
+
+    <div id="zonePageContent" class="${state.activePage === 'zones' ? '' : 'hidden'}">
+      <div id="zoneGuardNote"></div>
+      <div class="geo-filter-card" id="zoneFilterCard"></div>
 
       <div class="geo-section-hdr"><span class="kpi-icon">🚚</span>مناطق التوزيع <span class="geo-section-sub">من ميتافيلد الأوردر <code>custom.zone</code> — مستقل تمامًا عن المحافظة</span><span id="geoZoneFlag"></span></div>
       <div id="geoZoneCharts"></div>
       <div class="geo-table-card" id="geoZoneTable"></div>
 
-      <div class="details-section${state.geoDetailsOpen ? ' open' : ''}" id="geoDetailsSection">
-        <div class="details-hdr" onclick="toggleGeoDetails()">
+      <div class="details-section${state.geoDetails.zone.open ? ' open' : ''}" id="zoneDetailsSection">
+        <div class="details-hdr" onclick="toggleGeoDetails('zone')">
           <div class="details-hdr-right">
             <span class="details-caret">▶</span>
-            <span class="details-title">📋 أوردرات المجموعة المختارة</span>
-            <span class="details-scope" id="geoDetailsScope"></span>
+            <span class="details-title">📋 أوردرات المنطقة المختارة</span>
+            <span class="details-scope" id="zoneDetailsScope"></span>
           </div>
         </div>
-        <div class="details-body" id="geoDetailsBody"></div>
+        <div class="details-body" id="zoneDetailsBody"></div>
       </div>
     </div>
 
@@ -3135,11 +3208,12 @@ function renderShell() {
   renderOrderBoxes();
   renderOrderDetails();
   renderGeo();
-  renderGeoDetails();
+  renderGeoDetails('prov');
+  renderGeoDetails('zone');
 }
 
 // ══════════════════════════════════════════════════════
-// §TABS-JS — تبديل الرئيسية/الأوردرات — v2.0.0
+// §TABS-JS — تبديل التابات الأربعة — v2.0.0 · v3.12.0
 // بيانات التابين الاتنين محمّلة مسبقاً من نفس get_data response، فالتبديل هنا
 // بيتحكم بس في العرض (hidden class) — صفر fetch إضافي، صفر إعادة تحميل.
 // ══════════════════════════════════════════════════════
@@ -3151,6 +3225,7 @@ const TAB_DEFS = {
   main:   { btn: 'mainTabMain',   pane: 'mainPageContent' },
   orders: { btn: 'mainTabOrders', pane: 'ordersPageContent' },
   geo:    { btn: 'mainTabGeo',    pane: 'geoPageContent' },
+  zones:  { btn: 'mainTabZones',  pane: 'zonePageContent' },
 };
 
 function switchMainTab(page) {
@@ -4756,28 +4831,29 @@ function selectAllGeoProv() {
 function applyGeoFilter() {
   // المجموعة المفتوحة تحت ممكن تكون اتشالت من الاختيار — سيبانها مفتوحة
   // معناه جدول أوردرات فاضي بعنوان محافظة مش ظاهرة في أي رقم فوقه.
-  if (state.geoDetailsKey && geoFilterActive()) {
-    const sep = state.geoDetailsKey.indexOf(':');
-    const dim = state.geoDetailsKey.slice(0, sep);
-    const key = state.geoDetailsKey.slice(sep + 1);
-    if (dim === 'prov' && !state.geoProvSel.has(key)) {
-      state.geoDetailsKey = null;
-      state.geoDetailsOpen = false;
-      document.getElementById('geoDetailsSection')?.classList.remove('open');
-    }
+  const d = state.geoDetails.prov;
+  if (d.key != null && geoFilterActive() && !state.geoProvSel.has(d.key)) {
+    d.key = null;
+    d.open = false;
+    document.getElementById('provDetailsSection')?.classList.remove('open');
   }
   renderGeo();
-  renderGeoDetails();
+  renderGeoDetails('prov');
+  renderGeoDetails('zone');
 }
 
 // ─── §GEO-FILTER::renderGeoFilter ───
 function renderGeoFilter() {
-  const el = document.getElementById('geoFilterCard');
-  if (!el) return;
+  // كارت واحد بيتعرض في التابين (المحافظات · المناطق) — نفس الحالة ونفس
+  // الـ HTML. لو اتعرض في تاب المحافظات بس، اللي واقف على تاب المناطق كان
+  // هيشوف رقم مقصوص من غير ما يقدر يوسّعه أو حتى يعرف إنه مقصوص.
+  const hosts = ['geoFilterCard', 'zoneFilterCard']
+    .map(id => document.getElementById(id)).filter(Boolean);
+  if (!hosts.length) return;
 
   const universe = geoChipUniverse();
-  if (!universe.length) { el.innerHTML = ''; el.style.display = 'none'; return; }
-  el.style.display = '';
+  if (!universe.length) { hosts.forEach(h => { h.innerHTML = ''; h.style.display = 'none'; }); return; }
+  hosts.forEach(h => { h.style.display = ''; });
 
   const sel    = state.geoProvSel;
   const active = geoFilterActive();
@@ -4797,16 +4873,25 @@ function renderGeoFilter() {
       on ? '✓ ' : ''}${esc(g.label)}<span class="geo-chip-n">${fmtInt(g.orders)}</span></span>`;
   }).join('');
 
-  el.innerHTML = `
+  // الأرقام في شارات مستقلة بدل جملة رمادية واحدة — الرقم هو المعلومة،
+  // والكلام حواليه وصف. (طلب أحمد 02-09-2026: «يكون بلون وتصميم بصري أوضح».)
+  const stats = active
+    ? `<span class="geo-stat is-on">🗺️ <b>${fmtInt(sel.size)}</b> محافظة مختارة</span>
+       <span class="geo-stat is-on">📦 <b>${fmtInt(shown)}</b> من ${fmtInt(total)} أوردر</span>`
+    : `<span class="geo-stat is-all">✓ كل المحافظات</span>
+       <span class="geo-stat">🗺️ <b>${fmtInt(withOrders)}</b> من ${fmtInt(universe.length)} فيها أوردرات</span>
+       <span class="geo-stat">📦 <b>${fmtInt(total)}</b> أوردر</span>`;
+
+  const html = `
     <div class="geo-filter-hdr">
       <span class="geo-filter-title"><span class="kpi-icon">🔎</span>فلتر المحافظات</span>
-      <span class="geo-filter-hint">${active
-        ? `<b>${fmtInt(sel.size)}</b> محافظة مختارة · التاب كله بيعرض <b>${fmtInt(shown)}</b> أوردر من ${fmtInt(total)}`
-        : `مفيش اختيار = <b>كل المحافظات</b> (${fmtInt(withOrders)} محافظة فيها أوردرات من ${fmtInt(universe.length)} · ${fmtInt(total)} أوردر). اضغط على أي محافظة عشان تقصّ التاب كله عليها — والباهتة مالهاش أوردرات في الفترة دي.`}</span>
-      ${active ? `<span class="geo-filter-actions"><button class="hbtn" onclick="clearGeoProvFilter()">✕ مسح الاختيار</button></span>` : ''}
+      <span class="geo-stat-row">${stats}</span>
+      ${active ? `<span class="geo-filter-actions"><button class="geo-clear-btn" onclick="clearGeoProvFilter()">✕ مسح المحافظات المختارة</button></span>` : ''}
     </div>
+    <div class="geo-filter-hint">بيقصّ <b>تاب المحافظات وتاب المناطق</b> مع بعض · مفيش اختيار = كل المحافظات · الباهتة مالهاش أوردرات في الفترة دي.</div>
     <div class="geo-filter-chips">${chips}</div>
   `;
+  hosts.forEach(h => { h.innerHTML = html; });
 }
 
 // شارة بتتحط جنب عنوان كل قسم لما الفلتر شغّال — من غيرها الرقم في أي جدول
@@ -4993,7 +5078,13 @@ function geoDataGuard() {
 function renderGeo() {
   const guard = document.getElementById('geoGuardNote');
   if (!guard) return;                      // التاب مش مرسوم (viewState مش ready)
-  guard.innerHTML = geoDataGuard();
+  // نفس البانر في التابين: الحالتين اللي بيمسكهم (Worker قديم · عنوان شحن
+  // ناقص) بيعطّلوا التابين مع بعض، فإخفاؤه من تاب المناطق كان هيسيب نصّه
+  // الأول بيرندر «غير محدد» بلا سبب ظاهر.
+  const note = geoDataGuard();
+  guard.innerHTML = note;
+  const zGuard = document.getElementById('zoneGuardNote');
+  if (zGuard) zGuard.innerHTML = note;
 
   renderGeoFilter();
   const flag = geoFilterFlag();
@@ -5047,7 +5138,7 @@ function renderGeoTable(elId, dim, { groups, totals }, headLabel) {
   const shareOf = g => totals.mDelivered ? (g.mDelivered / totals.mDelivered) * 100 : 0;
 
   const body = sorted.map(g => {
-    const active = state.geoDetailsKey === `${dim}:${g.key}` ? ' geo-row-active' : '';
+    const active = state.geoDetails[dim].key === g.key ? ' geo-row-active' : '';
     const dot = dim === 'zone'
       ? `<span class="chart-legend-dot" style="background:${zoneColour(g.key)}"></span>`
       : '';
@@ -5170,18 +5261,22 @@ function renderGeoCharts(elId, dim, { groups, totals }) {
     `<span class="geo-lg-item"><span class="geo-lg-dot" style="background:${st.colour}"></span>${st.label}</span>`).join('');
 
   const withOrders = rows.filter(r => r.orders > 0).length;
+  // نفس نمط الشارات اللي في كارت الفلتر — الأرقام بتبان كأرقام.
   const scopeNote  = isProv
     ? (geoFilterActive()
-        ? `<b>${fmtInt(rows.length)}</b> محافظة مختارة من الفلتر فوق · مرتّبة بالعدد تنازليًا`
-        : `كل الـ ${fmtInt(rows.length)} محافظة في قايمة شوبيفاي — منهم <b>${fmtInt(withOrders)}</b> فيها أوردرات في الفترة · مرتّبة بالعدد تنازليًا`)
-    : `الأربع قيم المقفولة في تعريف الميتافيلد${rows.length > ZONE_ORDER.length ? ' + قيم خام برّه القايمة' : ''} · بترتيب القايمة الثابت${
-        geoFilterActive() ? ' · <b>محسوبة من المحافظات المختارة بس</b>' : ''}`;
+        ? `<span class="geo-stat is-on">🗺️ <b>${fmtInt(rows.length)}</b> محافظة مختارة</span>
+           <span class="geo-stat">↓ مرتّبة بالعدد تنازليًا</span>`
+        : `<span class="geo-stat">🗺️ <b>${fmtInt(rows.length)}</b> محافظة في قايمة شوبيفاي</span>
+           <span class="geo-stat">✓ <b>${fmtInt(withOrders)}</b> فيها أوردرات في الفترة</span>
+           <span class="geo-stat">↓ مرتّبة بالعدد تنازليًا</span>`)
+    : `<span class="geo-stat">🚚 <b>${fmtInt(rows.length)}</b> منطقة${rows.length > ZONE_ORDER.length ? ' (فيها قيم خام برّه القايمة)' : ''}</span>
+       ${geoFilterActive() ? `<span class="geo-stat is-on">🗺️ من <b>${fmtInt(state.geoProvSel.size)}</b> محافظة مختارة بس</span>` : ''}`;
 
   host.innerHTML = `
     <div class="geo-chart-card">
       <div class="chart-card-hdr"><span class="kpi-icon">📦</span>عدد الأوردرات لكل ${isProv ? 'محافظة' : 'منطقة'}</div>
-      <div class="chart-card-sub">${scopeNote} · إجمالي ${fmtInt(totals.orders)} أوردر${
-        needsScroll ? ' · <b>↔ مرّر الرسم أفقيًا</b> لباقي المجموعات، أو قصّه من فلتر المحافظات فوق' : ''}</div>
+      <div class="chart-card-sub geo-stat-row">${scopeNote}<span class="geo-stat">📦 إجمالي <b>${fmtInt(totals.orders)}</b> أوردر</span>${
+        needsScroll ? '<span class="geo-stat">↔ مرّر الرسم أفقيًا أو قصّه من الفلتر فوق</span>' : ''}</div>
       <div class="geo-chart-legend">${legend}</div>
       <div class="geo-chart-scroll">
         <div class="geo-chart-canvas" style="min-width:${minW}px"><canvas id="${elId}_ordersBar"></canvas></div>
@@ -5189,7 +5284,7 @@ function renderGeoCharts(elId, dim, { groups, totals }) {
     </div>
     <div class="geo-chart-card">
       <div class="chart-card-hdr"><span class="kpi-icon">💰</span>قيمة المبيعات لكل ${isProv ? 'محافظة' : 'منطقة'}</div>
-      <div class="chart-card-sub"><b>نفس ترتيب الرسم اللي فوق بالظبط</b> — بالجنيه بدل العدد، عشان الاتنين يتقروا مع بعض · إجمالي ${fmtMoney(totals.mTotal)}</div>
+      <div class="chart-card-sub geo-stat-row"><span class="geo-stat">🔁 نفس ترتيب الرسم اللي فوق بالظبط — بالجنيه بدل العدد</span><span class="geo-stat">💰 إجمالي <b>${fmtMoney(totals.mTotal)}</b></span></div>
       <div class="geo-chart-legend">${legend}</div>
       <div class="geo-chart-scroll">
         <div class="geo-chart-canvas" style="min-width:${minW}px"><canvas id="${elId}_moneyBar"></canvas></div>
@@ -5287,23 +5382,27 @@ function buildGeoStackChart(canvasId, dim, rows, fields, fmtFn, tickFn, totalOf)
 // §GEO-DETAILS — جدول أوردرات المجموعة المختارة
 // state مستقل تمامًا عن details* و orderDetails* — التلاتة مش بيمسحوا بعض.
 // ══════════════════════════════════════════════════════
+// كل الدوال هنا بتاخد `dim` ('prov' | 'zone') — البُعدين بقوا **تابين
+// منفصلين** في v3.12.0، وكل واحد له حالته وعناصره في الـ DOM. الـ id بيتولّد
+// من الـ dim نفسه (`provDetailsBody` / `zoneDetailsBody`) عشان مايبقاش فيه
+// خريطة تانية تتنسى عند إضافة بُعد تالت.
 function showGeoDetails(dim, key) {
-  const compound = `${dim}:${key}`;
+  const d = state.geoDetails[dim];
   // ضغطة تانية على نفس الصف = إلغاء الاختيار (زي ما التابين التانيين بيعملوا
   // لما تضغط على نفس المربع).
-  if (state.geoDetailsKey === compound) {
-    state.geoDetailsKey = null;
-    state.geoDetailsOpen = false;
+  if (d.key === key) {
+    d.key = null;
+    d.open = false;
   } else {
-    state.geoDetailsKey   = compound;
-    state.geoDetailsTitle = dim === 'zone' ? zoneLabel(key) : provLabel(key);
-    state.geoDetailsOpen  = true;
+    d.key   = key;
+    d.title = dim === 'zone' ? zoneLabel(key) : provLabel(key);
+    d.open  = true;
   }
-  state.geoDetailsLimit  = DETAILS_ROW_LIMIT;
-  state.geoDetailsSearch = '';
-  document.getElementById('geoDetailsSection')?.classList.toggle('open', state.geoDetailsOpen);
+  d.limit  = DETAILS_ROW_LIMIT;
+  d.search = '';
+  document.getElementById(`${dim}DetailsSection`)?.classList.toggle('open', d.open);
   renderGeo();
-  renderGeoDetails();
+  renderGeoDetails(dim);
   // ⛔ **ممنوع `scrollIntoView` هنا** (اتشال 02-09-2026 بقرار أحمد). الضغطة
   //    على صف أو عمود هي فعل **فلترة**، والقفزة لجدول تحت الشاشة بتوديك بعيد
   //    عن الحاجة اللي لسه بتقارن فيها وبتخليك ترجع بإيدك كل مرة. الجدول
@@ -5311,34 +5410,33 @@ function showGeoDetails(dim, key) {
   //    كده على مربعات تاب المبيعات وتاب الأوردرات.
 }
 
-function toggleGeoDetails() {
-  state.geoDetailsOpen = !state.geoDetailsOpen;
-  document.getElementById('geoDetailsSection')?.classList.toggle('open', state.geoDetailsOpen);
+function toggleGeoDetails(dim) {
+  const d = state.geoDetails[dim];
+  d.open = !d.open;
+  document.getElementById(`${dim}DetailsSection`)?.classList.toggle('open', d.open);
 }
-function onGeoDetailsSearch(v) {
-  state.geoDetailsSearch = v;
-  state.geoDetailsLimit  = DETAILS_ROW_LIMIT;
-  renderGeoDetailsTableWrap();
+function onGeoDetailsSearch(dim, v) {
+  state.geoDetails[dim].search = v;
+  state.geoDetails[dim].limit  = DETAILS_ROW_LIMIT;
+  renderGeoDetailsTableWrap(dim);
 }
-function showMoreGeoDetails() {
-  state.geoDetailsLimit += DETAILS_ROW_LIMIT;
-  renderGeoDetailsTableWrap();
+function showMoreGeoDetails(dim) {
+  state.geoDetails[dim].limit += DETAILS_ROW_LIMIT;
+  renderGeoDetailsTableWrap(dim);
 }
 
 // أوردرات المجموعة المختارة — من state.orderRows المعروضة (نفس الفلترة الزمنية)
-function geoSelectedRows() {
-  if (!state.geoDetailsKey) return [];
-  const sep = state.geoDetailsKey.indexOf(':');
-  const dim = state.geoDetailsKey.slice(0, sep);
-  const key = state.geoDetailsKey.slice(sep + 1);
+function geoSelectedRows(dim) {
+  const key = state.geoDetails[dim].key;
+  if (key == null) return [];
   const keyOf = dim === 'zone' ? zoneKeyOf : provKeyOf;
   // ⚠️ الفلتر بينطبق هنا كمان: على بُعد المنطقة، من غيره الجدول كان هيعرض
   //    أوردرات محافظات مش مختارة تحت رقم اتحسب من الاختيار بس.
   return geoFilterRows(state.orderRows).filter(r => keyOf(r) === key);
 }
-function searchFilteredGeoRows() {
-  const q = (state.geoDetailsSearch || '').trim().toLowerCase();
-  const rows = geoSelectedRows();
+function searchFilteredGeoRows(dim) {
+  const q = (state.geoDetails[dim].search || '').trim().toLowerCase();
+  const rows = geoSelectedRows(dim);
   if (!q) return rows;
   return rows.filter(r =>
     String(r.orderName || '').toLowerCase().includes(q) ||
@@ -5347,37 +5445,41 @@ function searchFilteredGeoRows() {
     String(r.s2        || '').toLowerCase().includes(q));
 }
 
-function renderGeoDetails() {
-  const scope = document.getElementById('geoDetailsScope');
-  const body  = document.getElementById('geoDetailsBody');
+function renderGeoDetails(dim) {
+  const scope = document.getElementById(`${dim}DetailsScope`);
+  const body  = document.getElementById(`${dim}DetailsBody`);
   if (!scope || !body) return;
 
-  if (!state.geoDetailsKey) {
-    scope.textContent = '— اضغط على أي محافظة أو منطقة لعرض أوردراتها';
-    body.innerHTML = `<div class="details-placeholder">اضغط على أي صف في الجدولين فوق (أو على شريحة في أي رسم) وهتظهر أوردرات المجموعة دي هنا.</div>`;
+  const d    = state.geoDetails[dim];
+  const noun = dim === 'zone' ? 'منطقة' : 'محافظة';
+
+  if (d.key == null) {
+    scope.textContent = `— اضغط على أي ${noun} لعرض أوردراتها`;
+    body.innerHTML = `<div class="details-placeholder">اضغط على أي صف في الجدول فوق (أو على أي عمود في الرسم) وهتظهر أوردرات الـ${noun} دي هنا.</div>`;
     return;
   }
 
-  scope.textContent = `— ${state.geoDetailsTitle} · ${state.range.from} → ${state.range.to}`;
+  scope.textContent = `— ${d.title} · ${state.range.from} → ${state.range.to}`;
   body.innerHTML = `
     <div class="details-search-row">
       <div class="details-search-wrap">
-        <input type="text" id="geoDetailsSearchInput" class="details-search-input${state.geoDetailsSearch ? ' has-value' : ''}"
-               value="${esc(state.geoDetailsSearch)}"
-               oninput="onGeoDetailsSearch(this.value); toggleSearchActiveState(this)">
+        <input type="text" id="${dim}DetailsSearchInput" class="details-search-input${d.search ? ' has-value' : ''}"
+               value="${esc(d.search)}"
+               oninput="onGeoDetailsSearch('${dim}', this.value); toggleSearchActiveState(this)">
         <span class="details-search-icon">🔍</span>
       </div>
     </div>
-    <div id="geoDetailsTableWrap"></div>
+    <div id="${dim}DetailsTableWrap"></div>
   `;
-  renderGeoDetailsTableWrap();
+  renderGeoDetailsTableWrap(dim);
 }
 
-function renderGeoDetailsTableWrap() {
-  const wrap = document.getElementById('geoDetailsTableWrap');
+function renderGeoDetailsTableWrap(dim) {
+  const wrap = document.getElementById(`${dim}DetailsTableWrap`);
   if (!wrap) return;
 
-  const rows = searchFilteredGeoRows();
+  const d    = state.geoDetails[dim];
+  const rows = searchFilteredGeoRows(dim);
   const totalPieces = rows.reduce((s, r) => s + (r.orderTotalPieces || 0), 0);
 
   const summary = `
@@ -5387,12 +5489,12 @@ function renderGeoDetailsTableWrap() {
     </div>`;
 
   if (!rows.length) {
-    wrap.innerHTML = summary + `<div class="details-empty">مفيش أوردرات مطابقة${state.geoDetailsSearch ? ' للبحث' : ''} في الفترة المختارة.</div>`;
+    wrap.innerHTML = summary + `<div class="details-empty">مفيش أوردرات مطابقة${d.search ? ' للبحث' : ''} في الفترة المختارة.</div>`;
     return;
   }
 
   const sorted = [...rows].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
-  const shown  = sorted.slice(0, state.geoDetailsLimit);
+  const shown  = sorted.slice(0, d.limit);
 
   const tbody = shown.map(r => `
     <tr class="${r.cycleNote === 'CYCLE_OVERLAP' ? 'has-cycle-overlap' : ''}">
@@ -5424,7 +5526,7 @@ function renderGeoDetailsTableWrap() {
         <tbody>${tbody}</tbody>
       </table>
     </div>
-    ${sorted.length > shown.length ? `<div class="details-more"><button class="btn" onclick="showMoreGeoDetails()">عرض المزيد (${fmtInt(sorted.length - shown.length)} أوردر متبقي)</button></div>` : ''}
+    ${sorted.length > shown.length ? `<div class="details-more"><button class="btn" onclick="showMoreGeoDetails('${dim}')">عرض المزيد (${fmtInt(sorted.length - shown.length)} أوردر متبقي)</button></div>` : ''}
   `;
 }
 
