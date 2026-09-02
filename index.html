@@ -4901,7 +4901,6 @@ function renderGeoFilter() {
       <span class="geo-stat-row">${stats}</span>
       ${active ? `<span class="geo-filter-actions"><button class="geo-clear-btn" onclick="clearGeoProvFilter()">✕ مسح المحافظات المختارة</button></span>` : ''}
     </div>
-    <div class="geo-filter-hint">بيقصّ <b>تاب المحافظات وحده</b> (تاب المناطق مستقل ومابيتأثرش) · مفيش اختيار = كل المحافظات · الباهتة مالهاش أوردرات في الفترة دي.</div>
     <div class="geo-filter-chips">${chips}</div>
   `;
   hosts.forEach(h => { h.innerHTML = html; });
