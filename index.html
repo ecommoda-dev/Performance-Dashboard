@@ -271,8 +271,9 @@
   .fm-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
   .fm-age { font-family: var(--font-mono); font-weight: 700; }
 
-  /* ── مربعات الشهور — صف مستقل فوق صف الفلتر (date-range-filter.md §1a).
+  /* ── مربعات الشهور — أول عنصر في صف الفلتر الموحّد (نفس تصميم LCC، 02-09-2026).
      الأحدث أولاً: في RTL أول عنصر في الـ DOM بيظهر أقصى اليمين. ── */
+  .month-box-fg { flex: 1; min-width: 260px; }
   .month-box-row { display: flex; flex-wrap: wrap; gap: 6px; }
   .month-box {
     height: 34px; padding: 0 14px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm);
@@ -282,6 +283,8 @@
   .month-box:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
   .month-box.active { border-color: var(--accent); color: #fff; background: var(--accent); }
   .month-box:disabled { opacity: .5; cursor: not-allowed; }
+  /* «طول الفترة» — نفس تصميم LCC بالظبط (بنفسجي، mono، اتجاه LTR للرقم) */
+  .range-span-chip { font-size: 11.5px; font-weight: 700; color: var(--purple); background: var(--purple-light); border: 1px solid var(--purple-border); border-radius: 20px; padding: 3px 10px; font-family: var(--font-mono); direction: ltr; display: inline-block; }
   .range-note { flex-basis: 100%; font-size: 11.5px; color: var(--amber); font-weight: 600; }
   .range-note:empty { display: none; }
 
@@ -974,23 +977,38 @@
   </div><!-- /.sticky-header-wrap -->
 
   <!-- ══════════════════════════════════════════════════════
-       §DASH — date range filter (شكل موحّد) + طريقة العرض
+       §DASH — date range filter (شكل موحّد — نفس تصميم Logistics-Control-Center
+       بالظبط، قرار أحمد 02-09-2026) + طريقة العرض
        ══════════════════════════════════════════════════════ -->
   <div class="dash-controls">
-    <!-- ── صف مربعات الشهور — صف **مستقل فوق** صف الفلتر. الترتيب الإلزامي
-         الداخلي لصف الفلتر (فترة سريعة ← من ← إلى) ما اتغيّرش، ومربعات الشهور
-         مش بديل للفترة السريعة ولا عنصر جوّه صفها — date-range-filter.md §1a.
+    <!-- ── صف واحد: مربعات الشهور + من/إلى + طول الفترة + فترة سريعة + طريقة
+         العرض. الترتيب الإلزامي الداخلي (فترة سريعة ← من ← إلى) اتلغى بقرار
+         أحمد — مربعات الشهور بقت أول عنصر في الصف نفسه (نفس ترتيب LCC)، ومربعات
+         الشهور لسه مش بديل للفترة السريعة، بس بقوا جنب بعض مش صفين منفصلين.
          الاتنين بيمسحوا بعض عند الاختيار (selectMonthBox ↔ resetRangePresetUI). ── -->
     <div class="range-frow" id="monthBoxFrow">
-      <div class="range-fg" style="flex:1;min-width:260px;">
-        <span class="range-flabel">شهر كامل (سحب مباشر)</span>
+      <div class="range-fg month-box-fg">
+        <span class="range-flabel">الشهر</span>
         <div class="month-box-row" id="monthBoxRow"></div>
       </div>
-    </div>
-
-    <div class="range-frow">
       <div class="range-fg">
-        <span class="range-flabel">فترة سريعة</span>
+        <span class="range-flabel">من تاريخ</span>
+        <div class="range-date-wrap">
+          <input type="date" id="rangeDateFrom" onclick="this.showPicker&&this.showPicker();" onchange="onRangeDateChange()">
+        </div>
+      </div>
+      <div class="range-fg">
+        <span class="range-flabel">إلى تاريخ</span>
+        <div class="range-date-wrap">
+          <input type="date" id="rangeDateTo" onclick="this.showPicker&&this.showPicker();" onchange="onRangeDateChange()">
+        </div>
+      </div>
+      <div class="range-fg">
+        <span class="range-flabel">طول الفترة</span>
+        <span class="range-span-chip" id="rangeSpanChip">—</span>
+      </div>
+      <div class="range-fg">
+        <span class="range-flabel">فترة سريعة (اختياري)</span>
         <div class="range-preset-wrap" id="rangePresetWrap">
           <button class="range-preset-btn" id="rangePresetBtn" onclick="toggleRangePresetMenu(event)">
             <span id="rangePresetLabel">⚡ اختار فترة</span><span class="pr-arrow">▾</span>
@@ -1034,18 +1052,6 @@
           </div>
         </div>
       </div>
-      <div class="range-fg">
-        <span class="range-flabel">من تاريخ</span>
-        <div class="range-date-wrap">
-          <input type="date" id="rangeDateFrom" onclick="this.showPicker&&this.showPicker();" onchange="onRangeDateChange()">
-        </div>
-      </div>
-      <div class="range-fg">
-        <span class="range-flabel">إلى تاريخ</span>
-        <div class="range-date-wrap">
-          <input type="date" id="rangeDateTo" onclick="this.showPicker&&this.showPicker();" onchange="onRangeDateChange()">
-        </div>
-      </div>
       <div class="range-fg" id="viewToggleFg">
         <span class="range-flabel">طريقة العرض</span>
         <div class="view-toggle" id="viewToggleWrap">
@@ -1064,7 +1070,7 @@
       <span class="freshness-text">جاري التحميل…</span>
       <button class="refresh-btn" id="refreshBtn" onclick="refreshData()"
               title="بيسحب الشهر اللي لسه بيتغيّر من شوبيفاي — باقي شهور الفترة بتيجي من الكاش">
-        <span class="ico">↺</span> <span id="refreshBtnLabel">تحديث</span></button>
+        <span class="ico">↺</span> <span id="refreshBtnLabel">تحديث الشهر الحالي</span></button>
       <button class="refresh-btn alt" id="refreshAllBtn" onclick="refreshAllData()" style="display:none;"
               title="بيسحب كل شهور الفترة من شوبيفاي من الأول — استخدمه بعد تصحيح بيانات في شهر قديم">
         <span class="ico">⟳</span> تحديث كل الشهور</button>
@@ -1098,15 +1104,14 @@
       <div class="login-icon">🎯</div>
       <div class="login-title">لوحة الأداء</div>
       <div class="login-desc">كل جنيه دخل النظام راح فين؟ وكام أوردر في كل مرحلة؟</div>
-      <div class="login-sub" id="loginSub">اختر اسمك للمتابعة</div>
+      <div class="login-sub" id="loginSub"></div>
     </div>
 
     <div class="login-body">
 
       <div class="login-field">
-        <label for="loginSelect">الموظف</label>
         <select id="loginSelect" onchange="handleEmployeeChange()" disabled>
-          <option value="">— اختر —</option>
+          <option value="">اختر اسمك للمتابعة</option>
         </select>
         <div class="login-status warn" id="loginStatus">الإعدادات غير مكتملة — افتح الإعدادات أولاً.</div>
       </div>
@@ -1185,6 +1190,13 @@
     <div class="eco-modal-body">
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">02-09-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>صف مربعات الشهور والفترة والتحديث بقى بنفس تصميم Logistics Control Center بالظبط.</b> كان صفين منفصلين (مربعات الشهور لوحدها فوق، وتحتها فترة سريعة/من/إلى/طريقة العرض) — دلوقتي صف واحد: الشهر ثم من تاريخ ثم إلى تاريخ ثم <b>طول الفترة</b> (شارة جديدة بتعرض عدد الأيام) ثم فترة سريعة (اختياري) ثم طريقة العرض. زرار التحديث اسمه بقى «تحديث الشهر الحالي» / «تحديث أحدث شهر» دايمًا بدل «تحديث» المختصرة. واجهة بحتة — صفر تعديل في <code>index.js</code>، صفر <code>CACHE_VERSION</code> bump.</span></li>
+        </ul>
+      </div>
+
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.14.0</span><span class="cl-ver-date">02-09-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>شريط ملوّن تحت رقم كل خلية حالة في جدول المحافظات والمناطق</b> (تسليمات · إلغاءات ومرتجعات · قيد التنفيذ). ترتيب الخلية بقى: الرقم فوق، الشريط في النص، والنسبة تحت خالص — وطول الشريط هو نفس رقم النسبة بالظبط، بلون العمود (أخضر · أحمر · بنفسجي) بدل الأزرق الموحّد بتاع عمود «النسبة».</span></li>
         </ul>
@@ -1918,7 +1930,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.14.0';
+const TOOL_VERSION = 'v3.15.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -2778,13 +2790,20 @@ function oldestChunkUpdate(chunks) {
 }
 
 // ─── §DASH-JS::updateRangeMeta — لافتات الزرارين + تنبيه الفترة الواسعة ───
+// طول الفترة (بالأيام) — نفس حساب LCC بالظبط، بس من state.range مباشرة
+// (مصدر الحقيقة هنا) بدل قراءة حقلي التاريخ من الـ DOM.
+function rangeDays() {
+  const r = state.range;
+  if (!r || !r.from || !r.to) return 0;
+  return Math.round((new Date(`${r.to}T00:00:00Z`) - new Date(`${r.from}T00:00:00Z`)) / 86400000) + 1;
+}
 function updateRangeMeta() {
   const r = state.range;
   const chunks = (r && r.from && r.to) ? monthChunks(r.from, r.to) : [];
+  const chip = document.getElementById('rangeSpanChip');
+  if (chip) { const days = rangeDays(); chip.textContent = days ? `${fmtInt(days)} يوم` : '—'; }
   const lbl = document.getElementById('refreshBtnLabel');
-  if (lbl) lbl.textContent = chunks.length > 1
-    ? (chunks.some(c => c.isOpen) ? 'تحديث الشهر الحالي' : 'تحديث أحدث شهر')
-    : 'تحديث';
+  if (lbl) lbl.textContent = chunks.some(c => c.isOpen) ? 'تحديث الشهر الحالي' : 'تحديث أحدث شهر';
   const allBtn = document.getElementById('refreshAllBtn');
   if (allBtn) allBtn.style.display = chunks.length > 1 ? '' : 'none';
   const note = document.getElementById('rangeNote');
@@ -5603,7 +5622,7 @@ async function loadEmployeesList() {
   const sel    = document.getElementById('loginSelect');
   const status = document.getElementById('loginStatus');
   clearLoginAlert();
-  sel.innerHTML = '<option value="">— اختر —</option>';
+  sel.innerHTML = '<option value="">اختر اسمك للمتابعة</option>';
   sel.disabled  = true;
 
   if (!isConfigured()) {
@@ -5629,7 +5648,7 @@ async function loadEmployeesList() {
     sel.disabled       = false;
     status.className   = employees.length ? 'login-status info' : 'login-status warn';
     status.textContent = employees.length
-      ? 'اختر الموظف للمتابعة.'
+      ? ''
       : 'لا يوجد موظفون نشطون.';
   } catch (err) {
     status.className   = 'login-status error';
@@ -5686,7 +5705,7 @@ function renderLoginMode(mode) {
 
   const sub = document.getElementById('loginSub');
   if (mode === 'employee') {
-    sub.textContent      = 'اختر اسمك للمتابعة';
+    sub.textContent      = '';
     pinLabel.textContent = 'أدخل الـ PIN';
     primary.textContent  = 'دخول';
     primary.disabled     = true;
