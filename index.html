@@ -715,9 +715,16 @@
   .geo-table .geo-name .chart-legend-dot { display: inline-block; vertical-align: -1px; margin-inline-end: 6px; }
   .geo-table .geo-name-th { text-align: start; }
   .geo-table .geo-strong { font-weight: 800; }
-  /* الرقم فوق ونسبته تحته في نفس الخلية — الخمس أعمدة الأخيرة بيجمعوا 100% */
+  /* الرقم فوق، شريط الحالة في النص، ونسبته تحت خالص — التلات أعمدة (تسليمات ·
+     إلغاءات ومرتجعات · قيد التنفيذ) بيجمعوا 100% من إجمالي الصف، فطول الشريط
+     = نفس رقم النسبة المكتوب تحته بالظبط (02-09-2026 v3.14.0). */
   .geo-table .geo-n   { display: block; font-family: var(--font-mono); direction: ltr; font-weight: 700; }
   .geo-table .geo-pct { display: block; font-family: var(--font-mono); direction: ltr; font-size: 10.5px; color: var(--text-muted); }
+  .geo-table .geo-stat-bar { width: 100%; min-width: 44px; height: 4px; background: var(--surface-2); border-radius: 3px; overflow: hidden; margin: 4px 0; }
+  .geo-table .geo-stat-bar-fill { height: 100%; border-radius: 3px; }
+  .geo-table .geo-stat-bar-fill.clr-green  { background: var(--green); }
+  .geo-table .geo-stat-bar-fill.clr-red    { background: var(--red); }
+  .geo-table .geo-stat-bar-fill.clr-purple { background: var(--purple); }
   /* 🔴 ألوان الحالات التلاتة — قرار أحمد 02-09-2026، موحّدة في التاب كله
      (الجدول + الرسوم + المفتاح): تسليمات أخضر · إلغاءات ومرتجعات أحمر ·
      قيد التنفيذ بنفسجي. ⚠️ `.clr-red`/`.clr-green` القديمة كانت مكتوبة على
@@ -1178,6 +1185,13 @@
     <div class="eco-modal-body">
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">02-09-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>شريط ملوّن تحت رقم كل خلية حالة في جدول المحافظات والمناطق</b> (تسليمات · إلغاءات ومرتجعات · قيد التنفيذ). ترتيب الخلية بقى: الرقم فوق، الشريط في النص، والنسبة تحت خالص — وطول الشريط هو نفس رقم النسبة بالظبط، بلون العمود (أخضر · أحمر · بنفسجي) بدل الأزرق الموحّد بتاع عمود «النسبة».</span></li>
+        </ul>
+      </div>
+
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.13.0</span><span class="cl-ver-date">02-09-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>فلتر المحافظات بقى في تاب المحافظات وحده.</b> كان بيتعرض في التابين وبيقصّهم مع بعض — دلوقتي <b>تاب المناطق مستقل تمامًا</b>: مفيش كارت فلتر فيه، وأرقامه دايمًا على <b>الفترة كاملة</b> مهما كان المختار في تاب المحافظات.
             <br>ولأن المنطقة بتتكتب يدويًا ومش مشتقة من العنوان، ده بيخلي التاب يجاوب على سؤاله الأصلي («كل منطقة توزيع أدّت إزاي؟») من غير ما يبقى مقصوص على بُعد تاني.</span></li>
@@ -1658,6 +1672,8 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 ── v3.13.0 — الفلتر بقى على تاب المحافظات وحده ──────────────
 مصدر صفوف كل بُعد                │ HTML   │ §GEO-FILTER│ geoRowsFor(dim, rows) — المنطقة مبتتفلترش
 رسم بُعد واحد بدل الاتنين        │ HTML   │ §GEO-JS    │ renderGeo(only)
+── v3.14.0 — شريط تحت النسبة في خلايا الحالة ─────────────────
+شريط ملوّن تحت رقم كل خلية حالة  │ HTML   │ §GEO-JS · §CSS │ statBar() جوّه cell/mCell · .geo-stat-bar
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1902,7 +1918,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.13.0';
+const TOOL_VERSION = 'v3.14.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -5144,12 +5160,15 @@ function renderGeoTable(elId, dim, { groups, totals }, headLabel) {
     ? `<th class="${cls || ''}" title="${esc(hint || label)}">${label}</th>`
     : `<th class="${cls || ''} geo-sortable${state.geoSortKey === k ? ' is-sorted' : ''}" title="${esc(hint || label)}" onclick="setGeoSort('${k}')">${label}${arrow(k)}</th>`;
 
-  // خلية "عدد · نسبة" — النسبة من **إجمالي أوردرات الصف**، فالتلاتة بيجمعوا 100%
+  // خلية "عدد · شريط · نسبة" — النسبة من **إجمالي أوردرات الصف**، فالتلاتة
+  // بيجمعوا 100%، وطول الشريط تحت الرقم = نفس قيمة النسبة (v3.14.0).
+  const statBar = (pctVal, cls) =>
+    `<div class="geo-stat-bar"><div class="geo-stat-bar-fill ${cls || ''}" style="width:${Math.min(Math.max(pctVal, 0), 100).toFixed(1)}%"></div></div>`;
   const cell = (n, pctVal, cls, sep) =>
-    `<td class="col-num${sep ? ' geo-sep' : ''}"><span class="geo-n ${cls || ''}">${fmtInt(n)}</span><span class="geo-pct">${fmtPct(pctVal)}</span></td>`;
-  // خلية "فلوس · نسبة" — النسبة من **إجمالي قيمة الصف** (نفس المنطق بالوحدة التانية)
+    `<td class="col-num${sep ? ' geo-sep' : ''}"><span class="geo-n ${cls || ''}">${fmtInt(n)}</span>${statBar(pctVal, cls)}<span class="geo-pct">${fmtPct(pctVal)}</span></td>`;
+  // خلية "فلوس · شريط · نسبة" — النسبة من **إجمالي قيمة الصف** (نفس المنطق بالوحدة التانية)
   const mCell = (v, pctVal, cls, sep) =>
-    `<td class="col-num${sep ? ' geo-sep' : ''}"><span class="geo-n ${cls || ''}">${fmtMoney(v)}</span><span class="geo-pct">${fmtPct(pctVal)}</span></td>`;
+    `<td class="col-num${sep ? ' geo-sep' : ''}"><span class="geo-n ${cls || ''}">${fmtMoney(v)}</span>${statBar(pctVal, cls)}<span class="geo-pct">${fmtPct(pctVal)}</span></td>`;
 
   const shareOf = g => totals.mDelivered ? (g.mDelivered / totals.mDelivered) * 100 : 0;
 
