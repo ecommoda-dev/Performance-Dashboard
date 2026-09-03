@@ -751,7 +751,6 @@
   .rsn-mm-pill{display:inline-block;font-size:10.5px;padding:0 6px;border-radius:100px;
     background:var(--amber-soft);color:var(--amber-dark);border:1px solid var(--amber-soft-border);margin-inline-start:5px;white-space:nowrap}
   .rsn-toolbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:12px}
-  .rsn-heat td.rsn-hc{font-family:'Courier New',monospace;direction:ltr;text-align:center}
   .rsn-dim-btn{font-size:12.5px;padding:4px 12px;border-radius:100px;border:1px solid var(--border);
     background:var(--surface);cursor:pointer}
   .rsn-dim-btn.is-on{background:var(--teal);border-color:var(--teal);color:var(--on-accent);font-weight:600}
@@ -1319,6 +1318,7 @@
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الكروت الأربعة بقت بنفس التقسيمة</b> — كارت الإجمالي كان رقم واحد كبير، بقى مربّعين زي التلاتة اللي جنبه. و<b>الوحدة بقت أيقونة</b> (📦 / 💰) بدل كلمة «عدد»/«قيمة» في الأربعة. ⚠️ نسبة كارت الإجمالي مقامها <b>الفترة كلها</b> (نسبته لنفسه كانت هتبقى 100% وبلا معلومة): العدد من كل أوردرات الفترة = <b>معدل الخسارة العام</b>، والقيمة من إجمالي قيمة الفترة.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>chips فلتر الأسباب كانت ملزوقة في بعضها ومن غير لون للمختار</b> — الكارت كان بيكتب كلاسين <b>مش موجودين في الـ CSS أصلًا</b> (حاوية <code>geo-chips</code> والمختار <code>is-on</code>)، فالحاوية كانت بلا <code>flex</code> وبلا مسافات والسبب المختار ما كانش بياخد أي لون. دلوقتي بيعيد استخدام كلاسات فلتر المحافظات زي ما هي، ومعاها شارات العدّ وزرار المسح.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>البادجات اتشالت من جدول الأسباب</b> («قيمة برّه القايمة» · «حقل مختلف: N») — الاتنين <b>تشخيص</b> مالوش أثر على أي رقم، ومكانهم قسم «جودة البيانات» اللي بيعدّهم أصلاً. وجودهم في عمود السبب كان بيزحلق الأعمدة الرقمية ويخلط تنبيه إدخال ببيانات. القيمة برّه القايمة لسه بتتعرض <b>خام</b> في الصف وبإطار متقطّع على الـ chip.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>قسم «السبب × المرحلة» اتشال</b> — الهيت-ماب بقى بيعرض <b>نفس</b> التلات أعمدة اللي جوّه مجموعة «📦 عدد الأوردرات» في جدول الأسباب اللي فوقه بالظبط. رقم واحد في مكانين بشكلين مختلفين بيخلي القارئ يفتكرهم رقمين ويدوّر على فرق مش موجود. المعلومة كلها موجودة في الجدول — ومعاها القيمة كمان، اللي الهيت-ماب ما كانش بيعرضها.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>أيقونة تاب <b>المحافظات</b> بقت 🌍.</span></li>
         </ul>
       </div>
@@ -1860,7 +1860,6 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 عالم التاب = دلاو الخسارة التلاتة │ HTML   │ §REASONS   │ RSN_STAGE / rsnIsLoss
 قرار الفلترة في مكان واحد         │ HTML   │ §REASONS   │ rsnRowsFor(rows)
 صف لكل سبب بالعدد وبالقيمة        │ HTML   │ §REASONS   │ rsnGroups / rsnRow
-مصفوفة السبب × المرحلة            │ HTML   │ §REASONS   │ renderRsnMatrix
 الأسباب جغرافيًا (مطبّعة + مؤشر)  │ HTML   │ §REASONS   │ renderRsnGeo / RSN_MIN_SAMPLE
 جودة البيانات (٣ حالات)           │ HTML   │ §REASONS   │ renderRsnQuality / rsnFieldMismatch
 أوردرات السبب المختار             │ HTML   │ §REASONS-DETAILS │ showRsnDetails (بلا scrollIntoView)
@@ -1882,6 +1881,7 @@ JS بيقرا التوكن مش بيكتبه         │ HTML   │ §SHELL-JS  
 رسمان عموديان بتلات أعمدة فرعية   │ HTML   │ §REASONS   │ renderRsnCharts (chipSlotWidth · صفر دوران)
 جدول الأسباب ٤+٤ أعمدة + النسبة   │ HTML   │ §REASONS   │ renderRsnTable (thead سطرين + geo-sep)
 جدول الأسباب جغرافيًا بنفس الهيكل │ HTML   │ §REASONS   │ renderRsnGeo (+ معدل الخسارة والمؤشر)
+شيل مصفوفة السبب × المرحلة        │ HTML   │ §REASONS   │ (اتلمّت جوّه مجموعة «📦 عدد الأوردرات»)
 إصلاح كلاسات فلتر الأسباب         │ HTML   │ §REASONS   │ renderRsnFilter (geo-filter-chips · .on)
 ──────────────────────────────────────────────────────────────
 
@@ -3555,9 +3555,6 @@ function renderShell() {
       <div class="geo-section-hdr"><span class="kpi-icon">📊</span>الأسباب بالعدد وبالقيمة<span id="rsnFlag"></span></div>
       <div id="rsnCharts"></div>
       <div class="geo-table-card" id="rsnTable"></div>
-
-      <div class="geo-section-hdr"><span class="kpi-icon">🔀</span>السبب × المرحلة<span class="geo-section-sub">نفس السبب في مرحلة مختلفة = مشكلة مختلفة وجهة مسؤولة مختلفة.</span></div>
-      <div class="geo-table-card" id="rsnMatrix"></div>
 
       <div class="geo-section-hdr"><span class="kpi-icon">🌍</span>الأسباب جغرافيًا<span id="rsnGeoFlag"></span></div>
       <div class="geo-table-card" id="rsnGeoTable"></div>
@@ -6274,7 +6271,6 @@ function renderReasons() {
   if (flag) flag.innerHTML = rsnFilterFlag();
   renderRsnCharts(groups, totals);
   renderRsnTable(groups, totals);
-  renderRsnMatrix(groups, totals);
   renderRsnGeo();
   renderRsnQuality(totals);
 }
@@ -6579,51 +6575,6 @@ function renderRsnTable(groups, totals) {
             <td class="col-num geo-strong">${fmtMoney(totals.orders ? totals.value / totals.orders : 0)}</td>
           </tr>
         </tfoot>
-      </table>
-    </div>`;
-}
-
-// ─── §REASONS::renderRsnMatrix — السبب × المرحلة ───
-function renderRsnMatrix(groups, totals) {
-  const el = document.getElementById('rsnMatrix');
-  if (!el) return;
-  if (!groups.length) { el.innerHTML = `<div class="details-empty">مفيش بيانات في الفترة المختارة.</div>`; return; }
-
-  const F = Object.fromEntries(RSN_STAGE_IDS.map(id => [id, RSN_F[id].n]));
-  const sorted = rsnSortGroups(groups, 'orders', 'desc');
-  const maxCell = Math.max(1, ...sorted.flatMap(g => RSN_STAGE_IDS.map(id => g[F[id]])));
-
-  const body = sorted.map(g => `
-    <tr class="${state.rsnDetails.key === g.key ? 'geo-row-active' : ''}" onclick="showRsnDetails(${JSON.stringify(g.key).replace(/"/g, '&quot;')})">
-      <td class="geo-name">${esc(g.label)}</td>
-      ${RSN_STAGE.map(st => {
-        const n = g[F[st.id]];
-        const a = n ? (0.10 + 0.55 * (n / maxCell)).toFixed(2) : 0;
-        return `<td class="rsn-hc" style="${n ? `background:rgba(220,38,38,${a})` : ''}">${n ? fmtInt(n) : '—'}</td>`;
-      }).join('')}
-      <td class="rsn-hc geo-strong">${fmtInt(g.orders)}</td>
-    </tr>`).join('');
-
-  el.innerHTML = `
-    <div class="geo-table-note">
-      نفس السبب في مرحلتين مختلفتين = مشكلتان مختلفتان: «المقاس غير متوفر» قبل الشحن مشكلة مخزون،
-      و«مقاس غير مظبوط» بعد التسليم مشكلة وصف وجدول مقاسات. الخلية الملوّنة بتقارن داخل الجدول كله.
-    </div>
-    <div class="details-scroll">
-      <table class="details-table geo-table rsn-heat">
-        <thead><tr>
-          <th class="geo-name-th">السبب</th>
-          ${RSN_STAGE.map(st => `<th title="${esc(st.label)}">${st.icon} ${esc(st.label)}</th>`).join('')}
-          <th>الإجمالي</th>
-        </tr></thead>
-        <tbody>${body}</tbody>
-        <tfoot><tr class="geo-total-row">
-          <td class="geo-name">الإجمالي</td>
-          <td class="rsn-hc">${fmtInt(totals.stCancelled)}</td>
-          <td class="rsn-hc">${fmtInt(totals.stRTO)}</td>
-          <td class="rsn-hc">${fmtInt(totals.stFullReturn)}</td>
-          <td class="rsn-hc geo-strong">${fmtInt(totals.orders)}</td>
-        </tr></tfoot>
       </table>
     </div>`;
 }
