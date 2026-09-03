@@ -37,6 +37,35 @@
     --purple:         #7c3aed;
     --purple-light:   #f5f3ff;
     --purple-border:  #c4b5fd;
+    /* Extras — design-system.md (html-builder v6.2.0): قاعدة «صفر #hex حرفي خارج :root» */
+    --surface-hover:      #f0f4f8;   /* hover أي صف/هيدر قابل للضغط */
+    --neutral-dark:       #1a1d27;   /* توست محايد · تلميح النسخ */
+    --on-accent:          #ffffff;   /* أي نص فوق خلفية لون مصمت */
+    --accent-border:      #bfdbfe;   /* إطار العناصر الزرقاء الفاتحة (بادج النسخة · chips) */
+    --accent-hover:       #dbeafe;   /* خلفية hover للعناصر الزرقاء الفاتحة */
+    --accent-hover-border:#93c5fd;
+    --green-dark:         #15803d;   /* نص أخضر فوق خلفية فاتحة */
+    --red-dark:           #b91c1c;   /* hover الزرار الأحمر */
+    --amber-dark:         #92400e;   /* نص كهرماني فوق خلفية فاتحة */
+    --purple-dark:        #4c1d95;   /* نص بنفسجي فوق خلفية فاتحة */
+    /* ── توكنز محلية للأداة دي — قيم مش في design-system.md، متعرّفة هنا عشان
+       تفضل القاعدة «صفر #hex حرفي خارج :root» صحيحة بلا أي تغيير بصري.
+       ⛔ ممنوع تكرار أي قيمة منها حرفيًا في CSS أو JS — الاستهلاك بـ var()/cssVar() بس. ── */
+    --surface-soft:   #fafafa;   /* خلفية مفتاح الأسباب (.legend-row) */
+    --row-note:       #fffdf5;   /* خلفية صف عليه ملاحظة أو تعارض دورات */
+    --chart-grid:     #f1f5f9;   /* خطوط شبكة الرسوم (Chart.js) */
+    --track:          #e2e8f0;   /* خلفية شريط التغطية */
+    --green-text:     #166534;   /* نص أخضر داكن في كارت الهوية */
+    --red-text:       #991b1b;   /* نص أحمر داكن في التحذيرات والـ pills */
+    --red-soft:       #fee2e2;   /* خلفية pill حمراء */
+    --red-soft-border:#fecaca;
+    --amber-soft:     #fef3c7;   /* خلفية وسم صغير كهرماني */
+    --amber-soft-border:#fcd34d;
+    /* بالتة الرسوم — ألوان تصنيف مالهاش نظير في design-system.md */
+    --teal:           #0f766e;   /* عائلة «مقاس وتوفّر» · زرار البُعد المفعّل */
+    --orange:         #ea580c;   /* مرحلة «مرتجع رفض الاستلام» */
+    --slate:          #64748b;   /* عائلة «تشغيلي داخلي» */
+    --slate-light:    #94a3b8;   /* «غير محدد» · «غير مصنّف» */
     --radius:         14px;
     --radius-sm:      8px;
     --shadow:         0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
@@ -75,8 +104,8 @@
   .hbtn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
   .hbtn:disabled { opacity: .5; cursor: not-allowed; }
   .hbtn.settings-configured { border-color: var(--green); color: var(--green); background: var(--green-light); }
-  .hbtn.ver-btn { border-color: #bfdbfe; color: #1d4ed8; background: #eff6ff; font-family: var(--font-mono); font-weight: 700; }
-  .hbtn.ver-btn:hover { background: #dbeafe; border-color: #93c5fd; color: #1d4ed8; }
+  .hbtn.ver-btn { border-color: var(--accent-border); color: var(--accent-dark); background: var(--accent-light); font-family: var(--font-mono); font-weight: 700; }
+  .hbtn.ver-btn:hover { background: var(--accent-hover); border-color: var(--accent-hover-border); color: var(--accent-dark); }
   /* الموظف الحالي — أخضر عادي، أحمر عند الهوفر (إشارة إن الضغط = خروج) */
   .hbtn.active-user       { border-color: var(--green); color: var(--green); background: var(--green-light); }
   .hbtn.active-user:hover { border-color: var(--red);   color: var(--red);   background: var(--red-light); }
@@ -108,7 +137,7 @@
   }
   .main-tab-btn:hover  { background: var(--surface-2); color: var(--text-primary); }
   .main-tab-btn.active {
-    background: var(--accent); color: #fff;
+    background: var(--accent); color: var(--on-accent);
     border-color: var(--accent);
     box-shadow: 0 2px 8px rgba(37,99,235,.25);
   }
@@ -241,8 +270,8 @@
   }
   .view-toggle-btn:first-child { border-inline-start: none; }
   .view-toggle-btn:hover { background: var(--accent-light); color: var(--accent); }
-  .view-toggle-btn.active { background: var(--accent); color: #fff; }
-  .view-toggle-btn.active:hover { background: var(--accent-dark); color: #fff; }
+  .view-toggle-btn.active { background: var(--accent); color: var(--on-accent); }
+  .view-toggle-btn.active:hover { background: var(--accent-dark); color: var(--on-accent); }
   /* v3.3.0 — فترة أوسع من ROWS_MAX_DAYS: مفيش rows نحسب "عدد القطع" منها */
   .view-toggle-btn.disabled { opacity: .4; cursor: not-allowed; pointer-events: none; }
 
@@ -293,7 +322,7 @@
     background: var(--surface); cursor: pointer; transition: all .15s; white-space: nowrap;
   }
   .month-box:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
-  .month-box.active { border-color: var(--accent); color: #fff; background: var(--accent); }
+  .month-box.active { border-color: var(--accent); color: var(--on-accent); background: var(--accent); }
   .month-box:disabled { opacity: .5; cursor: not-allowed; }
   /* «طول الفترة» — نفس تصميم LCC بالظبط (بنفسجي، mono، اتجاه LTR للرقم) */
   .range-span-chip { font-size: 11.5px; font-weight: 700; color: var(--purple); background: var(--purple-light); border: 1px solid var(--purple-border); border-radius: 20px; padding: 3px 10px; font-family: var(--font-mono); direction: ltr; display: inline-block; }
@@ -314,13 +343,13 @@
   .pstep.now  { border-color: var(--accent); color: var(--accent); font-weight: 700; }
   .loading-spinner { width: 26px; height: 26px; border: 3px solid var(--border); border-top-color: var(--accent);
     border-radius: 50%; animation: hbtn-spin .8s linear infinite; }
-  .btn-primary { border: 1px solid var(--accent); background: var(--accent); color: #fff; padding: 8px 18px;
+  .btn-primary { border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); padding: 8px 18px;
     border-radius: 9px; font-family: var(--font-body); font-size: 13px; font-weight: 700; cursor: pointer; }
   .btn-primary:hover { background: var(--accent-dark); }
 
   /* ── Notes / warnings ── */
-  .info-note { background: var(--accent-light); color: #1d4ed8; border: 1px solid #bfdbfe; border-radius: 10px; padding: 8px 14px; font-size: 12px; margin-bottom: 10px; }
-  .warn-note { background: var(--amber-light); color: #92400e; border: 1px solid #fde68a; border-radius: 10px; padding: 8px 14px; font-size: 12px; margin-bottom: 14px; }
+  .info-note { background: var(--accent-light); color: var(--accent-dark); border: 1px solid var(--accent-border); border-radius: 10px; padding: 8px 14px; font-size: 12px; margin-bottom: 10px; }
+  .warn-note { background: var(--amber-light); color: var(--amber-dark); border: 1px solid var(--amber-border); border-radius: 10px; padding: 8px 14px; font-size: 12px; margin-bottom: 14px; }
 
   /* ── Error state ── */
   .error-state { background: var(--surface); border: 1px solid var(--red-border); border-radius: var(--radius); padding: 26px 20px; text-align: center; }
@@ -411,7 +440,7 @@
   .kpi-breakdown { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 5px; }
   .kpi-breakdown.open { display: grid; }
   .kpi-breakdown-item { text-align: center; border-radius: 8px; padding: 6px 4px; transition: background .12s; cursor: pointer; border: 1px solid transparent; }
-  .kpi-breakdown-item:hover { background: var(--accent-light); border-color: #bfdbfe; }
+  .kpi-breakdown-item:hover { background: var(--accent-light); border-color: var(--accent-border); }
   .kpi-breakdown-item.drill-active { background: var(--accent-light); border-color: var(--accent); }
   .kpi-breakdown-label { font-size: 10.5px; color: var(--text-primary); margin-bottom: 3px; line-height: 1.35; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 3px; }
   .kpi-breakdown-label .kpi-icon { font-size: 11px; }
@@ -432,30 +461,30 @@
     width: 16px; height: 16px; border-radius: 50%; background: var(--border); color: var(--text-secondary);
     font-size: 10px; font-weight: 700; cursor: help; flex-shrink: 0; font-family: var(--font-mono);
   }
-  .kpi-info:hover { background: var(--accent); color: #fff; }
+  .kpi-info:hover { background: var(--accent); color: var(--on-accent); }
   .kpi-info .kpi-tooltip {
     display: none; position: absolute; z-index: 60; top: calc(100% + 8px); left: 0;
-    width: 280px; background: #111827; color: #f9fafb; font-size: 11.5px; font-weight: 400;
+    width: 280px; background: var(--text-primary); color: var(--surface-2); font-size: 11.5px; font-weight: 400;
     line-height: 1.7; padding: 10px 12px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.28);
     text-align: right; white-space: normal; cursor: auto;
   }
   .kpi-info:hover .kpi-tooltip { display: block; }
-  .kpi-tooltip::before { content: ''; position: absolute; bottom: 100%; left: 4px; border: 6px solid transparent; border-bottom-color: #111827; }
+  .kpi-tooltip::before { content: ''; position: absolute; bottom: 100%; left: 4px; border: 6px solid transparent; border-bottom-color: var(--text-primary); }
 
   /* ── Identity check card ── */
   .identity-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 16px; margin-bottom: 18px; font-size: 12.5px; color: var(--text-secondary); display: flex; align-items: center; gap: 10px; }
-  .identity-card.ok  { border-color: var(--green-border); color: #166534; background: var(--green-light); }
-  .identity-card.bad { border-color: var(--red-border); color: #991b1b; background: var(--red-light); }
+  .identity-card.ok  { border-color: var(--green-border); color: var(--green-text); background: var(--green-light); }
+  .identity-card.bad { border-color: var(--red-border); color: var(--red-text); background: var(--red-light); }
   .identity-card .mono { font-size: 12px; }
 
   .hidden { display: none !important; }
 
   /* ── Toast ── */
   .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
-  .toast { padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: #fff; box-shadow: 0 4px 12px rgba(0,0,0,.2); animation: toastIn .3s ease; max-width: 320px; }
+  .toast { padding: 10px 16px; border-radius: var(--radius-sm); font-size: 13px; font-weight: 600; color: var(--on-accent); box-shadow: 0 4px 12px rgba(0,0,0,.2); animation: toastIn .3s ease; max-width: 320px; }
   .toast-success { background: var(--green); }
   .toast-error   { background: var(--red); }
-  .toast-neutral { background: #1a1d27; }
+  .toast-neutral { background: var(--neutral-dark); }
   @keyframes toastIn { from { transform: translateX(100%); opacity: 0; } to { transform: none; opacity: 1; } }
 
   /* ── Settings Modal (ecommoda-worker-builder... modals-patterns.md §1) ── */
@@ -466,7 +495,7 @@
   .settings-modal-hdr    { display: flex; justify-content: space-between; align-items: center; padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 15px; font-weight: 700; }
   /* زرار الإغلاق الموحّد — إطار أحمر + خلفية حمراء (ecommoda-html-builder/references/tabs-and-modals.md §3) */
   .modal-close-x         { background: var(--red-light); border: 1.5px solid var(--red-border); color: var(--red); font-size: 14px; font-weight: 700; line-height: 1; cursor: pointer; padding: 4px 11px; border-radius: var(--radius-sm); font-family: inherit; transition: all .15s; }
-  .modal-close-x:hover   { background: var(--red); color: #fff; border-color: var(--red); }
+  .modal-close-x:hover   { background: var(--red); color: var(--on-accent); border-color: var(--red); }
   .settings-modal-body   { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
   .settings-field        { display: flex; flex-direction: column; gap: 5px; }
   .settings-label        { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .5px; }
@@ -477,7 +506,7 @@
   .settings-modal-ftr    { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; gap: 8px; justify-content: flex-end; }
   .btn-modal-cancel      { padding: 8px 14px; background: transparent; color: var(--text-secondary); border: 1px solid var(--border-strong); border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; cursor: pointer; }
   .btn-modal-cancel:hover { color: var(--text-primary); }
-  .btn-modal-save        { padding: 8px 18px; background: var(--accent); color: #fff; border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .15s; }
+  .btn-modal-save        { padding: 8px 18px; background: var(--accent); color: var(--on-accent); border: none; border-radius: var(--radius-sm); font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: background .15s; }
   .btn-modal-save:hover  { background: var(--accent-dark); }
 
   /* ── Modal Shell — About / Changelog (ecommoda-html-builder/references/tabs-and-modals.md §2) ── */
@@ -513,16 +542,16 @@
   /* ── Changelog Modal — محتوى الجسم (الشِل من eco-modal فوق) ── */
   .cl-version-block { margin-bottom: 4px; }
   .cl-version-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-  .cl-ver-badge { font-family: var(--font-mono); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 5px; background: #eff6ff; color: #1d4ed8; border: 1px solid #bfdbfe; direction: ltr; }
+  .cl-ver-badge { font-family: var(--font-mono); font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 5px; background: var(--accent-light); color: var(--accent-dark); border: 1px solid var(--accent-border); direction: ltr; }
   .cl-ver-badge.old { background: var(--surface-2); color: var(--text-secondary); border-color: var(--border-strong); }
   .cl-ver-date { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); direction: ltr; }
   .cl-items { list-style: none; display: flex; flex-direction: column; gap: 5px; padding-bottom: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-inline-start: 0; }
   .cl-version-block:last-child .cl-items { border-bottom: none; padding-bottom: 0; margin-bottom: 0; }
   .cl-item { display: flex; gap: 8px; font-size: 13px; align-items: flex-start; }
   .cl-tag { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px; white-space: nowrap; flex-shrink: 0; align-self: flex-start; margin-top: 2px; }
-  .cl-tag.new    { background: #f0fdf4; color: #15803d; }
-  .cl-tag.fix    { background: #fef2f2; color: #dc2626; }
-  .cl-tag.change { background: #fffbeb; color: #92400e; }
+  .cl-tag.new    { background: var(--green-light); color: var(--green-dark); }
+  .cl-tag.fix    { background: var(--red-light); color: var(--red); }
+  .cl-tag.change { background: var(--amber-light); color: var(--amber-dark); }
 
   /* ── About Modal — content (ecommoda-html-builder/references/tabs-and-modals.md §4) ── */
   .about-sec {
@@ -582,7 +611,7 @@
   .details-body { display: none; }
   .details-section.open .details-body { display: block; }
 
-  .details-summary-row { display: flex; gap: 18px; padding: 10px 16px; background: var(--accent-light); border-bottom: 1px solid #bfdbfe; font-size: 12px; flex-wrap: wrap; color: #1d4ed8; }
+  .details-summary-row { display: flex; gap: 18px; padding: 10px 16px; background: var(--accent-light); border-bottom: 1px solid var(--accent-border); font-size: 12px; flex-wrap: wrap; color: var(--accent-dark); }
   .details-summary-item b { font-family: var(--font-mono); }
 
   /* ── مربع البحث فوق الجدول ── */
@@ -625,30 +654,30 @@
     vertical-align: middle; white-space: nowrap; line-height: 1.3; text-align: center;
   }
   .details-table tfoot td:first-child { border-inline-start: none; }
-  .details-table tbody tr.has-note { background: #fffdf5; }
+  .details-table tbody tr.has-note { background: var(--row-note); }
   .details-table tbody tr.has-note:hover { background: var(--amber-light); }
   .col-num { font-family: var(--font-mono); direction: ltr; white-space: nowrap; }
   .details-order-link { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; color: var(--accent); text-decoration: none; font-weight: 600; }
   .details-order-link:hover { text-decoration: underline; }
   .order-num { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; font-weight: 600; } /* fallback بدون لينك — orderLink() لو مفيش orderId */
   .pill { font-size: 10.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; white-space: nowrap; display: inline-block; }
-  .note-pill { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--amber-light); color: #92400e; border: 1px solid #fde68a; white-space: nowrap; margin-inline-start: 5px; }
+  .note-pill { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--amber-light); color: var(--amber-dark); border: 1px solid var(--amber-border); white-space: nowrap; margin-inline-start: 5px; }
   /* ── شارات دورات الإرجاع/الاستبدال ──
      ⚠️ الوسمان منفصلان بصريًا عن بعض وعن note-pill عن قصد:
      CYCLE_OVERLAP مخالفة تشغيلية تروح لخدمة العملاء (كهرماني)، و MULTI_CYCLE
      حد معروف في الكود والصف محسوب صح (أزرق هادي — مش لون غلط). */
   .cycle-pill { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; white-space: nowrap; margin-inline-start: 5px; border: 1px solid transparent; }
-  .cycle-pill.overlap { background: var(--amber-light); color: #92400e; border-color: #fde68a; }
-  .cycle-pill.multi   { background: var(--accent-light); color: #1d4ed8; border-color: #bfdbfe; }
-  .cycle-pill.unknown { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
-  .details-table tbody tr.has-cycle-overlap { background: #fffdf5; }
+  .cycle-pill.overlap { background: var(--amber-light); color: var(--amber-dark); border-color: var(--amber-border); }
+  .cycle-pill.multi   { background: var(--accent-light); color: var(--accent-dark); border-color: var(--accent-border); }
+  .cycle-pill.unknown { background: var(--red-soft); color: var(--red-text); border-color: var(--red-soft-border); }
+  .details-table tbody tr.has-cycle-overlap { background: var(--row-note); }
   .details-table tbody tr.has-cycle-overlap:hover { background: var(--amber-light); }
   /* مفتاح الأسباب — فوق الجدول، مش في الـ title بس */
-  .legend-row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 8px 12px; margin-bottom: 10px; border: 1px dashed var(--border); border-radius: 10px; background: var(--bg-soft, #fafafa); font-size: 11.5px; }
+  .legend-row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; padding: 8px 12px; margin-bottom: 10px; border: 1px dashed var(--border); border-radius: 10px; background: var(--surface-soft); font-size: 11.5px; }
   .legend-title { font-weight: 700; color: var(--text-muted); }
   .legend-item { display: inline-flex; align-items: center; gap: 6px; }
   .legend-desc { color: var(--text-muted); }
-  .legend-desc b { color: var(--text); }
+  .legend-desc b { color: var(--text-primary); }
   .details-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
 
   /* ── §REASONS — تاب الإلغاءات والمرتجعات (v3.16.0) ── */
@@ -664,7 +693,7 @@
   .rsn-cov.is-warn .rsn-cov-t{color:var(--amber)}
   .rsn-cov.is-bad{background:var(--red-light);border-color:var(--red-border)}
   .rsn-cov.is-bad .rsn-cov-t{color:var(--red)}
-  .rsn-cov-bar{flex:1 1 220px;height:10px;border-radius:6px;background:#e2e8f0;overflow:hidden;min-width:160px}
+  .rsn-cov-bar{flex:1 1 220px;height:10px;border-radius:6px;background:var(--track);overflow:hidden;min-width:160px}
   .rsn-cov-bar i{display:block;height:100%;border-radius:6px}
   /* عائلات الأسباب */
   /* ٤ كروت بالظبط — الشبكة العامة (.kpi-grid) بـ auto-fit مضبوطة على تابات
@@ -689,7 +718,7 @@
   .rsn-stage-pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:100px;
     border:1px solid currentColor;white-space:nowrap;line-height:1.7}
   .rsn-mm-pill{display:inline-block;font-size:10.5px;padding:0 6px;border-radius:100px;
-    background:#fef3c7;color:#92400e;border:1px solid #fcd34d;margin-inline-start:5px;white-space:nowrap}
+    background:var(--amber-soft);color:var(--amber-dark);border:1px solid var(--amber-soft-border);margin-inline-start:5px;white-space:nowrap}
   .rsn-chart-scroll{overflow-x:auto;overflow-y:hidden;direction:ltr}
   .rsn-toolbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:12px}
   .rsn-switch{display:inline-flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;
@@ -698,7 +727,7 @@
   .rsn-heat td.rsn-hc{font-family:'Courier New',monospace;direction:ltr;text-align:center}
   .rsn-dim-btn{font-size:12.5px;padding:4px 12px;border-radius:100px;border:1px solid var(--border);
     background:var(--surface);cursor:pointer}
-  .rsn-dim-btn.is-on{background:#0f766e;border-color:#0f766e;color:#fff;font-weight:600}
+  .rsn-dim-btn.is-on{background:var(--teal);border-color:var(--teal);color:var(--on-accent);font-weight:600}
   /* ── §GEO — تاب المحافظات والمناطق (v3.10.0) ── */
   .geo-section-hdr { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 22px 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
   .geo-section-hdr .kpi-icon { font-size: 16px; }
@@ -720,7 +749,7 @@
     font-family: inherit; font-size: 12px; font-weight: 800;
     cursor: pointer; transition: all .15s; white-space: nowrap;
   }
-  .geo-clear-btn:hover { background: var(--red); color: #fff; }
+  .geo-clear-btn:hover { background: var(--red); color: var(--on-accent); }
   /* شارات الأرقام — بديل الجملة الرمادية الطويلة. الرقم بيبان كرقم (خط mono
      وحجم أكبر ولون النص الأساسي) والكلام حواليه ثانوي، بدل ما الاتنين يبقوا
      نفس الوزن ويتقروا كسطر واحد ممل. */
@@ -745,7 +774,7 @@
     transition: all .12s; white-space: nowrap; user-select: none;
   }
   .geo-chip:hover { border-color: var(--accent); color: var(--accent); }
-  .geo-chip.on { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .geo-chip.on { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
   .geo-chip .geo-chip-n { font-family: var(--font-mono); direction: ltr; font-size: 10.5px; opacity: .8; }
   .geo-chip.on .geo-chip-n { opacity: .9; }
   .geo-chip.is-unknown { border-style: dashed; }
@@ -813,7 +842,7 @@
   .geo-table tfoot .geo-total-row td { background: var(--surface-2); border-top: 2px solid var(--border-strong); font-weight: 800; cursor: default; }
   /* بانر أحمر — الحالة اللي التاب فيها معطّل فعليًا (نسخة Worker قديمة أو
      صلاحية عنوان ناقصة)، متميّز عن التحذير الكهرماني العادي */
-  .warn-note-red { background: #fef2f2 !important; border-color: #fecaca !important; color: #991b1b !important; }
+  .warn-note-red { background: var(--red-light) !important; border-color: var(--red-soft-border) !important; color: var(--red-text) !important; }
   .warn-note-red code { font-family: var(--font-mono); direction: ltr; unicode-bidi: isolate; }
 
   .clr-green-t  { color: var(--green); }
@@ -951,7 +980,7 @@
     color: var(--red); background: var(--red-light); border-color: var(--red-border);
     font-family: var(--font-body); font-size: 13px; font-weight: 900;
   }
-  .pin-key.utility:hover:not(:disabled) { background: var(--red); color: #fff; border-color: var(--red); }
+  .pin-key.utility:hover:not(:disabled) { background: var(--red); color: var(--on-accent); border-color: var(--red); }
   .pin-key:disabled { opacity: .55; cursor: not-allowed; }
 
   .login-alert {
@@ -967,7 +996,7 @@
     display: none; align-items: center; justify-content: center; gap: 7px;
     width: 100%; min-height: 58px; margin-top: 1px;
     border: none; border-radius: 10px;
-    background: var(--accent); color: #fff;
+    background: var(--accent); color: var(--on-accent);
     font-family: var(--font-body); font-size: 15px; font-weight: 900;
     cursor: pointer; transition: background .15s, opacity .15s, transform .06s;
   }
@@ -1252,10 +1281,19 @@
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">03-09-2026</span></div>
         <ul class="cl-items">
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تاب «الإلغاءات والمرتجعات»</b> — بيفكّ كارت «خسائر» لأسباب بالعدد وبالقيمة، من ميتافيلدي الأوردر <code>custom.cancel_manual_reason</code> و<code>custom.return_manual_reason</code>. أقسامه: بانر التغطية · ٤ كروت · عائلات الأسباب · فلتر chips · رسمان أفقيان · جدول الأسباب · مصفوفة السبب × المرحلة · الأسباب جغرافيًا (محافظة/منطقة) · جودة البيانات · جدول أوردرات السبب المختار.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>كارت «الخسائر» اتسمّى «إلغاءات ومرتجعات»</b> في <b>كل</b> الأداة — تاب المبيعات وتاب الأوردرات، في المربّع نفسه وفي الدونات والبار وعنوان جدول التفاصيل وصف التوقّع. الاسم بقى مطابق لعمود «إلغاءات ومرتجعات» في تاب المحافظات/المناطق ولاسم تاب «الإلغاءات والمرتجعات» — نفس الأوردرات بنفس الاسم في التلاتة. ⚠️ <b>الأرقام والدلاو ما اتغيّرتش إطلاقًا</b>: تسمية بس، صفر تعديل في <code>index.js</code> وصفر <code>CACHE_VERSION</code> bump.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>صفر <code>#hex</code> حرفي خارج <code>:root</code></b> (<code>ecommoda-html-builder</code> v6.2.0 · Standards #35) — ١٠٨ قيمة لون كانت مكتوبة حرفيًا في الـ CSS وفي بالتة الرسوم بقت توكنز. اتضافت الـ ١١ توكن القياسية (<code>--on-accent</code> · <code>--accent-border</code> · <code>--green-dark</code> …) + توكنز محلية للقيم اللي مالهاش نظير في <code>design-system.md</code>. <b>صفر تغيير بصري</b> — نفس القيم بالظبط.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>الأرقام المرسومة على الدونات والبار كانت بخط مكتوب حرفيًا</b> — بقت بتقرا التوكن وقت الرسم بـ <code>cssVar()</code> (<code>ecommoda-dashboard-builder</code> v3.2.0). الـ canvas بياخد نص مش CSS، فالقيمة الحرفية بتتعتّق من غير أي رسالة خطأ لما التوكن يتغيّر.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>متغيّران مش معرّفين في <code>:root</code></b>: <code>var(--text)</code> في مفتاح الأسباب و<code>var(--bg-soft)</code> في خلفيته. الأول كان بيرندر صح <b>بالوراثة</b> بالصدفة، والتاني كان شغّال بقيمة fallback حرفية.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.16.0</span><span class="cl-ver-date">03-09-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تاب «الإلغاءات والمرتجعات»</b> — بيفكّ كارت «إلغاءات ومرتجعات» لأسباب بالعدد وبالقيمة، من ميتافيلدي الأوردر <code>custom.cancel_manual_reason</code> و<code>custom.return_manual_reason</code>. أقسامه: بانر التغطية · ٤ كروت · عائلات الأسباب · فلتر chips · رسمان أفقيان · جدول الأسباب · مصفوفة السبب × المرحلة · الأسباب جغرافيًا (محافظة/منطقة) · جودة البيانات · جدول أوردرات السبب المختار.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>السبب بيتاخد من أي حقل فيه قيمة</b> — الأداة <b>مش</b> بتفترض إن حقل الإلغاء يخص الإلغاء وحقل المرتجع يخص المرتجع. القياس على المتجر لقى أوردر رفض استلام شايل سببه في حقل الإلغاء، ولو الأداة قرأت الحقل «المتوقع» بس كان هيتعدّ «بدون سبب» وهو عليه سبب مكتوب. عدم التطابق بيتعرض في قسم جودة البيانات <b>من غير ما يحرّك أي رقم</b>.</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>بانر التغطية</b> فوق كل حاجة — بيقول كام أوردر خسارة عليه سبب. لازم لأن التغطية مش موحّدة: الإلغاء قبل الشحن تغطيته شبه كاملة، والمرتجع لسه بيتبني. و«بدون سبب» <b>صف كامل في الجدول</b> مش استبعاد صامت، عشان المجموع يفضل مساوي لكارت «خسائر».</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مفتاح «استبعاد الخسائر التشغيلية»</b> — بيشيل «أوردر مكرر وتم دمجه» و«استلام جزئي - بوسطة» (دول مش فقد مبيعات) ويعيد حساب أرقام التاب. ⚠️ عرض في التاب ده وحده — كارت «خسائر» في تاب الأوردرات ما بيتأثرش.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>بانر التغطية</b> فوق كل حاجة — بيقول كام أوردر خسارة عليه سبب. لازم لأن التغطية مش موحّدة: الإلغاء قبل الشحن تغطيته شبه كاملة، والمرتجع لسه بيتبني. و«بدون سبب» <b>صف كامل في الجدول</b> مش استبعاد صامت، عشان المجموع يفضل مساوي لكارت «إلغاءات ومرتجعات».</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مفتاح «استبعاد الخسائر التشغيلية»</b> — بيشيل «أوردر مكرر وتم دمجه» و«استلام جزئي - بوسطة» (دول مش فقد مبيعات) ويعيد حساب أرقام التاب. ⚠️ عرض في التاب ده وحده — كارت «إلغاءات ومرتجعات» في تاب الأوردرات ما بيتأثرش.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>قسم <b>الأسباب جغرافيًا</b> بمفتاح (محافظة / منطقة) وأرقام <b>مطبّعة</b>: معدل الخسارة داخل المجموعة + مؤشر تركّز، مع حد أدنى للعيّنة (٢٥ أوردر) — العدد الخام كان هيخلي أكبر محافظة تتصدّر كل صف لأنها أكبر مش لأن عندها مشكلة.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>الرسمان في التاب الجديد <b>أفقيان</b> (<code>indexAxis:'y'</code>) — أسماء الأسباب جمل عربية كاملة، والأفقي بيخليها تتقرا من غير أي دوران، تطبيقًا لقاعدة «ممنوع ليبلات مايلة».</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>شريط التابات بقى بيلفّ لصفّين تحت <code>800px</code>. مع خمس تابات كان الزرار الأخير بيتقصّ في صمت (<code>overflow:hidden</code> اللازمة لأنيميشن الـ sticky) ومايتوصلش له — والقصّ ده كان موجود أصلاً على الزرار الرابع تحت <code>375px</code>.</span></li>
@@ -1387,7 +1425,7 @@
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge old">v3.1.0</span><span class="cl-ver-date">25-08-2026</span></div>
         <ul class="cl-items">
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>صف "توقّع اكتمال الفترة"</b> تحت مربعات تاب الأوردرات — تسليمات/خسائر متوقّعة محسوبة بمعدلات نجاح مقاسة لكل مرحلة (Rule 11 في <code>ecommoda-dashboard-builder</code>)، مش بافتراض 100% نجاح. شحنات المرتجع الجارية محسوبة خسارة كاملة، و"خارج التصنيف" مستبعد تمامًا من الحساب. <b>HTML-only</b> — صفر تعديل في الـ Worker، صفر <code>CACHE_VERSION</code> bump.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>صف "توقّع اكتمال الفترة"</b> تحت مربعات تاب الأوردرات — تسليمات/إلغاءات ومرتجعات متوقّعة محسوبة بمعدلات نجاح مقاسة لكل مرحلة (Rule 11 في <code>ecommoda-dashboard-builder</code>)، مش بافتراض 100% نجاح. شحنات المرتجع الجارية محسوبة خسارة كاملة، و"خارج التصنيف" مستبعد تمامًا من الحساب. <b>HTML-only</b> — صفر تعديل في الـ Worker، صفر <code>CACHE_VERSION</code> bump.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>شيل كلمة <b>"مؤكد"</b> من اسمي مربعي "مؤكد (تحت التجهيز)" و"مؤكد (خرج للشحن)" في التابين — بقيا <b>"تحت التجهيز"</b> و<b>"خرج للشحن"</b>. تسمية بس — مفاتيح <code>BUCKET</code>/<code>ORDER_BUCKET</code> الإنجليزية زي ما هي.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>نسبة Δ% غير منطقية (▲10200%)</b> على مربعات بقيمة سابقة صغيرة جدًا (مربع "تحت التأكيد" مثال حي) — <code>delta()</code> بقى فيها <code>MIN_DELTA_BASE = 5</code>: تحت العتبة بيتعرض الانتقال نفسه ("1 ← 103 عن الفترة السابقة") بدل نسبة بلا معنى.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>تصحيح توثيق: ملاحظة <b>In-Return</b> في الأداة (تعليق الـ Worker + شرح "عن الأداة") كانت بتقول إن السلوك محصور في S1 بس — <code>ecommoda-order-lifecycle</code> Rule 12 اتوسّعت 25-08-2026 (قرار أحمد) لتغطي S2 وعدّ الأوردرات كمان، والكود كان مطبّقها صح من الأصل. صفر تغيير في التصنيف نفسه.</span></li>
@@ -1470,7 +1508,7 @@
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>مربع "قيد التنفيذ" اتلغى وانقسم لـ 3 مربعات رئيسية مستقلة:</b> "تحت التأكيد" (مفرد)، "مؤكد (تحت التجهيز)" (3 فروع: مؤكد/استبدال/مرتجع)، "مؤكد (خرج للشحن)" (3 فروع: مؤكد/استبدال/مرتجع). القطعة "خارج التصنيف" ظاهرة كفرع تحذيري داخل "مؤكد (تحت التجهيز)".</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>مربع "الفاقد" اتسمّى "الخسائر"</b> — وإعادة تسمية فروعه: ملغي → إلغاء قبل الشحن، RTO → مرتجع رفض الاستلام، مرتجع نهائي → مرتجع بعد الإستلام. ترتيب الفروع اتغيّر لـ: محذوف قبل الشحن · إلغاء قبل الشحن · مرتجع رفض الاستلام · مرتجع بعد الإستلام · مرتجع استبدال.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>فرعي "صافي المبيعات": مُسلَّم → تسليم أساسي، بديل → تسليم استبدال.</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span>تلوين الأرقام: أحمر لمربع "الخسائر" وكل فروعه + فرعي "مرتجع/تحت التجهيز" و"مرتجع/خرج للشحن"؛ أخضر لمربع "صافي المبيعات" وفروعه.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>تلوين الأرقام: أحمر لمربع «إلغاءات ومرتجعات» وكل فروعه + فرعي "مرتجع/تحت التجهيز" و"مرتجع/خرج للشحن"؛ أخضر لمربع "صافي المبيعات" وفروعه.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>نسبة مئوية بصرية (شريط تقدّم ملوّن + رقم) في كل مربع رئيسي وكل مربع فرعي — الفرعي بيتحسب من إجمالي المربع الرئيسي اللي هو جواه.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>إعادة تصميم عناوين المربعات (رئيسية وفرعية) بخط أوضح وأثقل + أيقونات لكل مربع.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>مربع بحث فوق جدول التفاصيل (برقم الأوردر، SKU، أو حالة القطعة/الأوردر) + تثبيت عرض الأعمدة (table-layout: fixed) عشان تتظبط مع صف العنوان.</span></li>
@@ -1529,7 +1567,7 @@
           <h4>المستخدمون</h4>
           <p>المدير العام وفريق التحليل.</p>
           <h4>النموذج (Data Contract v2.0.0)</h4>
-          <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي المبيعات = (تحت التأكيد + تحت التجهيز + خرج للشحن) + الخسائر + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
+          <p>لكل سطر: <code>راح = (Q−C)×P</code> و <code>عاش = C×P</code>. إجمالي المبيعات = (تحت التأكيد + تحت التجهيز + خرج للشحن) + إلغاءات ومرتجعات + صافي المبيعات — هوية رياضية مضمونة، لو مش متوازنة فده باج في الكود مش في الموديل.</p>
 
           <h4>طريقة العرض (v1.4.0 — قيمة / عدد قطع)</h4>
           <p>مفتاح "طريقة العرض" بجانب فلتر التاريخ بيبدّل كل الأرقام في المربعات (الرئيسية والفرعية) والدونات وبطاقة الهوية من <b>إجمالي القيمة (جنيه)</b> لـ <b>إجمالي عدد القطع</b> — نفس التصنيف بالظبط (نفس الـ buckets)، بس وحدة القياس بتتغيّر. الحساب في وضع "عدد القطع" client-side بالكامل: تجميع <code>qty</code> لكل bucket من <code>state.rows</code> (الفترة الحالية) و <code>state.prevRows</code> (الفترة السابقة، لحساب الـ Δ%) — مفيش أي نداء إضافي للـ Worker ومفيش تغيير في الـ Data Contract.</p>
@@ -1550,7 +1588,7 @@
           </table>
           <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">ملاحظة: <b>In-Return</b> تُعامل معاملة <b>Shipped</b> بالظبط في S1 و S2 معًا (قرار 03-08-2026، اتوسّع 25-08-2026 — <code>ecommoda-order-lifecycle</code> Rule 12). و<b>S1 = Ready مع Fulfilled</b> (محاولة تسليم مكررة) موجودة مؤقتاً تحت "تحت التجهيز" ومعلّمة بملاحظة على الصف. الفروع الملوّنة بالأحمر (مرتجع/تحت التجهيز · مرتجع/خرج للشحن) هي القطعة الراجعة نفسها داخل دورة استبدال/إرجاع مفتوحة.</p>
 
-          <h4>مربع "الخسائر" — الفروع بعد إعادة التسمية (v1.2.0)</h4>
+          <h4>مربع «إلغاءات ومرتجعات» — الفروع بعد إعادة التسمية (v1.2.0)</h4>
           <table>
             <thead><tr><th>الاسم القديم</th><th>الاسم الحالي</th></tr></thead>
             <tbody>
@@ -1586,7 +1624,7 @@
               <tr><td rowspan="3">خرج للشحن</td><td>أساسي</td><td>S1 ∈ (Shipped · In-Return)</td></tr>
               <tr><td>مرتجع</td><td>S1=Delivered + دورة SHIPPED مفتوحة + بدون exchangeLineItems</td></tr>
               <tr><td>استبدال</td><td>S1=Delivered + دورة SHIPPED مفتوحة + فيها exchangeLineItems</td></tr>
-              <tr><td rowspan="3">خسائر</td><td>إلغاء قبل الشحن</td><td><code>cancelledAt</code> + FulfillmentStatus=UNFULFILLED (نفس isCancelledOrRTO)</td></tr>
+              <tr><td rowspan="3">إلغاءات ومرتجعات</td><td>إلغاء قبل الشحن</td><td><code>cancelledAt</code> + FulfillmentStatus=UNFULFILLED (نفس isCancelledOrRTO)</td></tr>
               <tr><td>مرتجع رفض استلام</td><td><code>cancelledAt</code> + FulfillmentStatus=FULFILLED</td></tr>
               <tr><td>مرتجع كامل بعد الاستلام</td><td>S1=Delivered + S2=Returned مُسوّاة (CLOSED) + بدون استبدال + ΣcurrentQuantity=0</td></tr>
               <tr><td rowspan="3">تسليمات</td><td>أساسي</td><td>S1=Delivered + S2=فاضي</td></tr>
@@ -1598,7 +1636,7 @@
           <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">⚠️ الإلغاء/مرتجع رفض الاستلام بيُحسبوا من <code>cancelledAt</code> (حدث شوبيفاي الفعلي) — مش من <code>manual_status</code> — تفاديًا لباج قديم (أوردر #49472) كان فيه Flow بيكتب "Cancelled" في manual_status على أوردر RTO حقيقي. "دورة مفتوحة" = أي Return حالته مش CLOSED (بعد استبعاد CANCELED/DECLINED بالكامل).</p>
 
           <h4>صف "توقّع اكتمال الفترة" (v3.1.0 — Rule 11 في <code>ecommoda-dashboard-builder</code>)</h4>
-          <p>صف مستقل تحت مربعات تاب الأوردرات — بيتوقّع تسليمات/خسائر الفترة لو قفلت دلوقتي. <b>HTML-only بالكامل</b>: مشتق من <code>orderBoxes</code> اللي راجع أصلاً من <code>get_data</code> — صفر حقل جديد من الـ Worker، صفر fetch إضافي، صفر <code>CACHE_VERSION</code> bump.</p>
+          <p>صف مستقل تحت مربعات تاب الأوردرات — بيتوقّع تسليمات/إلغاءات ومرتجعات الفترة لو قفلت دلوقتي. <b>HTML-only بالكامل</b>: مشتق من <code>orderBoxes</code> اللي راجع أصلاً من <code>get_data</code> — صفر حقل جديد من الـ Worker، صفر fetch إضافي، صفر <code>CACHE_VERSION</code> bump.</p>
           <p>المعدلات بتتحسب <b>لكل مرحلة لوحدها</b> من نفس الفترة المعروضة (قرار أحمد 25-08-2026): <code>pDeliver</code> = نسبة الأوردرات المشحونة اللي وصلت فعلاً (من غير RTO/مرتجع كامل)، و<code>pShip</code> = نسبة الأوردرات اللي عدّت نقطة قرار ما قبل الشحن (من غير إلغاء). الحساب بعد كده <b>لكل sub-bucket لوحده</b> — أوردر مؤكد/استبدال لسه في الطريق بيتقدّم بمعدل النجاح (<code>pDeliver</code>/<code>pFull</code>)، لكن <b>شحنة المرتجع الجارية (<code>*_RETURN</code>) بتتحسب خسارة كاملة دايمًا</b> — نجاحها فيزيائيًا (وصلت المخزن) هو بالظبط الخسارة، مش تسليم. <code>UNCLASSIFIED</code> مستبعد تمامًا من الحساب (نتيجته مجهولة أصلاً) وعدده معروض في ⓘ.</p>
           <p style="margin-top:8px;font-size:12px;color:var(--text-muted);">العرض دايمًا بكلمة <b>"متوقّعة"</b> (ممنوع "نهائية") + <code>~</code> قبل كل رقم + إطار مقطّع (dashed) + نفس ألوان <code>--green</code>/<code>--red</code>. المقارنة (Δ%) vs <b>الفعلي</b> (مش المتوقّع) للفترة السابقة — الفترة السابقة ناضجة فعليها = نهائيها. لو مفيش أوردر مكتمل واحد في الفترة (<code>pDeliver</code> أو <code>pShip</code> = null) الصف بيختفي تمامًا بدل ما يعرض توقّع بلا أساس.</p>
 
@@ -1774,6 +1812,10 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 جودة البيانات (٣ حالات)           │ HTML   │ §REASONS   │ renderRsnQuality / rsnFieldMismatch
 أوردرات السبب المختار             │ HTML   │ §REASONS-DETAILS │ showRsnDetails (بلا scrollIntoView)
 لف شريط التابات على الشاشة الضيقة │ HTML   │ §CSS       │ @media (max-width:800px) .main-tabs-bar
+── v3.17.0 — تسمية الكارت + جرد الطبقة البصرية ───────────────
+كارت «إلغاءات ومرتجعات» (كان «خسائر») │ HTML │ §KPI-JS · §ORDERS-JS │ showDetails/showOrderDetails + segments[]
+صفر #hex حرفي خارج :root          │ HTML   │ §CSS       │ :root (١١ توكن قياسية + توكنز محلية)
+JS بيقرا التوكن مش بيكتبه         │ HTML   │ §SHELL-JS  │ cssVar(name) / canvasFont(w, px)
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1876,7 +1918,7 @@ ZONE_AR / ZONE_ORDER = القايمة المقفولة في تعريف المي�
   العربية وألوانها. null → BLANK («غير محدد»)، وأي قيمة برّه الأربعة بتتعرض
   خام بلون أحمر بدل ما تتبلع في دلو "أخرى".
 GEO_STATUS = التقسيمة التلاتية اللي التاب كله متبني عليها بأسمائها وألوانها
-  (تسليمات #16a34a · إلغاءات ومرتجعات #dc2626 · قيد التنفيذ #7c3aed) — مصدر
+  (تسليمات --green · إلغاءات ومرتجعات --red · قيد التنفيذ --purple) — مصدر
   واحد للرسمين والجدولين والمفتاح. ⚠️ «قيد التنفيذ» = كل حاجة **مش نهائية**،
   وبيشمل UNCLASSIFIED (قرار أحمد 02-09-2026 — كان عمود مستقل في v3.9.0).
   الرقم بيتحسب **بالطرح** (الإجمالي − تسليمات − فاقد) مش بجمع الدلاو بالاسم،
@@ -1965,7 +2007,7 @@ NOTES
 - نسبة كل مربع فرعي بتتحسب بالنسبة لإجمالي المربع الرئيسي اللي هو جواه
   (parentTotal في sub())، مش بالنسبة لإجمالي المبيعات الكامل.
 - الدونات (renderMainPie) بيوزّع إجمالي المبيعات على الـ 5 مربعات الأساسية
-  (تحت التأكيد · تحت التجهيز · خرج للشحن · الخسائر · صافي المبيعات) —
+  (تحت التأكيد · تحت التجهيز · خرج للشحن · إلغاءات ومرتجعات · صافي المبيعات) —
   مجموع الشرائح = إجمالي المبيعات (نفس الهوية الحسابية). الليجند والشرائح
   بيفتحوا نفس تفاصيل المربع. Chart.js 4.4.1 من CDN.
 - المربعات الأساسية مبقاش فيها نسبة مئوية (اتشالت في v1.3.0 لصالح الدونات) —
@@ -2000,6 +2042,21 @@ NOTES
 
 <script>
 // ══════════════════════════════════════════════════════
+// §SHELL-JS::cssVar — الجسر الوحيد بين الـ JS والطبقة البصرية
+// ══════════════════════════════════════════════════════
+// (html-builder v6.2.0 · dashboard-builder v3.2.0 — design-system.md هو المالك
+//  الوحيد للخط والألوان، وأي كود JS محتاج قيمة بصرية **بيقراها** مايكتبهاش.)
+// ⚠️ الـ canvas بياخد **نص** مش CSS: `ctx.fillStyle = 'var(--green)'` مابيشتغلش
+//    خالص، ونص ثابت (`cssVar('--on-accent')` / `"700 11px 'IBM Plex Mono'"`) بيتعتّق لوحده
+//    من غير أي رسالة خطأ — وده بالظبط اللي خلّى أرقام الدونات في الأداة دي
+//    تترسم بخط مش متحمّل في `<head>`. الحل التالت: اقرا التوكن وقت الرسم.
+// ⚠️ لازم تفضل معرّفة **فوق** أي const بيستهلكها (ZONE_AR · GEO_STATUS ·
+//    RSN_STAGE · RSN_FAMILY_DEF) — دول بيتقيّموا وقت تحميل السكربت.
+const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+// خط الأرقام المرسومة على الكانفس — الحجم والوزن قرار داشبورد، الاسم من التوكن.
+const canvasFont = (w, px) => `${w} ${px}px ${cssVar('--font-mono') || 'sans-serif'}`;
+
+// ══════════════════════════════════════════════════════
 // §CONFIG
 // ══════════════════════════════════════════════════════
 // ─── §CONFIG::URLs — constants مش حقول إعدادات (html-builder v2.2.0 · #28) ───
@@ -2018,7 +2075,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.16.0';
+const TOOL_VERSION = 'v3.17.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -3763,9 +3820,9 @@ function renderBoxes() {
       </div>
     </div>
 
-    <div class="kpi-card${cardActive('LOST')}" data-state="${b.lost > 0 ? 'bad' : 'good'}" onclick="showDetails(['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], 'الخسائر', 'LOST')">
+    <div class="kpi-card${cardActive('LOST')}" data-state="${b.lost > 0 ? 'bad' : 'good'}" onclick="showDetails(['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], 'إلغاءات ومرتجعات', 'LOST')">
       <div class="kpi-label-row">
-        <span class="kpi-label"><span class="kpi-icon">📉</span>الخسائر</span>
+        <span class="kpi-label"><span class="kpi-icon">📉</span>إلغاءات ومرتجعات</span>
         ${infoIcon('إلغاء قبل الشحن (كل قيمة الأوردر) + مرتجع رفض الاستلام/RTO (كل قيمة الأوردر) + محذوف قبل الشحن + مرتجع بعد الإستلام (رجع من غير بديل) + مرتجع استبدال (رجع مع بديل). الدورة بتتحسب هنا بس لما تتسوّى فعلياً: return.status = CLOSED و S2 ∈ (In-Return · Returned).')}
       </div>
       <div class="kpi-value-row"><div class="kpi-value clr-red">${fmtAmt(b.lost)}</div>${pctBadge(b.lost, b.totalValue)}</div>
@@ -3827,15 +3884,15 @@ function renderMainPie(b) {
 
   // نفس تقسيمة المربعات الأساسية بالظبط — مجموعها = إجمالي المبيعات (الهوية)
   const segments = [
-    { key:'IP1',     label:'تحت التأكيد',        value:b.ipPendingConfirm, colour:'#7c3aed',
+    { key:'IP1',     label:'تحت التأكيد',        value:b.ipPendingConfirm, colour:cssVar('--purple'),
       buckets:['IP_PENDING_CONFIRM'], title:'تحت التأكيد' },
-    { key:'IP_PREP', label:'تحت التجهيز', value:confirmedPrepTotal, colour:'#2563eb',
+    { key:'IP_PREP', label:'تحت التجهيز', value:confirmedPrepTotal, colour:cssVar('--accent'),
       buckets:['IP_CONFIRMED_PREP','IP_EXCHANGE_PREP','IP_RETURN_PREP','IP_UNCLASSIFIED'], title:'تحت التجهيز' },
-    { key:'IP_SHIP', label:'خرج للشحن',   value:confirmedShippedTotal, colour:'#d97706',
+    { key:'IP_SHIP', label:'خرج للشحن',   value:confirmedShippedTotal, colour:cssVar('--amber'),
       buckets:['IP_CONFIRMED_SHIPPED','IP_EXCHANGE_SHIPPED','IP_RETURN_SHIPPED'], title:'خرج للشحن' },
-    { key:'LOST',    label:'الخسائر',            value:b.lost, colour:'#dc2626',
-      buckets:['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], title:'الخسائر' },
-    { key:'NET',     label:'صافي المبيعات',      value:b.netSales, colour:'#16a34a',
+    { key:'LOST',    label:'إلغاءات ومرتجعات', value:b.lost, colour:cssVar('--red'),
+      buckets:['CANCELLED','RTO','REMOVED','FINAL_RETURN','EXCHANGE_RETURN'], title:'إلغاءات ومرتجعات' },
+    { key:'NET',     label:'صافي المبيعات',      value:b.netSales, colour:cssVar('--green'),
       buckets:['NET_SALES_NORMAL','NET_SALES_REPLACEMENT'], title:'صافي المبيعات' },
   ];
 
@@ -3869,7 +3926,7 @@ function renderMainPie(b) {
       datasets: [{
         data: segments.map(s => s.value),
         backgroundColor: segments.map(s => s.colour),
-        borderColor: '#ffffff',
+        borderColor: cssVar('--on-accent'),
         borderWidth: 2,
         hoverOffset: 6,
       }],
@@ -3915,8 +3972,8 @@ function makeDonutValueLabelsPlugin() {
       const total = data.reduce((a, v) => a + (v || 0), 0) || 1;
       const ctx = chart.ctx;
       ctx.save();
-      ctx.font = "700 11px 'Noto Sans Arabic', sans-serif";
-      ctx.fillStyle = '#ffffff';
+      ctx.font = canvasFont(700, 11);
+      ctx.fillStyle = cssVar('--on-accent');
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       meta.data.forEach((arc, i) => {
@@ -3949,11 +4006,11 @@ function makeBarValueLabelsPlugin(fmtFn) {
         const val = data[i] || 0;
         const pct = (val / total) * 100;
         const x = bar.x, y = bar.y;
-        ctx.font = "700 11px 'Noto Sans Arabic', sans-serif";
-        ctx.fillStyle = '#111827';
+        ctx.font = canvasFont(700, 11);
+        ctx.fillStyle = cssVar('--text-primary');
         ctx.fillText(fmtFn(val), x, y - 18);
-        ctx.font = "600 10px 'Noto Sans Arabic', sans-serif";
-        ctx.fillStyle = '#6b7280';
+        ctx.font = canvasFont(600, 10);
+        ctx.fillStyle = cssVar('--text-secondary');
         ctx.fillText(pct.toFixed(1) + '%', x, y - 6);
       });
       ctx.restore();
@@ -3969,11 +4026,11 @@ function renderMainBar(b) {
   const confirmedShippedTotal = (b.ipConfirmedShipped || 0) + (b.ipExchangeShipped || 0) + (b.ipReturnShipped || 0);
 
   const segments = [
-    { label:'تحت التأكيد',        value:b.ipPendingConfirm,   colour:'#7c3aed' },
-    { label:'تحت التجهيز',        value:confirmedPrepTotal,   colour:'#2563eb' },
-    { label:'خرج للشحن',          value:confirmedShippedTotal,colour:'#d97706' },
-    { label:'الخسائر',            value:b.lost,               colour:'#dc2626' },
-    { label:'صافي المبيعات',      value:b.netSales,           colour:'#16a34a' },
+    { label:'تحت التأكيد',        value:b.ipPendingConfirm,   colour:cssVar('--purple') },
+    { label:'تحت التجهيز',        value:confirmedPrepTotal,   colour:cssVar('--accent') },
+    { label:'خرج للشحن',          value:confirmedShippedTotal,colour:cssVar('--amber') },
+    { label:'إلغاءات ومرتجعات', value:b.lost,               colour:cssVar('--red') },
+    { label:'صافي المبيعات',      value:b.netSales,           colour:cssVar('--green') },
   ];
 
   const canvas = document.getElementById('mainBar');
@@ -4000,7 +4057,7 @@ function renderMainBar(b) {
       layout: { padding: { top: 26 } },
       scales: {
         x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10.5 }, maxRotation: 0, minRotation: 0 } },
-        y: { beginAtZero: true, max: maxVal * 1.22, ticks: { display: false }, grid: { color: '#f1f5f9' } }, // beginAtZero — أبدًا مش من غير الصفر
+        y: { beginAtZero: true, max: maxVal * 1.22, ticks: { display: false }, grid: { color: cssVar('--chart-grid') } }, // beginAtZero — أبدًا مش من غير الصفر
       },
       plugins: {
         legend: { display: false },
@@ -4361,9 +4418,9 @@ function renderOrderBoxes() {
       </div>
     </div>
 
-    <div class="kpi-card${cardActive('OB_LOST')}" data-state="${lostTotal > 0 ? 'bad' : 'good'}" onclick="showOrderDetails(['LOST_CANCELLED','LOST_RTO','LOST_FULL_RETURN'], 'خسائر', 'OB_LOST')">
+    <div class="kpi-card${cardActive('OB_LOST')}" data-state="${lostTotal > 0 ? 'bad' : 'good'}" onclick="showOrderDetails(['LOST_CANCELLED','LOST_RTO','LOST_FULL_RETURN'], 'إلغاءات ومرتجعات', 'OB_LOST')">
       <div class="kpi-label-row">
-        <span class="kpi-label"><span class="kpi-icon">📉</span>خسائر</span>
+        <span class="kpi-label"><span class="kpi-icon">📉</span>إلغاءات ومرتجعات</span>
         ${infoIcon('إلغاء قبل الشحن (حدث إلغاء فعلي في شوبيفاي قبل الشحن) + مرتجع رفض الاستلام/RTO (حدث إلغاء بعد الشحن) + مرتجع كامل بعد الاستلام (كل قطع الأوردر رجعت، بدون استبدال).')}
       </div>
       <div class="kpi-value-row"><div class="kpi-value clr-red">${fmtInt(lostTotal)}</div>${pctBadge(lostTotal, b.totalOrders)}</div>
@@ -4507,7 +4564,7 @@ function renderOrderForecast() {
       </div>
       <div class="kpi-card forecast" data-state="bad">
         <div class="kpi-label-row">
-          <span class="kpi-label"><span class="kpi-icon">📉</span>خسائر متوقّعة</span>
+          <span class="kpi-label"><span class="kpi-icon">📉</span>إلغاءات ومرتجعات متوقّعة</span>
         </div>
         <div class="kpi-value-row"><div class="kpi-value clr-red">~${fmtInt(f.lost)}</div>${pctBadge(f.lost, f.base)}</div>
         ${delta(f.lost, prevLost, 'lower_better')}
@@ -4526,15 +4583,15 @@ function renderOrdersPie(b) {
   const deliveryTotal = (b.deliveryBasic||0) + (b.deliveryExchange||0) + (b.deliveryPartialReturn||0);
 
   const segments = [
-    { key:'OB1',     label:'تحت التأكيد',        value:b.pendingConfirm || 0, colour:'#7c3aed',
+    { key:'OB1',     label:'تحت التأكيد',        value:b.pendingConfirm || 0, colour:cssVar('--purple'),
       buckets:['PENDING_CONFIRM'], title:'تحت التأكيد' },
-    { key:'OB_PREP', label:'تحت التجهيز', value:prepTotal, colour:'#2563eb',
+    { key:'OB_PREP', label:'تحت التجهيز', value:prepTotal, colour:cssVar('--accent'),
       buckets:['PREP_CONFIRMED','PREP_EXCHANGE','PREP_RETURN','UNCLASSIFIED'], title:'تحت التجهيز' },
-    { key:'OB_SHIP', label:'خرج للشحن',   value:shippedTotal, colour:'#d97706',
+    { key:'OB_SHIP', label:'خرج للشحن',   value:shippedTotal, colour:cssVar('--amber'),
       buckets:['SHIPPED_CONFIRMED','SHIPPED_EXCHANGE','SHIPPED_RETURN'], title:'خرج للشحن' },
-    { key:'OB_LOST', label:'خسائر',              value:lostTotal, colour:'#dc2626',
-      buckets:['LOST_CANCELLED','LOST_RTO','LOST_FULL_RETURN'], title:'خسائر' },
-    { key:'OB_DELIV',label:'تسليمات',            value:deliveryTotal, colour:'#16a34a',
+    { key:'OB_LOST', label:'إلغاءات ومرتجعات', value:lostTotal, colour:cssVar('--red'),
+      buckets:['LOST_CANCELLED','LOST_RTO','LOST_FULL_RETURN'], title:'إلغاءات ومرتجعات' },
+    { key:'OB_DELIV',label:'تسليمات',            value:deliveryTotal, colour:cssVar('--green'),
       buckets:['DELIVERY_BASIC','DELIVERY_EXCHANGE','DELIVERY_PARTIAL_RETURN'], title:'تسليمات' },
   ];
 
@@ -4567,7 +4624,7 @@ function renderOrdersPie(b) {
       datasets: [{
         data: segments.map(s => s.value),
         backgroundColor: segments.map(s => s.colour),
-        borderColor: '#ffffff',
+        borderColor: cssVar('--on-accent'),
         borderWidth: 2,
         hoverOffset: 6,
       }],
@@ -4611,11 +4668,11 @@ function renderOrdersBar(b) {
   const deliveryTotal = (b.deliveryBasic||0) + (b.deliveryExchange||0) + (b.deliveryPartialReturn||0);
 
   const segments = [
-    { label:'تحت التأكيد',        value:b.pendingConfirm || 0, colour:'#7c3aed' },
-    { label:'تحت التجهيز',        value:prepTotal,             colour:'#2563eb' },
-    { label:'خرج للشحن',          value:shippedTotal,          colour:'#d97706' },
-    { label:'خسائر',              value:lostTotal,             colour:'#dc2626' },
-    { label:'تسليمات',            value:deliveryTotal,         colour:'#16a34a' },
+    { label:'تحت التأكيد',        value:b.pendingConfirm || 0, colour:cssVar('--purple') },
+    { label:'تحت التجهيز',        value:prepTotal,             colour:cssVar('--accent') },
+    { label:'خرج للشحن',          value:shippedTotal,          colour:cssVar('--amber') },
+    { label:'إلغاءات ومرتجعات', value:lostTotal,             colour:cssVar('--red') },
+    { label:'تسليمات',            value:deliveryTotal,         colour:cssVar('--green') },
   ];
 
   const canvas = document.getElementById('ordersBar');
@@ -4650,7 +4707,7 @@ function renderOrdersBar(b) {
       layout: { padding: { top: 26 } },
       scales: {
         x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10.5 }, maxRotation: 0, minRotation: 0 } },
-        y: { beginAtZero: true, max: maxVal * 1.22, ticks: { display: false }, grid: { color: '#f1f5f9' } }, // beginAtZero — أبدًا مش من غير الصفر
+        y: { beginAtZero: true, max: maxVal * 1.22, ticks: { display: false }, grid: { color: cssVar('--chart-grid') } }, // beginAtZero — أبدًا مش من غير الصفر
       },
       plugins: {
         legend: { display: false },
@@ -4913,10 +4970,10 @@ const PROVINCE_AR = {
 //    بتتعرض **خام بلون أحمر** بدل ما تتبلع في دلو "أخرى" — نفس قاعدة
 //    BUCKET/BUCKET_LABELS: كود مجهول يتعرض كنص خام، مايتخفيش.
 const ZONE_AR = {
-  'Cairo+Giza':    { label: 'قاهرة وجيزة (مناديب)', colour: '#2563eb' },
-  'Other_Regions': { label: 'محافظات (بوسطة)',      colour: '#7c3aed' },
-  'Show_Room':     { label: 'شو روم',                colour: '#16a34a' },
-  'BLANK':         { label: 'غير محدد',              colour: '#94a3b8' },
+  'Cairo+Giza':    { label: 'قاهرة وجيزة (مناديب)', colour: cssVar('--accent') },
+  'Other_Regions': { label: 'محافظات (بوسطة)',      colour: cssVar('--purple') },
+  'Show_Room':     { label: 'شو روم',                colour: cssVar('--green') },
+  'BLANK':         { label: 'غير محدد',              colour: cssVar('--slate-light') },
 };
 const ZONE_ORDER = ['Cairo+Giza', 'Other_Regions', 'Show_Room', 'BLANK'];
 
@@ -4934,9 +4991,9 @@ const GEO_NONE = '__NONE__';
 //    على البُعدين وفي الوحدتين. عدد «خارج التصنيف» **ما اتخفاش**: بيتعرض في
 //    الـ tooltip بتاع عمود «قيد التنفيذ» وبيفضل مولّع تحذير الصفحة زي ما هو.
 const GEO_STATUS = [
-  { id: 'Delivered',  label: 'تسليمات',          colour: '#16a34a' },
-  { id: 'Lost',       label: 'إلغاءات ومرتجعات', colour: '#dc2626' },
-  { id: 'InProgress', label: 'قيد التنفيذ',      colour: '#7c3aed' },
+  { id: 'Delivered',  label: 'تسليمات',          colour: cssVar('--green') },
+  { id: 'Lost',       label: 'إلغاءات ومرتجعات', colour: cssVar('--red') },
+  { id: 'InProgress', label: 'قيد التنفيذ',      colour: cssVar('--purple') },
 ];
 
 function provKeyOf(r) { return r.prov || GEO_NONE; }
@@ -4947,7 +5004,7 @@ function provLabel(key) {
   return PROVINCE_AR[key] || key;          // اسم مش في الخريطة → خام، عشان يبان
 }
 function zoneLabel(key) { return ZONE_AR[key]?.label || key; }
-function zoneColour(key) { return ZONE_AR[key]?.colour || '#dc2626'; }
+function zoneColour(key) { return ZONE_AR[key]?.colour || cssVar('--red'); }
 
 // ══════════════════════════════════════════════════════
 // §GEO-FILTER — فلتر المحافظات (v3.11.0)
@@ -5543,7 +5600,7 @@ function buildGeoStackChart(canvasId, dim, rows, fields, fmtFn, tickFn, totalOf)
         },
         y: {
           beginAtZero: true,
-          grid: { color: '#f1f5f9' },
+          grid: { color: cssVar('--chart-grid') },
           ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, callback: v => tickFn(v) },
         },
       },
@@ -5723,14 +5780,14 @@ function renderGeoDetailsTableWrap(dim) {
 // ══════════════════════════════════════════════════════
 // §REASONS — تاب الإلغاءات والمرتجعات (v3.16.0)
 // ══════════════════════════════════════════════════════
-// التاب بيفكّ كارت «خسائر» بتاع تاب الأوردرات لأسباب، بالعدد وبالقيمة، على
+// التاب بيفكّ كارت «إلغاءات ومرتجعات» بتاع تاب الأوردرات لأسباب، بالعدد وبالقيمة، على
 // المرحلة والمحافظة والمنطقة. السبب بيتقرا من ميتافيلدي الأوردر
 // (`custom.cancel_manual_reason` · `custom.return_manual_reason`) اللي الـ
 // Worker v3.8.0 بيحطهم على **الصف** كـ `reason`/`reasonField`.
 //
 // 🔴 **الدلو من المحرك، والسبب صفة فوقه — مش العكس.** الدلاو التلاتة تحت هي
 //    نفسها اللي `classifyOrderForCounts()` بترجّعها، فمجموع التاب ده بيساوي
-//    كارت «خسائر» بالظبط. أي تصنيف مبني على الميتافيلد كان هيخلي الرقمين
+//    كارت «إلغاءات ومرتجعات» بالظبط. أي تصنيف مبني على الميتافيلد كان هيخلي الرقمين
 //    يفترقوا والفرق مايبانش.
 // 🔴 **ممنوع افتراض إن الحقل بيحدد الدلو** (قرار أحمد 03-09-2026): السبب
 //    بيتاخد من أي حقل فيه قيمة (`reasonOf()` في الـ Worker)، وعدم التطابق
@@ -5739,11 +5796,11 @@ function renderGeoDetailsTableWrap(dim) {
 //    سببه في حقل الإلغاء.
 const RSN_NONE = '__none__';
 
-// الدلاو التلاتة اللي بتكوّن «خسائر» — نفس تعريف كارت الخسائر في تاب الأوردرات.
+// الدلاو التلاتة اللي بتكوّن «إلغاءات ومرتجعات» — نفس تعريف كارت «إلغاءات ومرتجعات» في تاب الأوردرات.
 const RSN_STAGE = [
-  { id: 'LOST_CANCELLED',   label: 'إلغاء قبل الشحن',        icon: '❌', colour: '#dc2626' },
-  { id: 'LOST_RTO',         label: 'مرتجع رفض الاستلام',      icon: '🚫', colour: '#ea580c' },
-  { id: 'LOST_FULL_RETURN', label: 'مرتجع كامل بعد الاستلام', icon: '↩️', colour: '#7c3aed' },
+  { id: 'LOST_CANCELLED',   label: 'إلغاء قبل الشحن',        icon: '❌', colour: cssVar('--red') },
+  { id: 'LOST_RTO',         label: 'مرتجع رفض الاستلام',      icon: '🚫', colour: cssVar('--orange') },
+  { id: 'LOST_FULL_RETURN', label: 'مرتجع كامل بعد الاستلام', icon: '↩️', colour: cssVar('--purple') },
 ];
 const RSN_STAGE_IDS = RSN_STAGE.map(x => x.id);
 const RSN_STAGE_BY  = Object.fromEntries(RSN_STAGE.map(x => [x.id, x]));
@@ -5781,13 +5838,13 @@ const REASON_FAMILY = {
 };
 
 const RSN_FAMILY_DEF = {
-  contact:  { label: 'تأكيد وتواصل',  owner: 'خدمة العملاء',            colour: '#d97706' },
-  customer: { label: 'قرار العميل',   owner: 'تسويق وتسعير',            colour: '#2563eb' },
-  trust:    { label: 'ثقة ومنتج',     owner: 'المشتريات والجودة',       colour: '#dc2626' },
-  size:     { label: 'مقاس وتوفّر',   owner: 'المخزون والمحتوى',        colour: '#0f766e' },
-  fraud:    { label: 'احتيال وتهرّب', owner: 'العمليات والشحن',         colour: '#7c3aed' },
-  ops:      { label: 'تشغيلي داخلي',  owner: 'العمليات — مش خسارة فعلية', colour: '#64748b' },
-  unknown:  { label: 'غير مصنّف',     owner: 'جودة الإدخال',            colour: '#94a3b8' },
+  contact:  { label: 'تأكيد وتواصل',  owner: 'خدمة العملاء',            colour: cssVar('--amber') },
+  customer: { label: 'قرار العميل',   owner: 'تسويق وتسعير',            colour: cssVar('--accent') },
+  trust:    { label: 'ثقة ومنتج',     owner: 'المشتريات والجودة',       colour: cssVar('--red') },
+  size:     { label: 'مقاس وتوفّر',   owner: 'المخزون والمحتوى',        colour: cssVar('--teal') },
+  fraud:    { label: 'احتيال وتهرّب', owner: 'العمليات والشحن',         colour: cssVar('--purple') },
+  ops:      { label: 'تشغيلي داخلي',  owner: 'العمليات — مش خسارة فعلية', colour: cssVar('--slate') },
+  unknown:  { label: 'غير مصنّف',     owner: 'جودة الإدخال',            colour: cssVar('--slate-light') },
 };
 const RSN_FAMILY_IDS = ['contact', 'customer', 'trust', 'size', 'fraud', 'ops', 'unknown'];
 
@@ -5810,7 +5867,7 @@ function rsnFieldMismatch(r) {
 //    قارئ للصفوف بيعدّي من هنا، فمستحيل جدول يقرا من مصدر والأرقام اللي فوقه
 //    تتحسب من مصدر تاني.
 // ⚠️ سويتش «استبعاد التشغيلي» **عرض بس** وبيخص التاب ده وحده — ⛔ ممنوع
-//    يلمس كارت «خسائر» في تاب الأوردرات ولا أي رقم برّه التاب.
+//    يلمس كارت «إلغاءات ومرتجعات» في تاب الأوردرات ولا أي رقم برّه التاب.
 function rsnFilterActive() { return !!(state.rsnSel && state.rsnSel.size) || !!state.rsnFamSel; }
 function rsnRowsFor(rows) {
   let out = (rows || []).filter(rsnIsLoss);
@@ -5836,7 +5893,7 @@ function rsnCoverage() {
 //    المحافظات بيستخدموها. ⛔ ممنوع تعريف تاني لـ«قيمة الخسارة» هنا: التعريف
 //    المكرر بيتفرّق عن أصله عند أول تعديل في التصنيف، والفرق بيبان في مجموع
 //    عمود في تاب مقابل كارت في تاب تاني — آخر مكان حد بيبص فيه.
-// ⚠️ القيمة = فاقد **الأوردرات دي** بالتحديد. وهي أقل من كارت «خسائر» في تاب
+// ⚠️ القيمة = فاقد **الأوردرات دي** بالتحديد. وهي أقل من كارت «إلغاءات ومرتجعات» في تاب
 //    المبيعات، لأن الكارت ده بيعدّ كمان فاقد جوّه أوردرات **اتسلّمت** (محذوف
 //    قبل الشحن · مرتجع استبدال) — والأوردرات دي مش خسارة على مستوى الأوردر.
 //    الفرق ده مكتوب صراحةً تحت الجدول بدل ما المستخدم يدوّر عليه.
@@ -5985,7 +6042,7 @@ function renderRsnCoverage() {
     <div class="rsn-cov ${cls}">
       <div>
         <div class="rsn-cov-t">${c.pct >= 90 ? '✅' : '⚠️'} التغطية ${fmtPct(c.pct)} — ${fmtInt(c.covered)} من ${fmtInt(c.total)} أوردر خسارة عليه سبب</div>
-        <div class="rsn-cov-s">كل النسب في التاب ده محسوبة على أوردرات الخسارة المعروضة، و<b>«بدون سبب»</b> صف كامل في الجدول (${fmtInt(c.missing)} أوردر) مش استبعاد صامت — عشان مجموع الأعمدة يفضل مساوي لكارت «خسائر» بالظبط.</div>
+        <div class="rsn-cov-s">كل النسب في التاب ده محسوبة على أوردرات الخسارة المعروضة، و<b>«بدون سبب»</b> صف كامل في الجدول (${fmtInt(c.missing)} أوردر) مش استبعاد صامت — عشان مجموع الأعمدة يفضل مساوي لكارت «إلغاءات ومرتجعات» بالظبط.</div>
       </div>
       <div class="rsn-cov-bar" title="${esc(fmtPct(c.pct))}"><i style="width:${Math.min(Math.max(c.pct,0),100).toFixed(1)}%;background:${col}"></i></div>
     </div>`;
@@ -6017,9 +6074,9 @@ function renderRsnKpis(groups, totals) {
   const noneN = groups.find(g => g.isNone)?.orders || 0;
 
   el.innerHTML =
-    card('📉', 'إجمالي الخسائر المعروضة', fmtInt(totals.orders),
+    card('📉', 'إجمالي الإلغاءات والمرتجعات المعروضة', fmtInt(totals.orders),
          `${fmtMoney(totals.value)} · متوسط ${fmtMoney(totals.orders ? totals.value / totals.orders : 0)} للأوردر`, 'clr-red',
-         'إلغاء قبل الشحن + مرتجع رفض الاستلام + مرتجع كامل بعد الاستلام — نفس تعريف كارت «خسائر» في تاب الأوردرات بالظبط. بيطابقه لما يكون مفيش فلتر شغّال هنا.') +
+         'إلغاء قبل الشحن + مرتجع رفض الاستلام + مرتجع كامل بعد الاستلام — نفس تعريف كارت «إلغاءات ومرتجعات» في تاب الأوردرات بالظبط. بيطابقه لما يكون مفيش فلتر شغّال هنا.') +
     card('🧾', 'عليه سبب', fmtInt(totals.orders - noneN),
          `${fmtInt(noneN)} أوردر بدون سبب في العرض الحالي`, '',
          'عدد أوردرات الخسارة اللي فيها قيمة في أي من الميتافيلدين. الأداة بتاخد أول قيمة موجودة من الاتنين — الحقل مش بيحدد الدلو.') +
@@ -6063,7 +6120,7 @@ function renderRsnFamilies() {
            onclick="toggleRsnFamily('${f}')" title="اضغط لقصّ التاب على العائلة دي">
         <div class="rsn-fam-h"><span class="rsn-fam-n">${esc(def.label)}</span><span class="rsn-fam-o">${esc(def.owner)}</span></div>
         <div class="rsn-fam-v" style="color:${def.colour}">${fmtInt(n)}</div>
-        <div class="rsn-fam-s">${fmtPct(totalOrders ? (n / totalOrders) * 100 : 0)} من الخسائر · ${fmtMoney(v)}</div>
+        <div class="rsn-fam-s">${fmtPct(totalOrders ? (n / totalOrders) * 100 : 0)} من الإجمالي · ${fmtMoney(v)}</div>
       </div>`;
   }).join('') + `</div>`;
 }
@@ -6103,7 +6160,7 @@ function renderRsnFilter() {
       </span>
       <span class="geo-filter-hint" style="margin:0">
         الأوردر المكرر اتدمج في أوردر تاني اتسلّم فعلًا، والاستلام الجزئي جزء منه اتسلّم — فوجودهم جوّه معدل الخسارة بيضخّمه.
-        ⚠️ السويتش ده <b>عرض في التاب ده بس</b>: كارت «خسائر» في تاب الأوردرات ما بيتأثرش بيه إطلاقًا.
+        ⚠️ السويتش ده <b>عرض في التاب ده بس</b>: كارت «إلغاءات ومرتجعات» في تاب الأوردرات ما بيتأثرش بيه إطلاقًا.
       </span>
     </div>
     <p class="geo-filter-hint">مفيش اختيار = كل الأسباب. السبب اللي مالوش أوردرات في الفترة بيبان باهت ومش قابل للضغط.</p>
@@ -6163,7 +6220,11 @@ function renderRsnCharts(groups) {
 // بيحصل في أنهي مرحلة؟» في نفس الرسم بدل رسم تالت.
 function buildRsnBar(canvasId, rows, isCount) {
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return null;
+  // 🐛 v3.17.0 — الحارس ده كان ناقص هنا وحده. Chart.js جاي من CDN، ولو ما اتحمّلش
+  // (شبكة محجوبة · CDN واقع) الرمية بتطلع من renderReasons لـ renderShell —
+  // فالصفحة **كلها** بتفضل فاضية، مش التاب ده بس. باقي رسوم الأداة عليها نفس
+  // الحارس من الأصل؛ ده كان السطر الوحيد الشاذ.
+  if (!canvas || typeof Chart === 'undefined') return null;
   const fmtFn = isCount ? fmtInt : fmtMoney;
   const F = { LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' };
 
@@ -6187,7 +6248,7 @@ function buildRsnBar(canvasId, rows, isCount) {
       responsive: true, maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
       scales: {
-        x: { stacked: isCount, beginAtZero: true, grid: { color: '#f1f5f9' },
+        x: { stacked: isCount, beginAtZero: true, grid: { color: cssVar('--chart-grid') },
              ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, callback: v => geoAxisTick(v) } },
         // ⛔ مفيش أي دوران على الليبلات — المحور الأفقي بيخليها أفقية أصلاً.
         y: { stacked: isCount, grid: { display: false },
@@ -6259,8 +6320,8 @@ function renderRsnTable(groups, totals) {
   el.innerHTML = `
     <div class="geo-table-note">
       اضغط على أي عمود للترتيب بيه · اضغط على أي صف لعرض أوردراته تحت.
-      <b>العدد</b> بيطابق كارت «خسائر» في تاب الأوردرات بالظبط لما يكون مفيش فلتر شغّال.
-      ⚠️ <b>القيمة</b> هي فاقد الأوردرات دي وحدها، فهي <b>أقل</b> من كارت «خسائر» في تاب المبيعات —
+      <b>العدد</b> بيطابق كارت «إلغاءات ومرتجعات» في تاب الأوردرات بالظبط لما يكون مفيش فلتر شغّال.
+      ⚠️ <b>القيمة</b> هي فاقد الأوردرات دي وحدها، فهي <b>أقل</b> من كارت «إلغاءات ومرتجعات» في تاب المبيعات —
       الكارت ده بيعدّ كمان فاقد جوّه أوردرات <b>اتسلّمت</b> (محذوف قبل الشحن · مرتجع استبدال)، وهي مش خسارة على مستوى الأوردر.
     </div>
     <div class="details-scroll">
@@ -6336,7 +6397,7 @@ function renderRsnMatrix(groups, totals) {
 // ─── §REASONS::renderRsnGeo — الأسباب × المحافظة/المنطقة ───
 // 🔴 **التطبيع إجباري.** لو الخلية عرضت العدد الخام، القاهرة هتتصدّر كل سبب
 //    وكل جدول **لأنها أكبر** مش لأن عندها مشكلة. فالعمود الحاسم هو **معدل
-//    الخسارة داخل المجموعة** (خسائر ÷ إجمالي أوردرات المجموعة)، والمؤشر =
+//    الخسارة داخل المجموعة** (الإلغاءات والمرتجعات ÷ إجمالي أوردرات المجموعة)، والمؤشر =
 //    معدل المجموعة ÷ المعدل العام.
 // ⚠️ البُعد بيتبدّل بمفتاح (محافظة/منطقة) مش تابين: هنا البُعد الأساسي هو
 //    **السبب** والجغرافيا تفصيل تحته — قرار v3.13.0 كان بيخص بُعدين مستقلين
@@ -6404,7 +6465,7 @@ function renderRsnGeo() {
         <button class="rsn-dim-btn${dim === 'zone' ? ' is-on' : ''}" onclick="setRsnDim('zone')">🚚 المنطقة</button>
       </div>
       🔴 <b>الأرقام مطبّعة عن قصد.</b> العدد الخام بيخلي أكبر محافظة تتصدّر كل صف <b>لأنها أكبر</b> مش لأن عندها مشكلة —
-      فالعمود الحاسم هو <b>معدل الخسارة</b> (خسائر ÷ إجمالي أوردرات المجموعة)، و<b>المؤشر</b> = معدل المجموعة ÷ المعدل العام
+      فالعمود الحاسم هو <b>معدل الخسارة</b> (الإلغاءات والمرتجعات ÷ إجمالي أوردرات المجموعة)، و<b>المؤشر</b> = معدل المجموعة ÷ المعدل العام
       (<span class="mono">${overall.toFixed(1)}%</span>). مؤشر أعلى من <b>1.50</b> = إشارة تستاهل مراجعة.
       الصف اللي عيّنته أقل من ${fmtInt(RSN_MIN_SAMPLE)} أوردر بيبان باهت وبلا مؤشر — مش بيتخفي.
     </div>
@@ -6413,8 +6474,8 @@ function renderRsnGeo() {
         <thead><tr>
           <th class="geo-name-th">${dim === 'zone' ? 'المنطقة' : 'المحافظة'}</th>
           <th title="كل أوردرات المجموعة في الفترة، بكل حالاتها">إجمالي الأوردرات</th>
-          <th title="أوردرات الخسارة بعد فلتر الأسباب الحالي">خسائر</th>
-          <th title="خسائر ÷ إجمالي أوردرات المجموعة">معدل الخسارة</th>
+          <th title="أوردرات الإلغاء/المرتجع بعد فلتر الأسباب الحالي">إلغاءات ومرتجعات</th>
+          <th title="الإلغاءات والمرتجعات ÷ إجمالي أوردرات المجموعة">معدل الخسارة</th>
           <th title="معدل المجموعة ÷ المعدل العام — فوق 1.5 يعني تركّز حقيقي">المؤشر</th>
           <th>أعلى سبب في المجموعة</th>
         </tr></thead>
@@ -6438,7 +6499,7 @@ function renderRsnQuality(totals) {
     </div>`;
 
   el.innerHTML =
-    item('🧾', 'خسائر بلا أي سبب', fmtInt(c.missing),
+    item('🧾', 'إلغاءات ومرتجعات بلا أي سبب', fmtInt(c.missing),
          `اضغط صف «بدون سبب» في الجدول فوق لمراجعتهم. الرقم ده مؤشر على <b>العملية</b> مش على العميل — هدفه ينزل.`) +
     item('🔀', 'سبب متكتب في حقل غير المتوقع لدلوه', fmtInt(mism),
          `زي سبب إلغاء على أوردر رفض استلام. ⚠️ <b>مش خطأ في الأداة ولا بيغيّر أي رقم</b> — الأداة بتاخد أول قيمة موجودة من الحقلين
