@@ -441,7 +441,7 @@
      `position: relative` تبقى هي مرجع تموضع الـ chips بدل `.chart-plot`،
      وهي نفسها تحت الكانفس — فالـ chips بتنزل تحت الرسم بارتفاع الكانفس
      كامل. (الخطأ رقم ١ في `chart-axis-chips.md` §5.) */
-  /* ⚠️ `direction: ltr` زي `.geo-chart-scroll` و`.rsn-chart-scroll` بالظبط:
+  /* ⚠️ `direction: ltr` زي `.geo-chart-scroll` بالظبط:
      الصفحة RTL، وحاوية RTL بتفتح مسكرولة على أقصى اليمين — يعني أول
      مشهد يبقى **آخر** عمود بدل الأول. Chart.js بيرسم index 0 على الشمال. */
   .chart-scroller { overflow-x: auto; overflow-y: hidden; padding-bottom: 6px; direction: ltr; }
@@ -734,19 +734,22 @@
   #rsnKpis .kpi-card:hover{box-shadow:none;transform:none}
   .rsn-split{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
   .rsn-box{border:1px solid var(--border);border-radius:10px;padding:7px 9px;min-width:0;background:var(--surface-2)}
-  .rsn-box-k{font-size:10.5px;color:var(--text-secondary);font-weight:800;margin-bottom:2px}
+  /* 🔴 الوحدة بقت **أيقونة** بدل كلمة (طلب أحمد 03-09-2026): 📦 عدد · 💰 قيمة —
+     نفس أيقونتَي رأس مجموعتي الأعمدة في كل جداول الأداة، فالوحدة بتتعرف من
+     الشكل من غير قراية والمربّع بيفضل للرقم وحده. ⚠️ الاسم الكامل فاضل في
+     `title` — الأيقونة وحدها مش بديل لاسم مقروء. */
+  .rsn-box-k{font-size:10.5px;color:var(--text-secondary);font-weight:800;margin-bottom:2px;line-height:1.35}
+  .rsn-box-ico{font-size:15px;line-height:1}
   .rsn-box-v{font-family:var(--font-mono);direction:ltr;text-align:right;font-size:16px;font-weight:700;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .rsn-sbar{height:4px;border-radius:3px;background:var(--track);overflow:hidden;margin:5px 0 3px}
   .rsn-sbar i{display:block;height:100%;border-radius:3px}
   .rsn-box-p{font-size:10.5px;color:var(--text-muted)}
   .rsn-box-p b{font-family:var(--font-mono);direction:ltr;display:inline-block;color:var(--text-secondary)}
-  /* شارة المرحلة داخل الجدول */
-  .rsn-stage-pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:100px;
-    border:1px solid currentColor;white-space:nowrap;line-height:1.7}
+  /* شارة «حقل مختلف» — جدول أوردرات السبب المختار وحده. اتشالت من جدول
+     الأسباب في v3.20.0 (البادجات بقت في قسم جودة البيانات وحده). */
   .rsn-mm-pill{display:inline-block;font-size:10.5px;padding:0 6px;border-radius:100px;
     background:var(--amber-soft);color:var(--amber-dark);border:1px solid var(--amber-soft-border);margin-inline-start:5px;white-space:nowrap}
-  .rsn-chart-scroll{overflow-x:auto;overflow-y:hidden;direction:ltr}
   .rsn-toolbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:12px}
   .rsn-heat td.rsn-hc{font-family:'Courier New',monospace;direction:ltr;text-align:center}
   .rsn-dim-btn{font-size:12.5px;padding:4px 12px;border-radius:100px;border:1px solid var(--border);
@@ -843,6 +846,7 @@
   .geo-table .geo-stat-bar-fill.clr-green  { background: var(--green); }
   .geo-table .geo-stat-bar-fill.clr-red    { background: var(--red); }
   .geo-table .geo-stat-bar-fill.clr-purple { background: var(--purple); }
+  .geo-table .geo-stat-bar-fill.clr-orange { background: var(--orange); }
   /* 🔴 ألوان الحالات التلاتة — قرار أحمد 02-09-2026، موحّدة في التاب كله
      (الجدول + الرسوم + المفتاح): تسليمات أخضر · إلغاءات ومرتجعات أحمر ·
      قيد التنفيذ بنفسجي. ⚠️ `.clr-red`/`.clr-green` القديمة كانت مكتوبة على
@@ -851,6 +855,9 @@
   .geo-table .clr-green  { color: var(--green); }
   .geo-table .clr-red    { color: var(--red); }
   .geo-table .clr-purple { color: var(--purple); }
+  /* برتقالي = «مرتجع رفض الاستلام» — نفس لون المرحلة في RSN_STAGE وفي
+     مفتاح الرسوم، فالعمود في الجدول والعمود في الرسم بيتقروا كحاجة واحدة. */
+  .geo-table .clr-orange { color: var(--orange); }
   .geo-table .clr-muted { color: var(--text-muted); }
   /* رأس مجموعة الأعمدة (عدد الأوردرات · القيمة) — الصف الأول في الـ thead */
   .geo-table thead th.geo-grp { border-bottom: 1px solid var(--border); font-size: 11.5px; letter-spacing: .2px; }
@@ -1085,7 +1092,7 @@
   <div class="main-tabs-bar" id="mainTabsBar">
     <button class="main-tab-btn active" id="mainTabMain" onclick="switchMainTab('main')">💰 المبيعات</button>
     <button class="main-tab-btn" id="mainTabOrders" onclick="switchMainTab('orders')">📦 الأوردرات</button>
-    <button class="main-tab-btn" id="mainTabGeo" onclick="switchMainTab('geo')">🗺️ المحافظات</button>
+    <button class="main-tab-btn" id="mainTabGeo" onclick="switchMainTab('geo')">🌍 المحافظات</button>
     <button class="main-tab-btn" id="mainTabZones" onclick="switchMainTab('zones')">🚚 المناطق</button>
     <button class="main-tab-btn" id="mainTabReasons" onclick="switchMainTab('reasons')">🚫 الإلغاءات والمرتجعات</button>
   </div>
@@ -1306,6 +1313,17 @@
     <div class="eco-modal-body">
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">03-09-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>تاب «الإلغاءات والمرتجعات» بقى بنفس شكل تاب المحافظات بالظبط.</b> رسمان <b>عموديان</b> بدل الأفقيين — كل سبب عمود مقسوم تلات أعمدة فرعية (<b>إلغاء قبل الشحن</b> · <b>مرتجع رفض الاستلام</b> · <b>مرتجع كامل بعد الاستلام</b>) — وجدولا الأسباب والأسباب-جغرافيًا بقوا بمجموعتَي أعمدة (📦 عدد · 💰 قيمة)، كل مجموعة فيها الإجمالي + التلات مراحل، وتحت كل رقم شريط ونسبته من إجمالي نفس الصف. ومعاهم عمود <b>النسبة</b> في الجدولين.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>قيمة الخسارة اتفصّلت على التلات مراحل.</b> الفاقد بيتحسب على مستوى القطعة ومالوش مرحلة على الصف، فالعمود كان واحد موحّد. دلوقتي صفوف القطع نفسها بتتقسم برقم الأوردر على مرحلة أوردرها، وكل خلية بتتحسب بـ <b>نفس دالة تاب المبيعات</b> — رقم محسوب مش توزيع تقديري، ومجموع التلاتة = الإجمالي رياضيًا.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الكروت الأربعة بقت بنفس التقسيمة</b> — كارت الإجمالي كان رقم واحد كبير، بقى مربّعين زي التلاتة اللي جنبه. و<b>الوحدة بقت أيقونة</b> (📦 / 💰) بدل كلمة «عدد»/«قيمة» في الأربعة. ⚠️ نسبة كارت الإجمالي مقامها <b>الفترة كلها</b> (نسبته لنفسه كانت هتبقى 100% وبلا معلومة): العدد من كل أوردرات الفترة = <b>معدل الخسارة العام</b>، والقيمة من إجمالي قيمة الفترة.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>chips فلتر الأسباب كانت ملزوقة في بعضها ومن غير لون للمختار</b> — الكارت كان بيكتب كلاسين <b>مش موجودين في الـ CSS أصلًا</b> (حاوية <code>geo-chips</code> والمختار <code>is-on</code>)، فالحاوية كانت بلا <code>flex</code> وبلا مسافات والسبب المختار ما كانش بياخد أي لون. دلوقتي بيعيد استخدام كلاسات فلتر المحافظات زي ما هي، ومعاها شارات العدّ وزرار المسح.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>البادجات اتشالت من جدول الأسباب</b> («قيمة برّه القايمة» · «حقل مختلف: N») — الاتنين <b>تشخيص</b> مالوش أثر على أي رقم، ومكانهم قسم «جودة البيانات» اللي بيعدّهم أصلاً. وجودهم في عمود السبب كان بيزحلق الأعمدة الرقمية ويخلط تنبيه إدخال ببيانات. القيمة برّه القايمة لسه بتتعرض <b>خام</b> في الصف وبإطار متقطّع على الـ chip.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>أيقونة تاب <b>المحافظات</b> بقت 🌍.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.19.0</span><span class="cl-ver-date">03-09-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>أسماء المحاور في كل الرسوم بقت «chips» بدل نص مرسوم على الرسم</b> — الاسم كان <b>10px بوزن عادي</b>، يعني مفتاح قراءة الرسم كله كان أصغر عنصر في الشاشة. بقى <b>15px بوزن أعرض</b> في إطار دائري بخلفية فاتحة، وخانة كل مجموعة بتتوسّع لحد ما أطول اسم يدخل من غير قص ولا تدوير — والرسم بيتمرّر أفقيًا لو احتاج.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>لون وخط الرسوم بقوا من نظام التصميم</b> — لون أسماء المحاور كان <code>#666</code> جاي من إعداد Chart.js الافتراضي، يعني <b>لون مش موجود في بالتة الأداة أصلًا</b>، واسم الخط كان مكتوب حرفيًا في <b>١١ موضع</b>. دلوقتي الاتنين بيتقروا من التوكنز <b>مرة واحدة</b> — فأي تغيير في النظام بيوصل كل الرسوم لوحده بدل ما تفضل على القديم.</span></li>
@@ -1817,7 +1835,7 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 التقسيمة التلاتية + ألوانها      │ HTML   │ §GEO-JS    │ GEO_STATUS (تسليمات · إلغاءات ومرتجعات · قيد التنفيذ)
 الصف الواحد في الوحدتين          │ HTML   │ §GEO-JS    │ geoRow / geoEmptyRow (قيد التنفيذ = الإجمالي − التسليمات − الفاقد)
 قايمة العرض الكاملة لأي بُعد     │ HTML   │ §GEO-JS    │ geoAllRows (كل محافظات شوبيفاي حتى الفاضية)
-رسمَان بعرض الصفحة لكل بُعد      │ HTML   │ §GEO-JS    │ renderGeoCharts / buildGeoStackChart / geoAxisTick
+رسمَان بعرض الصفحة لكل بُعد      │ HTML   │ §GEO-JS    │ renderGeoCharts / buildGroupBarChart / geoAxisTick
 جدول ٤+٤ أعمدة (عدد · قيمة)      │ HTML   │ §GEO-JS    │ renderGeoTable (thead سطرين + geo-sep)
 ── v3.11.0 — فلتر المحافظات + ليبلات أفقية ──────────────────
 فلتر المحافظات (chips) على التاب │ HTML   │ §GEO-FILTER│ renderGeoFilter / toggleGeoProv / clearGeoProvFilter
@@ -1842,7 +1860,6 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 عالم التاب = دلاو الخسارة التلاتة │ HTML   │ §REASONS   │ RSN_STAGE / rsnIsLoss
 قرار الفلترة في مكان واحد         │ HTML   │ §REASONS   │ rsnRowsFor(rows)
 صف لكل سبب بالعدد وبالقيمة        │ HTML   │ §REASONS   │ rsnGroups / rsnRow
-رسمان أفقيان (بلا أي دوران ليبل)  │ HTML   │ §REASONS   │ buildRsnBar (indexAxis:'y')
 مصفوفة السبب × المرحلة            │ HTML   │ §REASONS   │ renderRsnMatrix
 الأسباب جغرافيًا (مطبّعة + مؤشر)  │ HTML   │ §REASONS   │ renderRsnGeo / RSN_MIN_SAMPLE
 جودة البيانات (٣ حالات)           │ HTML   │ §REASONS   │ renderRsnQuality / rsnFieldMismatch
@@ -1856,6 +1873,16 @@ JS بيقرا التوكن مش بيكتبه         │ HTML   │ §SHELL-JS  
 كارت لكل نوع فرعي (عدد | قيمة)    │ HTML   │ §REASONS   │ rsnStageTotals / renderRsnKpis
 مربّع بنسبته تحته (.rsn-split)    │ HTML   │ §CSS       │ .rsn-split · .rsn-box · .rsn-sbar
 قايمة الأسباب المقفولة            │ HTML   │ §REASONS   │ RSN_REASONS
+── v3.20.0 — توحيد تاب الإلغاءات مع تاب المحافظات ────────────
+الكروت الأربعة بنفس التقسيمة      │ HTML   │ §REASONS   │ renderRsnKpis (shell/box · 📦 💰 بدل الكلمة)
+أيقونة الوحدة جوّه المربّع        │ HTML   │ §CSS       │ .rsn-box-ico
+حقل المرحلة ولونه — مصدر واحد     │ HTML   │ §REASONS   │ RSN_F { n, v, cls }
+قيمة كل خلية (سبب × مرحلة)        │ HTML   │ §REASONS   │ rsnGroups → pieceByCell → rsnRow.vOf
+رسم المجموعات عام للتابين         │ HTML   │ §GEO-JS    │ buildGroupBarChart (opts.stages / opts.onPick)
+رسمان عموديان بتلات أعمدة فرعية   │ HTML   │ §REASONS   │ renderRsnCharts (chipSlotWidth · صفر دوران)
+جدول الأسباب ٤+٤ أعمدة + النسبة   │ HTML   │ §REASONS   │ renderRsnTable (thead سطرين + geo-sep)
+جدول الأسباب جغرافيًا بنفس الهيكل │ HTML   │ §REASONS   │ renderRsnGeo (+ معدل الخسارة والمؤشر)
+إصلاح كلاسات فلتر الأسباب         │ HTML   │ §REASONS   │ renderRsnFilter (geo-filter-chips · .on)
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -2162,6 +2189,10 @@ function renderAxisChips(chart, labels, rowEl) {
 // المحور الفئوي رأسي (`indexAxis: 'y'`): نفس المواصفة، والأسماء في العمود
 // المحجوز جنب الرسم — التموضع من `getPixelForTick` على المحور `y`.
 // → chart-axis-chips.md §7 (الحالة الوحيدة اللي بتاخد chips بمحور تاني).
+// ⚠️ v3.20.0 — **مفيش رسم في الأداة بيستهلكها دلوقتي**: رسمَا تاب الإلغاءات
+//    والمرتجعات (آخر رسمين أفقيين) بقوا عموديين بطلب أحمد. الدالة بتفضل هنا
+//    كجزء من مساعد الـ chips المشترك — أي رسم أفقي جاي بياخدها جاهزة بدل ما
+//    يخترع تموضعًا تاني (وده كان بالظبط سبب وجودها).
 function renderAxisChipsY(chart, labels, rowEl, slotW) {
   if (!rowEl || !chart.chartArea) return;
   rowEl.innerHTML = '';
@@ -2217,7 +2248,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.19.0';
+const TOOL_VERSION = 'v3.20.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -3480,7 +3511,7 @@ function renderShell() {
       <div id="geoGuardNote"></div>
       <div class="geo-filter-card" id="geoFilterCard"></div>
 
-      <div class="geo-section-hdr"><span class="kpi-icon">🗺️</span>المحافظات<span id="geoProvFlag"></span></div>
+      <div class="geo-section-hdr"><span class="kpi-icon">🌍</span>المحافظات<span id="geoProvFlag"></span></div>
       <div id="geoProvCharts"></div>
       <div class="geo-table-card" id="geoProvTable"></div>
 
@@ -3528,7 +3559,7 @@ function renderShell() {
       <div class="geo-section-hdr"><span class="kpi-icon">🔀</span>السبب × المرحلة<span class="geo-section-sub">نفس السبب في مرحلة مختلفة = مشكلة مختلفة وجهة مسؤولة مختلفة.</span></div>
       <div class="geo-table-card" id="rsnMatrix"></div>
 
-      <div class="geo-section-hdr"><span class="kpi-icon">🗺️</span>الأسباب جغرافيًا<span id="rsnGeoFlag"></span></div>
+      <div class="geo-section-hdr"><span class="kpi-icon">🌍</span>الأسباب جغرافيًا<span id="rsnGeoFlag"></span></div>
       <div class="geo-table-card" id="rsnGeoTable"></div>
 
       <div class="geo-section-hdr"><span class="kpi-icon">🩺</span>جودة البيانات</div>
@@ -5291,10 +5322,10 @@ function renderGeoFilter() {
   // الأرقام في شارات مستقلة بدل جملة رمادية واحدة — الرقم هو المعلومة،
   // والكلام حواليه وصف. (طلب أحمد 02-09-2026: «يكون بلون وتصميم بصري أوضح».)
   const stats = active
-    ? `<span class="geo-stat is-on">🗺️ <b>${fmtInt(sel.size)}</b> محافظة مختارة</span>
+    ? `<span class="geo-stat is-on">🌍 <b>${fmtInt(sel.size)}</b> محافظة مختارة</span>
        <span class="geo-stat is-on">📦 <b>${fmtInt(shown)}</b> من ${fmtInt(total)} أوردر في التاب ده</span>`
     : `<span class="geo-stat is-all">✓ كل المحافظات</span>
-       <span class="geo-stat">🗺️ <b>${fmtInt(withOrders)}</b> من ${fmtInt(universe.length)} فيها أوردرات</span>
+       <span class="geo-stat">🌍 <b>${fmtInt(withOrders)}</b> من ${fmtInt(universe.length)} فيها أوردرات</span>
        <span class="geo-stat">📦 <b>${fmtInt(total)}</b> أوردر</span>`;
 
   const html = `
@@ -5688,9 +5719,9 @@ function renderGeoCharts(elId, dim, { groups, totals }) {
   // نفس نمط الشارات اللي في كارت الفلتر — الأرقام بتبان كأرقام.
   const scopeNote  = isProv
     ? (geoFilterActive()
-        ? `<span class="geo-stat is-on">🗺️ <b>${fmtInt(rows.length)}</b> محافظة مختارة</span>
+        ? `<span class="geo-stat is-on">🌍 <b>${fmtInt(rows.length)}</b> محافظة مختارة</span>
            <span class="geo-stat">↓ مرتّبة بالعدد تنازليًا</span>`
-        : `<span class="geo-stat">🗺️ <b>${fmtInt(rows.length)}</b> محافظة في قايمة شوبيفاي</span>
+        : `<span class="geo-stat">🌍 <b>${fmtInt(rows.length)}</b> محافظة في قايمة شوبيفاي</span>
            <span class="geo-stat">✓ <b>${fmtInt(withOrders)}</b> فيها أوردرات في الفترة</span>
            <span class="geo-stat">↓ مرتّبة بالعدد تنازليًا</span>`)
     : `<span class="geo-stat">🚚 <b>${fmtInt(rows.length)}</b> منطقة${rows.length > ZONE_ORDER.length ? ' (فيها قيم خام برّه القايمة)' : ''}</span>
@@ -5721,10 +5752,12 @@ function renderGeoCharts(elId, dim, { groups, totals }) {
   if (prev) { prev.orders?.destroy(); prev.money?.destroy(); }
 
   geoCharts[elId] = {
-    orders: buildGeoStackChart(`${elId}_ordersBar`, dim, rows,
-      ['ordDelivered', 'ordLost', 'ordInProgress'], fmtInt, geoAxisTick, r => r.orders),
-    money:  buildGeoStackChart(`${elId}_moneyBar`, dim, rows,
-      ['mDelivered', 'mLost', 'mInProgress'], fmtMoney, geoAxisTick, r => r.mTotal),
+    orders: buildGroupBarChart(`${elId}_ordersBar`, rows,
+      ['ordDelivered', 'ordLost', 'ordInProgress'], fmtInt, geoAxisTick, r => r.orders,
+      { stages: GEO_STATUS, onPick: r => showGeoDetails(dim, r.key) }),
+    money:  buildGroupBarChart(`${elId}_moneyBar`, rows,
+      ['mDelivered', 'mLost', 'mInProgress'], fmtMoney, geoAxisTick, r => r.mTotal,
+      { stages: GEO_STATUS, onPick: r => showGeoDetails(dim, r.key) }),
   };
 }
 
@@ -5742,11 +5775,18 @@ function geoAxisTick(v) {
 }
 
 // الرسم الواحد: ٣ أعمدة جنب بعض لكل مجموعة (مش stacked — الطلب كان "٣ bars
-// جنب بعض"، والمقارنة بين المحافظات في نفس الحالة بتبقى مباشرة على نفس القاعدة).
-function buildGeoStackChart(canvasId, dim, rows, fields, fmtFn, tickFn, totalOf) {
+// جنب بعض"، والمقارنة بين المجموعات في نفس الحالة بتبقى مباشرة على نفس القاعدة).
+// ⚠️ v3.20.0 — الدالة بقت **عامة** (كانت `buildGeoStackChart` بـ `GEO_STATUS`
+//    و`dim` محفورين جوّاها): تاب الإلغاءات والمرتجعات بقى بيستخدم نفس الرسم
+//    بالظبط بتقسيمة `RSN_STAGE` بدل ما ينسخ تعريف تاني. `opts.stages` بتحدد
+//    التقسيمة وألوانها، و`opts.onPick` بتحدد الضغطة.
+//    ⛔ ممنوع تعريف رسم موازي لنفس الشكل — التعريف المكرر بيتفرّق عن أصله عند
+//    أول تعديل (زي ما حصل مع حارس `typeof Chart` اللي كان ناقص في رسم واحد بس).
+function buildGroupBarChart(canvasId, rows, fields, fmtFn, tickFn, totalOf, opts = {}) {
   const canvas = document.getElementById(canvasId);
   if (!canvas || typeof Chart === 'undefined') return null;
 
+  const stages = opts.stages || GEO_STATUS;
   const labels = rows.map(r => r.label);
 
   return new Chart(canvas.getContext('2d'), {
@@ -5754,7 +5794,7 @@ function buildGeoStackChart(canvasId, dim, rows, fields, fmtFn, tickFn, totalOf)
     plugins: [makeAxisChipsPlugin(labels, canvasId + 'Chips')],
     data: {
       labels,
-      datasets: GEO_STATUS.map((st, i) => ({
+      datasets: stages.map((st, i) => ({
         label: st.label,
         data: rows.map(r => r[fields[i]]),
         backgroundColor: st.colour,
@@ -5801,7 +5841,7 @@ function buildGeoStackChart(canvasId, dim, rows, fields, fmtFn, tickFn, totalOf)
           },
         },
       },
-      onClick: (evt, els) => { const r = els.length && rows[els[0].index]; if (r) showGeoDetails(dim, r.key); },
+      onClick: (evt, els) => { const r = els.length && rows[els[0].index]; if (r && opts.onPick) opts.onPick(r); },
     },
   });
 }
@@ -5986,6 +6026,17 @@ const RSN_STAGE = [
 const RSN_STAGE_IDS = RSN_STAGE.map(x => x.id);
 const RSN_STAGE_BY  = Object.fromEntries(RSN_STAGE.map(x => [x.id, x]));
 
+// 🔴 مصدر **واحد** لأسماء حقول المرحلة في الصف وللكلاس اللي بيلوّنها.
+//    قبل v3.20.0 خريطة `{ LOST_CANCELLED: 'stCancelled', … }` كانت مكتوبة
+//    حرفيًا في تلات دوال (الجدول · المصفوفة · الرسم) — إضافة مرحلة رابعة
+//    كانت هتحتاج تعديل التلاتة، ونسيان واحدة = عمود بيختفي في صمت.
+//    `n` = حقل العدد · `v` = حقل القيمة · `cls` = كلاس اللون في .geo-table.
+const RSN_F = {
+  LOST_CANCELLED:   { n: 'stCancelled',  v: 'vCancelled',  cls: 'clr-red' },
+  LOST_RTO:         { n: 'stRTO',        v: 'vRTO',        cls: 'clr-orange' },
+  LOST_FULL_RETURN: { n: 'stFullReturn', v: 'vFullReturn', cls: 'clr-purple' },
+};
+
 // ⚠️ الحد الأدنى للعيّنة — بيرجع مع أي **معدل ترشيحي**. ده شرط مكتوب في
 //    CLAUDE.md وقت شيل الكروت الترشيحية القديمة: أي معدل بيترشّح حاجة لازم
 //    يبقى وراه عيّنة. محافظة بـ٦ أوردرات ومعدل ١٦٪ هي أوردر واحد مش اتجاه.
@@ -6090,41 +6141,58 @@ function rsnMissingReason() {
 function rsnGroups() {
   const orderRows = rsnRowsFor(state.orderRows);
 
-  const byKey     = new Map();   // reasonKey → orderRows[]
-  const keyByOrd  = new Map();   // orderId   → reasonKey
+  const byKey      = new Map();   // reasonKey → orderRows[]
+  const keyByOrd   = new Map();   // orderId   → reasonKey
+  const stageByOrd = new Map();   // orderId   → bucket (دلو المحرك)
   orderRows.forEach(r => {
     const k = rsnKeyOf(r);
     keyByOrd.set(String(r.orderId), k);
+    stageByOrd.set(String(r.orderId), r.bucket);
     const a = byKey.get(k); if (a) a.push(r); else byKey.set(k, [r]);
   });
 
   // صفوف القطع بتاعة **نفس** الأوردرات دي بس — الربط بالـ orderId مش بإعادة
   // قراءة الـ reason من صف القطعة، عشان الوحدتين يوصفوا نفس المجموعة بالظبط.
-  const pieceByKey = new Map();
+  // 🔴 v3.20.0 — ومعاها تقسيمة تانية بالخلية (سبب × مرحلة). الفاقد بيتحسب على
+  //    مستوى القطعة فمالوش مرحلة على الصف؛ الحل **مش** توزيع تقديري على
+  //    التلاتة، هو تقسيم صفوف القطع نفسها بالـ orderId على مرحلة أوردرها
+  //    وحساب كل خلية بـ `computeBoxesFromRows` — نفس الدالة، صفر تعريف تاني.
+  const pieceByKey  = new Map();   // reasonKey            → pieceRows[]
+  const pieceByCell = new Map();   // `${reasonKey}|bucket` → pieceRows[]
   (state.rows || []).forEach(r => {
-    const k = keyByOrd.get(String(r.orderId));
+    const id = String(r.orderId);
+    const k  = keyByOrd.get(id);
     if (k === undefined) return;
     const a = pieceByKey.get(k); if (a) a.push(r); else pieceByKey.set(k, [r]);
+    const ck = k + '|' + stageByOrd.get(id);
+    const b = pieceByCell.get(ck); if (b) b.push(r); else pieceByCell.set(ck, [r]);
   });
 
-  const groups = [...byKey.keys()].map(k => rsnRow(k, byKey.get(k) || [], pieceByKey.get(k) || []));
+  const groups = [...byKey.keys()].map(k =>
+    rsnRow(k, byKey.get(k) || [], pieceByKey.get(k) || [], pieceByCell));
 
-  const SUMS = ['orders', 'value', 'stCancelled', 'stRTO', 'stFullReturn', 'mismatched'];
+  const SUMS = ['orders', 'value', 'stCancelled', 'stRTO', 'stFullReturn',
+                'vCancelled', 'vRTO', 'vFullReturn', 'mismatched'];
   const totals = groups.reduce((t, g) => { SUMS.forEach(k => t[k] += g[k]); return t; },
                                Object.fromEntries(SUMS.map(k => [k, 0])));
   return { groups, totals };
 }
 
-function rsnRow(key, orderRows, pieceRows) {
+function rsnRow(key, orderRows, pieceRows, pieceByCell) {
   const counts = computeOrderBoxesFromRows(orderRows);
   const money  = computeBoxesFromRows(pieceRows, 'value');
   const orders = orderRows.length;
+  // قيمة الخلية (سبب × مرحلة) بنفس دالة كل فلوس الأداة.
+  // ⚠️ الهوية مضمونة **رياضيًا** مش بالفحص: `lost` مجموع صفوف، والتقسيمة
+  //    بالأوردر — فالتلات خلايا بيقسّموا نفس صفوف السبب بلا تقاطع ولا فاقد،
+  //    يعني vCancelled + vRTO + vFullReturn = value دايمًا.
+  const vOf = id => computeBoxesFromRows(pieceByCell.get(key + '|' + id) || [], 'value').lost;
   return {
     key,
     label:      rsnLabel(key),
     isNone:     key === RSN_NONE,
-    // قيمة برّه القايمة المقفولة في شوبيفاي — بتتعرض خام بعلامة، ما تتبلعش
-    // في دلو «أخرى» يخفيها للأبد (نفس قاعدة الـ zone الغريبة).
+    // قيمة برّه القايمة المقفولة في شوبيفاي — بتتعرض **خام** (ما تتبلعش في
+    // دلو «أخرى» يخفيها للأبد)، والتنبيه عليها في قسم جودة البيانات.
     isUnlisted: key !== RSN_NONE && !RSN_REASONS.includes(key),
     orders,
     value:        money.lost,
@@ -6132,6 +6200,9 @@ function rsnRow(key, orderRows, pieceRows) {
     stCancelled:  counts.lostCancelled,
     stRTO:        counts.lostRTO,
     stFullReturn: counts.lostFullReturn,
+    vCancelled:   vOf('LOST_CANCELLED'),
+    vRTO:         vOf('LOST_RTO'),
+    vFullReturn:  vOf('LOST_FULL_RETURN'),
     mismatched:   orderRows.filter(rsnFieldMismatch).length,
   };
 }
@@ -6212,54 +6283,67 @@ function renderRsnKpis(totals) {
   const el = document.getElementById('rsnKpis');
   if (!el) return;
 
-  // نفس هيكل الكارت المستخدم في التابين التانيين بالظبط (kpi-label-row +
-  // kpi-value-row) — كارت بهيكل خاص كان هيبان مختلف في نفس الشبكة.
-  const card = (icon, k, v, sub, cls, hint) => `
-    <div class="kpi-card" data-state="neutral">
-      <div class="kpi-label-row">
-        <span class="kpi-label"><span class="kpi-icon">${icon}</span>${k}</span>
-        ${infoIcon(hint)}
-      </div>
-      <div class="kpi-value-row"><div class="kpi-value ${cls || ''}">${v}</div></div>
-      <div class="rsn-kpi-sub">${sub}</div>
-    </div>`;
+  // 🔴 **الكروت الأربعة بنفس التقسيمة بالظبط** (طلب أحمد 03-09-2026): كارت
+  //    الإجمالي كان رقم واحد كبير + سطر رمادي، والتلاتة اللي جنبه مربّعين —
+  //    فالكارت اللي المفروض يكون **مرجع** التلاتة كان أقل تفصيلًا منهم،
+  //    والعين مابتربطش الأربعة كمجموعة واحدة. دلوقتي الأربعة: مربّع عدد
+  //    ومربّع قيمة، وتحت كل مربّع شريط ونسبته.
+  // 🔴 **مقام كارت الإجمالي أوسع من مقام التلاتة عن قصد.** الكارت ده هو
+  //    بسط التلاتة، فنسبته لنفسه 100% في الوحدتين — رقم بلا أي معلومة.
+  //    المقام هنا **الفترة كلها**: العدد ÷ كل أوردرات الفترة (= معدل الخسارة
+  //    العام اللي قسم «الأسباب جغرافيًا» بيقيس عليه المؤشر)، والقيمة ÷
+  //    إجمالي قيمة الفترة. ⚠️ وعشان كده نص النسبة تحت المربّع **مختلف**
+  //    («من أوردرات الفترة» مقابل «من الإجمالي») — المقام مكتوب، مش مستنتج.
+  const periodOrders = (state.orderRows || []).length;
+  const periodValue  = computeBoxesFromRows(state.rows || [], 'value').totalValue;
 
-  // كارت النوع الفرعي: مربّعان (عدد | قيمة) وتحت كل واحد نسبته من الإجمالي.
-  // ⚠️ النسبتان مقامهما مختلف (عدد ÷ عدد · قيمة ÷ قيمة) — نسبة واحدة تحت
-  //    المربعين كانت هتبقى مبهمة، ونوع فيه أوردرات رخيصة بيبان بنسبتين
-  //    متباعدتين وده **هو** الإشارة المطلوبة مش تشويش.
+  // مربّع الوحدة: **أيقونة** بدل كلمة «عدد»/«قيمة» (طلب أحمد) — 📦/💰 هما
+  // نفس أيقونتَي رأس مجموعتي الأعمدة في كل جداول الأداة. الاسم الكامل في
+  // `title` عشان الأيقونة ما تبقاش المعلومة الوحيدة.
   const w   = p => Math.min(Math.max(p, 0), 100).toFixed(1);
-  const box = (label, val, pct, colour) => `
+  const box = (icon, unit, val, pct, note, colour) => `
     <div class="rsn-box">
-      <div class="rsn-box-k">${label}</div>
+      <div class="rsn-box-k" title="${esc(unit)}"><span class="rsn-box-ico">${icon}</span></div>
       <div class="rsn-box-v" style="color:${colour}">${val}</div>
       <div class="rsn-sbar"><i style="width:${w(pct)}%;background:${colour}"></i></div>
-      <div class="rsn-box-p"><b>${fmtPct(pct)}</b> من الإجمالي</div>
+      <div class="rsn-box-p"><b>${fmtPct(pct)}</b> ${note}</div>
     </div>`;
 
-  const stCard = (st) => {
-    const pctN = totals.orders ? (st.orders / totals.orders) * 100 : 0;
-    const pctV = totals.value  ? (st.value  / totals.value)  * 100 : 0;
-    return `
+  // ⚠️ النسبتان مقامهما مختلف (عدد ÷ عدد · قيمة ÷ قيمة) — نسبة واحدة تحت
+  //    المربعين كانت هتبقى مبهمة، والنوع اللي أوردراته كتير وقيمتها صغيرة
+  //    (والعكس) بيبان بنسبتين متباعدتين وده **هو** الإشارة المطلوبة.
+  const shell = (icon, title, hint, boxes, orders, value) => `
     <div class="kpi-card" data-state="neutral">
       <div class="kpi-label-row">
-        <span class="kpi-label"><span class="kpi-icon">${st.icon}</span>${esc(st.label)}</span>
-        ${infoIcon(`نوع فرعي من كارت «إلغاءات ومرتجعات» (<code>${st.id}</code>) — الدلو من محرّك التصنيف نفسه، مش من الميتافيلد.
-                    <b>العدد</b> أوردرات، و<b>القيمة</b> فاقد القطع جوّاها محسوب بنفس دالة تاب المبيعات.
-                    كل نسبة مقامها الإجمالي بوحدتها: العدد من العدد والقيمة من القيمة.`)}
+        <span class="kpi-label"><span class="kpi-icon">${icon}</span>${title}</span>
+        ${infoIcon(hint)}
       </div>
-      <div class="rsn-split">
-        ${box('عدد',  fmtInt(st.orders),  pctN, st.colour)}
-        ${box('قيمة', fmtMoney(st.value), pctV, st.colour)}
-      </div>
+      <div class="rsn-split">${boxes}</div>
+      <div class="rsn-kpi-sub">متوسط <b>${fmtMoney(orders ? value / orders : 0)}</b> للأوردر</div>
     </div>`;
-  };
 
-  el.innerHTML =
-    card('📉', 'إجمالي الإلغاءات والمرتجعات المعروضة', fmtInt(totals.orders),
-         `${fmtMoney(totals.value)} · متوسط ${fmtMoney(totals.orders ? totals.value / totals.orders : 0)} للأوردر`, 'clr-red',
-         'إلغاء قبل الشحن + مرتجع رفض الاستلام + مرتجع كامل بعد الاستلام — نفس تعريف كارت «إلغاءات ومرتجعات» في تاب الأوردرات بالظبط. بيطابقه لما يكون مفيش فلتر شغّال هنا، والتلات كروت اللي جنبه بيجمعوه بالظبط في الوحدتين.') +
-    rsnStageTotals().map(stCard).join('');
+  const totCard = shell('📉', 'إجمالي الإلغاءات والمرتجعات المعروضة',
+    `إلغاء قبل الشحن + مرتجع رفض الاستلام + مرتجع كامل بعد الاستلام — نفس تعريف كارت «إلغاءات ومرتجعات» في تاب الأوردرات بالظبط.
+     بيطابقه لما يكون مفيش فلتر شغّال هنا، والتلات كروت اللي جنبه بيجمعوه بالظبط في الوحدتين.
+     ⚠️ النسبة تحت المربّع هنا مقامها <b>الفترة كلها</b> (مش الكارت نفسه): العدد من كل أوردرات الفترة — وده <b>معدل الخسارة العام</b> —
+     والقيمة من إجمالي قيمة الفترة.`,
+    box('📦', 'عدد الأوردرات', fmtInt(totals.orders),
+        periodOrders ? (totals.orders / periodOrders) * 100 : 0, 'من أوردرات الفترة', cssVar('--red')) +
+    box('💰', 'قيمة الخسارة', fmtMoney(totals.value),
+        periodValue ? (totals.value / periodValue) * 100 : 0, 'من قيمة الفترة', cssVar('--red')),
+    totals.orders, totals.value);
+
+  const stCard = (st) => shell(st.icon, esc(st.label),
+    `نوع فرعي من كارت «إلغاءات ومرتجعات» (<code>${st.id}</code>) — الدلو من محرّك التصنيف نفسه، مش من الميتافيلد.
+     <b>العدد</b> أوردرات، و<b>القيمة</b> فاقد القطع جوّاها محسوب بنفس دالة تاب المبيعات.
+     كل نسبة مقامها الإجمالي بوحدتها: العدد من العدد والقيمة من القيمة.`,
+    box('📦', 'عدد الأوردرات', fmtInt(st.orders),
+        totals.orders ? (st.orders / totals.orders) * 100 : 0, 'من الإجمالي', st.colour) +
+    box('💰', 'قيمة الخسارة', fmtMoney(st.value),
+        totals.value ? (st.value / totals.value) * 100 : 0, 'من الإجمالي', st.colour),
+    st.orders, st.value);
+
+  el.innerHTML = totCard + rsnStageTotals().map(stCard).join('');
 }
 
 function renderRsnFilter() {
@@ -6273,31 +6357,66 @@ function renderRsnFilter() {
     counts.set(k, (counts.get(k) || 0) + 1);
   });
   const universe = [...new Set([...RSN_REASONS, RSN_NONE, ...counts.keys()])]
-    .map(k => ({ key: k, n: counts.get(k) || 0, label: rsnLabel(k) }))
+    .map(k => ({ key: k, n: counts.get(k) || 0, label: rsnLabel(k),
+                 isUnlisted: k !== RSN_NONE && !RSN_REASONS.includes(k) }))
     .sort((a, b) => (b.n - a.n) || a.label.localeCompare(b.label, 'ar'));
 
+  const sel    = state.rsnSel;
+  const active = rsnFilterActive();
+  // ⚠️ الأوردرات المعروضة بتتعدّ من الصفوف المفلترة نفسها — مش بجمع أرقام
+  //    الـ chips، عشان الرقم اللي في السطر يبقى هو الرقم اللي في الكروت بالظبط.
+  const shown = rsnRowsFor(state.orderRows).length;
+  const total = (state.orderRows || []).filter(rsnIsLoss).length;
+  const withOrders = universe.filter(u => u.n > 0).length;
+
+  // 🐛 v3.20.0 — الكارت ده كان بيكتب كلاسين **مش موجودين في الـ CSS أصلًا**:
+  //    الحاوية `geo-chips` (الصح `geo-filter-chips`) والـ chip المختار
+  //    `is-on` (الصح `on`). النتيجة: صفر `display:flex` وصفر `gap` فالأسباب
+  //    كانت ملزوقة في بعضها (طلب أحمد 03-09-2026)، **وصفر لون للسبب المختار**.
+  //    ⚠️ ده بالظبط عيلة الباج المكتوبة في الفخاخ: كلاس/متغيّر مش معرّف
+  //    مابيرميش أي خطأ — العنصر بيرندر بالافتراضي والكود شكله سليم.
+  //    ⛔ العلاج هو **إعادة استخدام** كلاسات فلتر المحافظات زي ما هي، مش
+  //    كتابة كلاسات موازية لنفس العنصر — الفلتران بيعملوا نفس الحاجة.
   const chips = universe.map(u => {
-    const on   = state.rsnSel.has(u.key);
+    const on   = sel.has(u.key);
     const dead = u.n === 0;
-    return `<button class="geo-chip${on ? ' is-on' : ''}${dead ? ' is-empty' : ''}"
-      ${dead ? 'disabled title="مفيش أوردرات بالسبب ده في الفترة"' : ''}
-      onclick="toggleRsnReason(${JSON.stringify(u.key).replace(/"/g, '&quot;')})">${esc(u.label)}<span class="geo-chip-n">${fmtInt(u.n)}</span></button>`;
+    return `<span class="geo-chip${on ? ' on' : ''}${dead ? ' is-empty' : ''}${u.isUnlisted ? ' is-unknown' : ''}"
+      ${dead ? '' : `onclick="toggleRsnReason(${JSON.stringify(u.key).replace(/"/g, '&quot;')})"`}
+      title="${esc(u.label)}${dead ? ' — مفيش أوردرات بالسبب ده في الفترة' : ` · ${fmtInt(u.n)} أوردر في الفترة`}${
+      u.isUnlisted ? ' · قيمة برّه قايمة الميتافيلد المقفولة' : ''}">${
+      on ? '✓ ' : ''}${esc(u.label)}<span class="geo-chip-n">${fmtInt(u.n)}</span></span>`;
   }).join('');
+
+  const stats = active
+    ? `<span class="geo-stat is-on">🚫 <b>${fmtInt(sel.size)}</b> سبب مختار</span>
+       <span class="geo-stat is-on">📦 <b>${fmtInt(shown)}</b> من ${fmtInt(total)} أوردر في التاب ده</span>`
+    : `<span class="geo-stat is-all">✓ كل الأسباب</span>
+       <span class="geo-stat">🚫 <b>${fmtInt(withOrders)}</b> من ${fmtInt(universe.length)} فيها أوردرات</span>
+       <span class="geo-stat">📦 <b>${fmtInt(total)}</b> أوردر</span>`;
 
   el.innerHTML = `
     <div class="geo-filter-hdr">
-      <span class="geo-filter-title">🔎 فلتر الأسباب</span>
-      ${rsnFilterActive() ? `<button class="hbtn geo-clear-btn" onclick="clearRsnFilter()">مسح الفلتر</button>` : ''}
+      <span class="geo-filter-title"><span class="kpi-icon">🔎</span>فلتر الأسباب</span>
+      <span class="geo-stat-row">${stats}</span>
+      ${active ? `<span class="geo-filter-actions"><button class="geo-clear-btn" onclick="clearRsnFilter()">✕ مسح الأسباب المختارة</button></span>` : ''}
     </div>
-    <p class="geo-filter-hint">مفيش اختيار = كل الأسباب. السبب اللي مالوش أوردرات في الفترة بيبان باهت ومش قابل للضغط.</p>
-    <div class="geo-chips">${chips}</div>`;
+    <p class="geo-filter-hint">مفيش اختيار = كل الأسباب. السبب اللي مالوش أوردرات في الفترة بيبان باهت ومش قابل للضغط، واللي إطاره متقطّع قيمته برّه قايمة الميتافيلد المقفولة.</p>
+    <div class="geo-filter-chips">${chips}</div>`;
 }
 
-// ─── §REASONS::renderRsnCharts — رسمان أفقيان متراصّان ───
-// 🔴 **أفقي عن قصد** — أسماء الأسباب جمل عربية كاملة («لا يرد نهائي على
-//    المندوب»)، والرسم الرأسي كان هيحتاج ليبل مايل وده ممنوع بقرار أحمد
-//    (02-09-2026)، أو عرض مجموعة ضخم وسكرول أفقي بلا فايدة. المحور الأفقي
-//    بيخلي الليبل يتقرا أفقيًا من غير أي دوران — نفس القاعدة، تنفيذ أنسب.
+// ─── §REASONS::renderRsnCharts — رسمان عموديان متراصّان (v3.20.0) ───
+// 🔴 **عمودي بتلات أعمدة فرعية لكل سبب — طلب أحمد 03-09-2026**، نفس شكل رسمي
+//    تاب المحافظات بالظبط عشان الرسمين هنا يتقروا بنفس عادة القراءة.
+//    الشكل الأفقي القديم (`indexAxis:'y'`) كان بيتفادى دوران الليبل بتغيير
+//    المحور؛ ومع الـ chips (v3.19.0) الليبل بقى عنصر HTML في خانة عرضها
+//    **مقيس** بـ `chipSlotWidth`، يعني السبب الوحيد للأفقي راح.
+//    ⛔ وبرضه صفر دوران وصفر قصّ: العرض بيتوسّع والسكرول الأفقي هو التمن،
+//    والمخرج منه هو **فلتر الأسباب** فوق. (نفس قرار تاب المحافظات بالحرف.)
+// 🔴 **القيمة اتفصّلت على التلات مراحل — مش عمود واحد موحّد.** ده كان مستحيل
+//    قبل v3.20.0 لأن الفاقد بيتحسب على مستوى القطعة ومالوش مرحلة على الصف،
+//    والتوزيع التقديري كان هيبقى رقم مخترع. الحل في `rsnGroups`: تقسيم صفوف
+//    القطع نفسها بالـ orderId على مرحلة أوردرها، وكل خلية بتتحسب بـ
+//    `computeBoxesFromRows` — نفس الدالة، صفر تعريف تاني، والهوية مضمونة.
 // الرسمان بنفس ترتيب الأسباب بالظبط (الرسم التاني بيتقري كـ«نفس الصف بالوحدة
 // التانية») — ترتيب مستقل لكل رسم بيخلي المقارنة الرأسية كذب.
 let rsnCharts = { count: null, value: null };
@@ -6313,8 +6432,13 @@ function renderRsnCharts(groups) {
     return;
   }
 
-  const rows = rsnSortGroups(groups, 'value', 'desc');
-  const H = Math.max(220, rows.length * 34 + 40);
+  const rows   = rsnSortGroups(groups, 'value', 'desc');
+  const labels = rows.map(r => r.label);
+  // 🔴 عرض المجموعة **بيتقاس مابيتكتبش** — أسماء الأسباب جمل عربية كاملة
+  //    («لا يرد نهائي على المندوب») وأطولها بيتغيّر مع أي إضافة في قايمة
+  //    الميتافيلد. ⛔ أي رقم ثابت هنا = قصّ صامت على أول اسم أطول منه.
+  const minW = Math.max(680, rows.length * chipSlotWidth(labels) + 52);
+  const needsScroll = minW > 1180;
   const legend = RSN_STAGE.map(st =>
     `<span class="geo-lg-item"><span class="geo-lg-dot" style="background:${st.colour}"></span>${st.label}</span>`).join('');
 
@@ -6323,109 +6447,47 @@ function renderRsnCharts(groups) {
       <div class="chart-card-hdr"><span class="kpi-icon">📦</span>عدد أوردرات الخسارة لكل سبب</div>
       <div class="chart-card-sub geo-stat-row">
         <span class="geo-stat">🧾 <b>${fmtInt(rows.length)}</b> سبب في الفترة</span>
+        <span class="geo-stat">📦 إجمالي <b>${fmtInt(rows.reduce((a, g) => a + g.orders, 0))}</b> أوردر</span>
         <span class="geo-stat">↓ مرتّبة بقيمة الخسارة تنازليًا — نفس ترتيب الرسم التاني</span>
+        ${needsScroll ? '<span class="geo-stat">↔ مرّر الرسم أفقيًا أو قصّه من فلتر الأسباب فوق</span>' : ''}
       </div>
       <div class="geo-chart-legend">${legend}</div>
-      <div class="rsn-chart-scroll"><div class="chart-plot" style="height:${H}px"><canvas id="rsnCountBar"></canvas><div class="chart-chiprow" id="rsnCountBarChips"></div></div></div>
+      <div class="geo-chart-scroll">
+        <div class="geo-chart-canvas chart-plot" style="min-width:${minW}px"><canvas id="rsnCountBar"></canvas><div class="chart-chiprow" id="rsnCountBarChips"></div></div>
+      </div>
     </div>
     <div class="geo-chart-card">
       <div class="chart-card-hdr"><span class="kpi-icon">💰</span>قيمة الخسارة لكل سبب</div>
       <div class="chart-card-sub geo-stat-row">
-        <span class="geo-stat">💰 إجمالي <b>${fmtMoney(rows.reduce((a, g) => a + g.value, 0))}</b></span>
         <span class="geo-stat">🔁 نفس ترتيب الرسم اللي فوق بالظبط — بالجنيه بدل العدد</span>
+        <span class="geo-stat">💰 إجمالي <b>${fmtMoney(rows.reduce((a, g) => a + g.value, 0))}</b></span>
       </div>
-      <div class="rsn-chart-scroll"><div class="chart-plot" style="height:${H}px"><canvas id="rsnValueBar"></canvas><div class="chart-chiprow" id="rsnValueBarChips"></div></div></div>
+      <div class="geo-chart-legend">${legend}</div>
+      <div class="geo-chart-scroll">
+        <div class="geo-chart-canvas chart-plot" style="min-width:${minW}px"><canvas id="rsnValueBar"></canvas><div class="chart-chiprow" id="rsnValueBarChips"></div></div>
+      </div>
     </div>`;
 
   kill();
-  rsnCharts.count = buildRsnBar('rsnCountBar', rows, true);
-  rsnCharts.value = buildRsnBar('rsnValueBar', rows, false);
+  const pick = { stages: RSN_STAGE, onPick: r => showRsnDetails(r.key) };
+  rsnCharts.count = buildGroupBarChart('rsnCountBar', rows,
+    RSN_STAGE.map(st => RSN_F[st.id].n), fmtInt, geoAxisTick, r => r.orders, pick);
+  rsnCharts.value = buildGroupBarChart('rsnValueBar', rows,
+    RSN_STAGE.map(st => RSN_F[st.id].v), fmtMoney, geoAxisTick, r => r.value, pick);
 }
 
-// stacked أفقي: التلات مراحل جوّه عمود السبب الواحد — بيجاوب على «السبب ده
-// بيحصل في أنهي مرحلة؟» في نفس الرسم بدل رسم تالت.
-function buildRsnBar(canvasId, rows, isCount) {
-  const canvas = document.getElementById(canvasId);
-  // 🐛 v3.17.0 — الحارس ده كان ناقص هنا وحده. Chart.js جاي من CDN، ولو ما اتحمّلش
-  // (شبكة محجوبة · CDN واقع) الرمية بتطلع من renderReasons لـ renderShell —
-  // فالصفحة **كلها** بتفضل فاضية، مش التاب ده بس. باقي رسوم الأداة عليها نفس
-  // الحارس من الأصل؛ ده كان السطر الوحيد الشاذ.
-  if (!canvas || typeof Chart === 'undefined') return null;
-  const fmtFn = isCount ? fmtInt : fmtMoney;
-  const F = { LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' };
-
-  // الرسم أفقي (`indexAxis: 'y'`) فالمحور الفئوي هو `y` — وده الاستثناء
-  // الوحيد اللي بياخد chips بمحور تاني (chart-axis-chips.md §7). أسماء
-  // الأسباب جمل عربية كاملة، فالعمود المحجوز جنب الرسم بيتقاس من أطولها.
-  // ⛔ **من غير أي سقف على عرض العمود.** السقف (جرّبناه ٤٢% من الحاوية) بيقصّ
-  //    الأسماء الطويلة على الشاشات الضيقة — وده بالظبط اللي المهارة شايلاه:
-  //    «ممنوع القص بـ «…» — المجموعة بتتوسّع لحد ما الاسم يدخل». العلاج
-  //    الصح إن **الرسم كله يتوسّع ويتمرّر** (`.rsn-chart-scroll` عليها
-  //    `overflow-x: auto` أصلاً)، مش إن الاسم يتقص.
-  //    القياس: على ٣٧٥px السقف كان بيقصّ ٢ من ٣ chips؛ بعد شيله = صفر قصّ.
-  const labels = rows.map(r => r.label);
-  const slotW  = chipSlotWidth(labels);
-  // أقل عرض للرسم = عمود الأسماء + مساحة أعمدة معقولة. تحته الحاوية بتمرّر
-  // أفقيًا بدل ما العمود ياكل الرسم اللي هو أصلاً البيانات.
-  if (canvas.parentElement) canvas.parentElement.style.minWidth = (slotW + 320) + 'px';
-
-  return new Chart(canvas.getContext('2d'), {
-    type: 'bar',
-    plugins: [makeAxisChipsPlugin(labels, canvasId + 'Chips', { axis: 'y', slotW })],
-    data: {
-      labels,
-      datasets: isCount
-        ? RSN_STAGE.map(st => ({
-            label: st.label, data: rows.map(r => r[F[st.id]]),
-            backgroundColor: st.colour, borderRadius: 3, maxBarThickness: 26,
-          }))
-        // بالقيمة: الفاقد بيتحسب على مستوى القطعة فمالوش تفصيل بالمرحلة —
-        // عمود واحد موحّد أصدق من توزيع تقديري على التلاتة، ولونه أحمر
-        // «قيمة الخسارة» نفسه المستخدم في الجدول وفي كروت التاب.
-        : [{ label: 'قيمة الخسارة', data: rows.map(r => r.value),
-             backgroundColor: cssVar('--red'),
-             borderRadius: 3, maxBarThickness: 26 }],
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true, maintainAspectRatio: false,
-      // العمود المحجوز للـ chips على الشمال — الحاوية `direction: ltr`
-      // والمحور الفئوي مكانه هناك.
-      layout: { padding: { left: slotW } },
-      interaction: { mode: 'index', intersect: false },
-      scales: {
-        x: { stacked: isCount, beginAtZero: true, grid: { color: cssVar('--chart-grid') },
-             ticks: { callback: v => geoAxisTick(v) } },
-        // ⛔ مفيش أي دوران على الليبلات — المحور الأفقي بيخليها أفقية أصلاً.
-        y: { stacked: isCount, grid: { display: false },
-             ticks: { display: false } },
-      },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          rtl: true,
-          callbacks: {
-            label: (ctx) => {
-              const g = rows[ctx.dataIndex];
-              const tot = isCount ? g.orders : g.value;
-              const pct = tot ? (ctx.parsed.x / tot) * 100 : 0;
-              return ` ${ctx.dataset.label}: ${fmtFn(ctx.parsed.x)}${isCount ? ` (${pct.toFixed(1)}%)` : ''}`;
-            },
-            footer: (items) => {
-              if (!items.length) return '';
-              const g = rows[items[0].dataIndex];
-              return isCount ? `الإجمالي: ${fmtInt(g.orders)} أوردر · ${fmtMoney(g.value)}`
-                             : `${fmtInt(g.orders)} أوردر · متوسط ${fmtMoney(g.avg)}`;
-            },
-          },
-        },
-      },
-      onClick: (evt, els) => { const r = els.length && rows[els[0].index]; if (r) showRsnDetails(r.key); },
-    },
-  });
-}
-
-// ─── §REASONS::renderRsnTable ───
+// ─── §REASONS::renderRsnTable — نفس هيكل جدول المحافظات (v3.20.0) ───
+// 🔴 **الجدول اتوحّد مع جدول المحافظات** (طلب أحمد 03-09-2026): مجموعتا أعمدة
+//    (📦 عدد الأوردرات · 💰 قيمة الخسارة)، كل مجموعة فيها الإجمالي + التلات
+//    مراحل، والنسبة تحت كل رقم من إجمالي **نفس الصف** — فالتلاتة بيجمعوا
+//    100% في كل مجموعة. الشكل ده هو اللي المستخدم اتعوّد عليه في تابين تانيين،
+//    وجدول بشكل تالت لنفس نوع البيانات بيخلي كل تاب يتعلّم من الأول.
+// 🔴 **البادجات اتشالت من الصف** (`قيمة برّه القايمة` · `حقل مختلف: N`):
+//    الاتنين **تشخيص** مش بيحرّك أي رقم، ومكانهم قسم «جودة البيانات» تحت —
+//    وهو بيعدّهم أصلاً من الصفوف مباشرةً، فمفيش أي إشارة اتفقدت. وجودهم في
+//    عمود «السبب» كان بيزحلق الأعمدة الرقمية ويخلط تنبيه إدخال ببيانات.
+//    ⚠️ القيمة برّه القايمة لسه **بتتعرض خام** في الصف — ده اللي القاعدة
+//    بتفرضه (زي `PROVINCE_AR`)، والبادج كان زيادة مش شرط.
 function renderRsnTable(groups, totals) {
   const el = document.getElementById('rsnTable');
   if (!el) return;
@@ -6437,31 +6499,51 @@ function renderRsnTable(groups, totals) {
   const sorted = rsnSortGroups(groups, state.rsnSortKey, state.rsnSortDir);
   const arrow = k => state.rsnSortKey !== k ? '' :
     `<span class="geo-sort-arrow">${state.rsnSortDir === 'desc' ? '▼' : '▲'}</span>`;
-  const th = (k, label, hint, cls) =>
-    `<th class="${cls || ''} geo-sortable${state.rsnSortKey === k ? ' is-sorted' : ''}" title="${esc(hint || label)}" onclick="setRsnSort('${k}')">${label}${arrow(k)}</th>`;
+  const th = (k, label, hint, cls, extra) =>
+    `<th class="${cls || ''} geo-sortable${state.rsnSortKey === k ? ' is-sorted' : ''}" ${extra || ''} title="${esc(hint || label)}" onclick="setRsnSort('${k}')">${label}${arrow(k)}</th>`;
 
-  const bar = (pctVal, colour) =>
-    `<div class="geo-stat-bar"><div class="geo-stat-bar-fill" style="width:${Math.min(Math.max(pctVal, 0), 100).toFixed(1)}%;background:${colour}"></div></div>`;
+  // نفس دوال خلايا جدول المحافظات بالحرف (v3.14.0): الرقم فوق، الشريط في
+  // النص بطول = نفس النسبة المكتوبة تحته، والنسبة تحت خالص.
+  const statBar = (pctVal, cls) =>
+    `<div class="geo-stat-bar"><div class="geo-stat-bar-fill ${cls || ''}" style="width:${Math.min(Math.max(pctVal, 0), 100).toFixed(1)}%"></div></div>`;
+  const cell = (n, pctVal, cls, sep) =>
+    `<td class="col-num${sep ? ' geo-sep' : ''}"><span class="geo-n ${cls || ''}">${fmtInt(n)}</span>${statBar(pctVal, cls)}<span class="geo-pct">${fmtPct(pctVal)}</span></td>`;
+  const mCell = (v, pctVal, cls, sep) =>
+    `<td class="col-num${sep ? ' geo-sep' : ''}"><span class="geo-n ${cls || ''}">${fmtMoney(v)}</span>${statBar(pctVal, cls)}<span class="geo-pct">${fmtPct(pctVal)}</span></td>`;
+
+  // عمود «النسبة» = نصيب السبب من إجمالي قيمة الخسارة المعروضة — نفس دور
+  // العمود في جدول المحافظات (نصيب من إجمالي التسليمات بالقيمة).
+  // ⚠️ ترتيبه مطابق حرفيًا لعمود «قيمة الخسارة · إجمالي»، فمالوش زرار ترتيب
+  //    لوحده (نفس سبب جدول المحافظات).
+  const shareOf = g => totals.value ? (g.value / totals.value) * 100 : 0;
 
   const body = sorted.map(g => {
     const active = state.rsnDetails.key === g.key ? ' geo-row-active' : '';
-    const pctN = totals.orders ? (g.orders / totals.orders) * 100 : 0;
-    const pctV = totals.value  ? (g.value  / totals.value)  * 100 : 0;
-    const stages = RSN_STAGE.filter(st => g[{ LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' }[st.id]] > 0)
-      .map(st => `<span class="rsn-stage-pill" style="color:${st.colour}">${st.icon} ${fmtInt(g[{ LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' }[st.id]])}</span>`).join(' ');
+    const pN = n => g.orders ? (n / g.orders) * 100 : 0;
+    const pV = v => g.value  ? (v / g.value)  * 100 : 0;
     return `
     <tr class="${active}" onclick="showRsnDetails(${JSON.stringify(g.key).replace(/"/g, '&quot;')})">
-      <td class="geo-name">${esc(g.label)}${g.isUnlisted ? '<span class="note-pill">قيمة برّه القايمة</span>' : ''}${g.mismatched ? `<span class="rsn-mm-pill" title="سبب متكتب في حقل غير المتوقع لدلوه — تشخيص بس، مش بيغيّر أي رقم">حقل مختلف: ${fmtInt(g.mismatched)}</span>` : ''}</td>
-      <td class="col-num">${stages || '—'}</td>
-      <td class="col-num geo-sep"><span class="geo-n">${fmtInt(g.orders)}</span>${bar(pctN, 'var(--red)')}<span class="geo-pct">${fmtPct(pctN)}</span></td>
-      <td class="col-num"><span class="geo-n clr-red">${fmtMoney(g.value)}</span>${bar(pctV, 'var(--red)')}<span class="geo-pct">${fmtPct(pctV)}</span></td>
+      <td class="geo-name">${esc(g.label)}</td>
+      <td class="col-num">
+        <div class="geo-share"><div class="geo-share-fill" style="width:${Math.min(shareOf(g), 100).toFixed(1)}%"></div></div>
+        <span class="geo-pct">${fmtPct(shareOf(g))}</span>
+      </td>
+      <td class="col-num geo-strong geo-sep">${fmtInt(g.orders)}</td>
+      ${RSN_STAGE.map(st => cell(g[RSN_F[st.id].n], pN(g[RSN_F[st.id].n]), RSN_F[st.id].cls)).join('')}
+      <td class="col-num geo-strong clr-red geo-sep">${fmtMoney(g.value)}</td>
+      ${RSN_STAGE.map(st => mCell(g[RSN_F[st.id].v], pV(g[RSN_F[st.id].v]), RSN_F[st.id].cls)).join('')}
       <td class="col-num geo-strong">${fmtMoney(g.avg)}</td>
     </tr>`;
   }).join('');
 
+  const tN = n => totals.orders ? (n / totals.orders) * 100 : 0;
+  const tV = v => totals.value  ? (v / totals.value)  * 100 : 0;
+
   el.innerHTML = `
     <div class="geo-table-note">
       اضغط على أي عمود للترتيب بيه · اضغط على أي صف لعرض أوردراته تحت.
+      كل مجموعة أعمدة بتجمع <b>الإجمالي</b> بتاعها بالظبط (إلغاء قبل الشحن + مرتجع رفض الاستلام + مرتجع كامل بعد الاستلام)،
+      والنسبة تحت كل رقم من إجمالي <b>نفس الصف</b>.
       <b>العدد</b> بيطابق كارت «إلغاءات ومرتجعات» في تاب الأوردرات بالظبط لما يكون مفيش فلتر شغّال.
       ⚠️ <b>القيمة</b> هي فاقد الأوردرات دي وحدها، فهي <b>أقل</b> من كارت «إلغاءات ومرتجعات» في تاب المبيعات —
       الكارت ده بيعدّ كمان فاقد جوّه أوردرات <b>اتسلّمت</b> (محذوف قبل الشحن · مرتجع استبدال)، وهي مش خسارة على مستوى الأوردر.
@@ -6470,19 +6552,30 @@ function renderRsnTable(groups, totals) {
       <table class="details-table geo-table">
         <thead>
           <tr>
-            <th class="geo-name-th">السبب</th>
-            <th>المرحلة</th>
-            ${th('orders', 'عدد الأوردرات', 'عدد أوردرات الخسارة اللي عليها السبب ده', 'geo-sep')}
-            ${th('value',  'قيمة الخسارة (ج.م)', 'فاقد القطع في الأوردرات دي — محسوب بنفس دالة تاب المبيعات')}
-            ${th('avg',    'متوسط الأوردر', 'قيمة الخسارة ÷ عدد الأوردرات — السبب النادر ممكن يبقى الأغلى')}
+            <th class="geo-name-th" rowspan="2">السبب</th>
+            <th rowspan="2" title="نصيب السبب من إجمالي قيمة الخسارة المعروضة — الترتيب بيه مطابق حرفيًا لعمود «قيمة الخسارة · إجمالي»، فمالوش زرار ترتيب لوحده">النسبة</th>
+            <th class="geo-grp geo-grp-orders geo-sep" colspan="4">📦 عدد الأوردرات</th>
+            <th class="geo-grp geo-grp-money geo-sep" colspan="4">💰 قيمة الخسارة (ج.م)</th>
+            ${th('avg', 'متوسط الأوردر', 'قيمة الخسارة ÷ عدد الأوردرات — السبب النادر ممكن يبقى الأغلى', '', 'rowspan="2"')}
+          </tr>
+          <tr>
+            ${th('orders', 'إجمالي', 'عدد أوردرات الخسارة اللي عليها السبب ده', 'geo-sep')}
+            ${RSN_STAGE.map(st => th(RSN_F[st.id].n, `${st.icon} ${st.label}`,
+                `عدد أوردرات السبب ده اللي دلوها ${st.label} (${st.id}) — الدلو من محرّك التصنيف، مش من الميتافيلد`)).join('')}
+            ${th('value', 'إجمالي', 'فاقد القطع في الأوردرات دي — محسوب بنفس دالة تاب المبيعات', 'geo-sep')}
+            ${RSN_STAGE.map(st => th(RSN_F[st.id].v, `${st.icon} ${st.label}`,
+                `فاقد القطع جوّه أوردرات السبب ده اللي دلوها ${st.label} — نفس الدالة على صفوف القطع بتاعة الأوردرات دي وحدها`)).join('')}
           </tr>
         </thead>
         <tbody>${body}</tbody>
         <tfoot>
           <tr class="geo-total-row">
-            <td class="geo-name">الإجمالي</td><td class="col-num">—</td>
+            <td class="geo-name">الإجمالي</td>
+            <td class="col-num"><span class="geo-pct">100.0%</span></td>
             <td class="col-num geo-strong geo-sep">${fmtInt(totals.orders)}</td>
-            <td class="col-num geo-strong clr-red">${fmtMoney(totals.value)}</td>
+            ${RSN_STAGE.map(st => cell(totals[RSN_F[st.id].n], tN(totals[RSN_F[st.id].n]), RSN_F[st.id].cls)).join('')}
+            <td class="col-num geo-strong clr-red geo-sep">${fmtMoney(totals.value)}</td>
+            ${RSN_STAGE.map(st => mCell(totals[RSN_F[st.id].v], tV(totals[RSN_F[st.id].v]), RSN_F[st.id].cls)).join('')}
             <td class="col-num geo-strong">${fmtMoney(totals.orders ? totals.value / totals.orders : 0)}</td>
           </tr>
         </tfoot>
@@ -6496,7 +6589,7 @@ function renderRsnMatrix(groups, totals) {
   if (!el) return;
   if (!groups.length) { el.innerHTML = `<div class="details-empty">مفيش بيانات في الفترة المختارة.</div>`; return; }
 
-  const F = { LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' };
+  const F = Object.fromEntries(RSN_STAGE_IDS.map(id => [id, RSN_F[id].n]));
   const sorted = rsnSortGroups(groups, 'orders', 'desc');
   const maxCell = Math.max(1, ...sorted.flatMap(g => RSN_STAGE_IDS.map(id => g[F[id]])));
 
@@ -6536,10 +6629,15 @@ function renderRsnMatrix(groups, totals) {
 }
 
 // ─── §REASONS::renderRsnGeo — الأسباب × المحافظة/المنطقة ───
-// 🔴 **التطبيع إجباري.** لو الخلية عرضت العدد الخام، القاهرة هتتصدّر كل سبب
-//    وكل جدول **لأنها أكبر** مش لأن عندها مشكلة. فالعمود الحاسم هو **معدل
-//    الخسارة داخل المجموعة** (الإلغاءات والمرتجعات ÷ إجمالي أوردرات المجموعة)، والمؤشر =
-//    معدل المجموعة ÷ المعدل العام.
+// 🔴 **التطبيع إجباري.** لو الجدول وقف عند العدد الخام، القاهرة هتتصدّر كل
+//    صف **لأنها أكبر** مش لأن عندها مشكلة. فالعمودان الحاسمان هما **معدل
+//    الخسارة داخل المجموعة** (الإلغاءات والمرتجعات ÷ إجمالي أوردرات المجموعة)
+//    و**المؤشر** (معدل المجموعة ÷ المعدل العام) — ⛔ وممنوع شيلهم أو الاكتفاء
+//    بالعدد مهما اتوسّع الجدول.
+// ⚠️ v3.20.0 — الجدول اتوحّد مع جدول الأسباب فوق (طلب أحمد): مجموعتا أعمدة
+//    (📦 عدد · 💰 قيمة) وكل مجموعة فيها الإجمالي + التلات مراحل، وعمود
+//    «النسبة». التوسيع ده **مابيلغيش** التطبيع — الأعمدة الخام بتقول
+//    «إيه اللي بيحصل»، والمعدل والمؤشر بيقولوا «فين المشكلة فعلًا».
 // ⚠️ البُعد بيتبدّل بمفتاح (محافظة/منطقة) مش تابين: هنا البُعد الأساسي هو
 //    **السبب** والجغرافيا تفصيل تحته — قرار v3.13.0 كان بيخص بُعدين مستقلين
 //    بنفس الأهمية، ودي مش نفس الحالة.
@@ -6559,68 +6657,149 @@ function renderRsnGeo() {
   const totalBy = new Map();   // key → إجمالي أوردرات المجموعة (كل الحالات)
   all.forEach(r => { const k = keyOf(r); totalBy.set(k, (totalBy.get(k) || 0) + 1); });
 
-  const lossBy   = new Map();  // key → أوردرات الخسارة
-  const reasonBy = new Map();  // key → Map(reason → n)
+  const lossBy     = new Map();  // key → أوردرات الخسارة
+  const cntBy      = new Map();  // key → { bucket → n }
+  const reasonBy   = new Map();  // key → Map(reason → n)
+  const geoByOrd   = new Map();  // orderId → key
+  const stageByOrd = new Map();  // orderId → bucket
   loss.forEach(r => {
-    const k = keyOf(r);
+    const k  = keyOf(r);
+    const id = String(r.orderId);
+    geoByOrd.set(id, k);
+    stageByOrd.set(id, r.bucket);
     lossBy.set(k, (lossBy.get(k) || 0) + 1);
+    const c = cntBy.get(k) || {}; c[r.bucket] = (c[r.bucket] || 0) + 1; cntBy.set(k, c);
     const m = reasonBy.get(k) || new Map();
     const rk = rsnKeyOf(r);
     m.set(rk, (m.get(rk) || 0) + 1);
     reasonBy.set(k, m);
   });
 
+  // القيمة: صفوف القطع بتاعة **نفس** أوردرات الخسارة دي، مقسّمة بالمجموعة
+  // وبالخلية (مجموعة × مرحلة) — وكل خلية بتتحسب بـ `computeBoxesFromRows`
+  // زي أي رقم فلوس تاني في الأداة. ⛔ صفر تعريف تاني لـ«قيمة الخسارة».
+  const pieceByKey  = new Map();
+  const pieceByCell = new Map();
+  (state.rows || []).forEach(r => {
+    const id = String(r.orderId);
+    const k  = geoByOrd.get(id);
+    if (k === undefined) return;
+    const a = pieceByKey.get(k); if (a) a.push(r); else pieceByKey.set(k, [r]);
+    const ck = k + '|' + stageByOrd.get(id);
+    const b = pieceByCell.get(ck); if (b) b.push(r); else pieceByCell.set(ck, [r]);
+  });
+  const lostOf = arr => computeBoxesFromRows(arr || [], 'value').lost;
+
   const overall = all.length ? (loss.length / all.length) * 100 : 0;
 
   const rows = [...totalBy.keys()].map(k => {
     const tot  = totalBy.get(k) || 0;
     const ls   = lossBy.get(k) || 0;
+    const c    = cntBy.get(k) || {};
     const rate = tot ? (ls / tot) * 100 : 0;
     const top  = [...(reasonBy.get(k) || new Map()).entries()].sort((a, b) => b[1] - a[1])[0] || null;
-    return { key: k, label: lbl(k), tot, ls, rate,
-             idx: overall ? rate / overall : 0,
-             topLabel: top ? rsnLabel(top[0]) : null, topN: top ? top[1] : 0,
-             enough: tot >= RSN_MIN_SAMPLE };
+    const row  = { key: k, label: lbl(k), tot, ls, rate,
+                   idx: overall ? rate / overall : 0,
+                   value: lostOf(pieceByKey.get(k)),
+                   topLabel: top ? rsnLabel(top[0]) : null, topN: top ? top[1] : 0,
+                   enough: tot >= RSN_MIN_SAMPLE };
+    RSN_STAGE.forEach(st => {
+      row[RSN_F[st.id].n] = c[st.id] || 0;
+      row[RSN_F[st.id].v] = lostOf(pieceByCell.get(k + '|' + st.id));
+    });
+    return row;
   }).sort((a, b) => (b.ls - a.ls) || (b.tot - a.tot) || a.label.localeCompare(b.label, 'ar'));
 
-  const body = rows.map(r => `
+  const SUMS = ['tot', 'ls', 'value', ...RSN_STAGE.flatMap(st => [RSN_F[st.id].n, RSN_F[st.id].v])];
+  const T = rows.reduce((t, r) => { SUMS.forEach(k => t[k] += r[k]); return t; },
+                        Object.fromEntries(SUMS.map(k => [k, 0])));
+
+  const statBar = (pctVal, cls) =>
+    `<div class="geo-stat-bar"><div class="geo-stat-bar-fill ${cls || ''}" style="width:${Math.min(Math.max(pctVal, 0), 100).toFixed(1)}%"></div></div>`;
+  const cell = (n, pctVal, cls, sep) =>
+    `<td class="col-num${sep ? ' geo-sep' : ''}"><span class="geo-n ${cls || ''}">${fmtInt(n)}</span>${statBar(pctVal, cls)}<span class="geo-pct">${fmtPct(pctVal)}</span></td>`;
+  const mCell = (v, pctVal, cls, sep) =>
+    `<td class="col-num${sep ? ' geo-sep' : ''}"><span class="geo-n ${cls || ''}">${fmtMoney(v)}</span>${statBar(pctVal, cls)}<span class="geo-pct">${fmtPct(pctVal)}</span></td>`;
+
+  const shareOf = r => T.value ? (r.value / T.value) * 100 : 0;
+
+  const body = rows.map(r => {
+    const pN = n => r.ls    ? (n / r.ls)    * 100 : 0;
+    const pV = v => r.value ? (v / r.value) * 100 : 0;
+    return `
     <tr style="${r.enough ? '' : 'opacity:.5'}">
       <td class="geo-name">${esc(r.label)}</td>
-      <td class="col-num">${fmtInt(r.tot)}</td>
-      <td class="col-num geo-strong clr-red">${fmtInt(r.ls)}</td>
       <td class="col-num">
-        <span class="geo-n">${fmtPct(r.rate)}</span>
-        <div class="geo-stat-bar"><div class="geo-stat-bar-fill" style="width:${Math.min(r.rate, 100).toFixed(1)}%;background:var(--red)"></div></div>
+        <div class="geo-share"><div class="geo-share-fill" style="width:${Math.min(shareOf(r), 100).toFixed(1)}%"></div></div>
+        <span class="geo-pct">${fmtPct(shareOf(r))}</span>
+      </td>
+      <td class="col-num geo-strong">${fmtInt(r.tot)}</td>
+      <td class="col-num geo-strong clr-red geo-sep">${fmtInt(r.ls)}</td>
+      ${RSN_STAGE.map(st => cell(r[RSN_F[st.id].n], pN(r[RSN_F[st.id].n]), RSN_F[st.id].cls)).join('')}
+      <td class="col-num geo-strong clr-red geo-sep">${fmtMoney(r.value)}</td>
+      ${RSN_STAGE.map(st => mCell(r[RSN_F[st.id].v], pV(r[RSN_F[st.id].v]), RSN_F[st.id].cls)).join('')}
+      <td class="col-num geo-sep">
+        <span class="geo-n">${fmtPct(r.rate)}</span>${statBar(r.rate, 'clr-red')}
       </td>
       <td class="col-num">${r.enough
         ? `<b style="color:${r.idx >= 1.5 ? 'var(--red)' : 'inherit'}">${r.idx.toFixed(2)}</b>`
         : `<span class="geo-pct">— عيّنة أقل من ${fmtInt(RSN_MIN_SAMPLE)}</span>`}</td>
       <td>${r.topLabel ? `${esc(r.topLabel)} <span class="geo-pct">(${fmtInt(r.topN)})</span>` : '—'}</td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
+
+  const tN = n => T.ls    ? (n / T.ls)    * 100 : 0;
+  const tV = v => T.value ? (v / T.value) * 100 : 0;
 
   el.innerHTML = `
     <div class="geo-table-note">
       <div class="rsn-toolbar">
         <span style="font-size:12.5px;font-weight:700">البُعد:</span>
-        <button class="rsn-dim-btn${dim === 'prov' ? ' is-on' : ''}" onclick="setRsnDim('prov')">🗺️ المحافظة</button>
+        <button class="rsn-dim-btn${dim === 'prov' ? ' is-on' : ''}" onclick="setRsnDim('prov')">🌍 المحافظة</button>
         <button class="rsn-dim-btn${dim === 'zone' ? ' is-on' : ''}" onclick="setRsnDim('zone')">🚚 المنطقة</button>
       </div>
-      🔴 <b>الأرقام مطبّعة عن قصد.</b> العدد الخام بيخلي أكبر محافظة تتصدّر كل صف <b>لأنها أكبر</b> مش لأن عندها مشكلة —
+      نفس تقسيمة جدول الأسباب فوق: مجموعتا أعمدة (عدد · قيمة)، كل مجموعة بتجمع <b>الإجمالي</b> بتاعها بالظبط،
+      والنسبة تحت كل رقم من إجمالي <b>نفس الصف</b>.
+      🔴 <b>لكن الحكم مش من الخام.</b> العدد الخام بيخلي أكبر محافظة تتصدّر كل صف <b>لأنها أكبر</b> مش لأن عندها مشكلة —
       فالعمود الحاسم هو <b>معدل الخسارة</b> (الإلغاءات والمرتجعات ÷ إجمالي أوردرات المجموعة)، و<b>المؤشر</b> = معدل المجموعة ÷ المعدل العام
       (<span class="mono">${overall.toFixed(1)}%</span>). مؤشر أعلى من <b>1.50</b> = إشارة تستاهل مراجعة.
       الصف اللي عيّنته أقل من ${fmtInt(RSN_MIN_SAMPLE)} أوردر بيبان باهت وبلا مؤشر — مش بيتخفي.
     </div>
     <div class="details-scroll">
       <table class="details-table geo-table">
-        <thead><tr>
-          <th class="geo-name-th">${dim === 'zone' ? 'المنطقة' : 'المحافظة'}</th>
-          <th title="كل أوردرات المجموعة في الفترة، بكل حالاتها">إجمالي الأوردرات</th>
-          <th title="أوردرات الإلغاء/المرتجع بعد فلتر الأسباب الحالي">إلغاءات ومرتجعات</th>
-          <th title="الإلغاءات والمرتجعات ÷ إجمالي أوردرات المجموعة">معدل الخسارة</th>
-          <th title="معدل المجموعة ÷ المعدل العام — فوق 1.5 يعني تركّز حقيقي">المؤشر</th>
-          <th>أعلى سبب في المجموعة</th>
-        </tr></thead>
+        <thead>
+          <tr>
+            <th class="geo-name-th" rowspan="2">${dim === 'zone' ? 'المنطقة' : 'المحافظة'}</th>
+            <th rowspan="2" title="نصيب المجموعة من إجمالي قيمة الخسارة في الجدول ده">النسبة</th>
+            <th rowspan="2" title="كل أوردرات المجموعة في الفترة، بكل حالاتها — مقام معدل الخسارة">إجمالي الأوردرات</th>
+            <th class="geo-grp geo-grp-orders geo-sep" colspan="4">📦 عدد الإلغاءات والمرتجعات</th>
+            <th class="geo-grp geo-grp-money geo-sep" colspan="4">💰 قيمة الخسارة (ج.م)</th>
+            <th class="geo-sep" rowspan="2" title="الإلغاءات والمرتجعات ÷ إجمالي أوردرات المجموعة">معدل الخسارة</th>
+            <th rowspan="2" title="معدل المجموعة ÷ المعدل العام — فوق 1.5 يعني تركّز حقيقي">المؤشر</th>
+            <th rowspan="2">أعلى سبب في المجموعة</th>
+          </tr>
+          <tr>
+            <th class="geo-sep" title="أوردرات الإلغاء/المرتجع في المجموعة بعد فلتر الأسباب الحالي">إجمالي</th>
+            ${RSN_STAGE.map(st => `<th title="${esc(st.label)} (${st.id}) — الدلو من محرّك التصنيف، مش من الميتافيلد">${st.icon} ${esc(st.label)}</th>`).join('')}
+            <th class="geo-sep" title="فاقد القطع جوّه أوردرات الخسارة بتاعة المجموعة — محسوب بنفس دالة تاب المبيعات">إجمالي</th>
+            ${RSN_STAGE.map(st => `<th title="فاقد القطع جوّه أوردرات المجموعة اللي دلوها ${esc(st.label)}">${st.icon} ${esc(st.label)}</th>`).join('')}
+          </tr>
+        </thead>
         <tbody>${body}</tbody>
+        <tfoot>
+          <tr class="geo-total-row">
+            <td class="geo-name">الإجمالي</td>
+            <td class="col-num"><span class="geo-pct">100.0%</span></td>
+            <td class="col-num geo-strong">${fmtInt(T.tot)}</td>
+            <td class="col-num geo-strong clr-red geo-sep">${fmtInt(T.ls)}</td>
+            ${RSN_STAGE.map(st => cell(T[RSN_F[st.id].n], tN(T[RSN_F[st.id].n]), RSN_F[st.id].cls)).join('')}
+            <td class="col-num geo-strong clr-red geo-sep">${fmtMoney(T.value)}</td>
+            ${RSN_STAGE.map(st => mCell(T[RSN_F[st.id].v], tV(T[RSN_F[st.id].v]), RSN_F[st.id].cls)).join('')}
+            <td class="col-num geo-strong geo-sep"><span class="geo-n">${fmtPct(overall)}</span>${statBar(overall, 'clr-red')}</td>
+            <td class="col-num geo-strong">1.00</td>
+            <td>—</td>
+          </tr>
+        </tfoot>
       </table>
     </div>`;
 }
