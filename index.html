@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<!-- skills: html-builder v6.0.0 · dashboard-builder v3.1.0 · order-lifecycle v1.2.0 · constants v1.4.3 — 01-09-2026 -->
+<!-- skills: html-builder v6.3.0 · dashboard-builder v3.3.0 · order-lifecycle v1.2.0 · constants v1.4.3 — 03-09-2026 -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>لوحة الأداء — EcomModa</title>
@@ -22,6 +22,10 @@
     --text-primary:   #111827;
     --text-secondary: #6b7280;
     --text-muted:     #6b7280;
+    /* بين primary و secondary — ليبلات محاور الرسوم (html-builder v6.3.0 · #37).
+       التوكن ده شرط تشغيل كلاس .axis-chip: من غيره var() بتبقى فاضية
+       واللون بيتوارث من الأب بدل ما يغلط — يعني العطل بيعدّي بلا رسالة. */
+    --text-mid:       #374151;
     --accent:         #2563eb;
     --accent-light:   #eff6ff;
     --accent-dark:    #1d4ed8;
@@ -425,7 +429,40 @@
   .chart-card-sub { font-size: 11px; color: var(--text-muted); margin-bottom: 12px; }
   .chart-card-body { display: flex; align-items: center; gap: 16px; flex: 1; flex-wrap: wrap; }
   .chart-canvas-wrap { position: relative; width: 190px; height: 190px; flex-shrink: 0; margin: 0 auto; }
-  .chart-canvas-wrap.bar-wrap { width: 100%; height: 230px; }
+  /* الارتفاع زاد عن 230px عشان صف الـ chips المحجوز تحت منطقة الرسم
+     (`layout.padding.bottom`) — من غير الزيادة الرسم نفسه هو اللي
+     بيتقلّص. الحاوية بقت `.chart-scroller` لأن أطول اسم هو اللي
+     بيفرض عرض الخانة، وده ممكن يعدّي عرض الكارت. */
+  .chart-scroller.bar-wrap { width: 100%; height: 288px; }
+
+  /* ─── §STYLES::axis-chips (html-builder v6.3.0 · Standards #37) ───
+     ليبلات المحور الفئوي بقت عناصر HTML فوق الكانفس بدل نص مرسوم عليه.
+     ⚠️ `.chart-chiprow` من **غير** `position` عن قصد: أول ما تاخد
+     `position: relative` تبقى هي مرجع تموضع الـ chips بدل `.chart-plot`،
+     وهي نفسها تحت الكانفس — فالـ chips بتنزل تحت الرسم بارتفاع الكانفس
+     كامل. (الخطأ رقم ١ في `chart-axis-chips.md` §5.) */
+  /* ⚠️ `direction: ltr` زي `.geo-chart-scroll` و`.rsn-chart-scroll` بالظبط:
+     الصفحة RTL، وحاوية RTL بتفتح مسكرولة على أقصى اليمين — يعني أول
+     مشهد يبقى **آخر** عمود بدل الأول. Chart.js بيرسم index 0 على الشمال. */
+  .chart-scroller { overflow-x: auto; overflow-y: hidden; padding-bottom: 6px; direction: ltr; }
+  .chart-plot     { position: relative; }
+  .chart-plot canvas { display: block; }
+  .chart-chiprow  { height: 0; }
+
+  .axis-chip {
+    position: absolute; box-sizing: border-box;
+    text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-family: var(--font-mono);
+    font-size: 15px; font-weight: 600;
+    color: var(--text-mid);
+    background: var(--surface-2);
+    border: 3px solid var(--border-strong);
+    border-radius: 999px;
+    padding: 4px 10px;
+  }
+  /* الأفقي (indexAxis:'y'): نفس المواصفة، بس الارتفاع مربوط بعرض الشريحة
+     فالحشو الرأسي بيتحسب من الخانة مش ثابت. → chart-axis-chips.md §7 */
+  .axis-chip.is-y { padding: 2px 10px; display: flex; align-items: center; justify-content: center; }
   .chart-legend { flex: 1; min-width: 180px; display: flex; flex-direction: column; gap: 7px; }
   .chart-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; cursor: pointer; padding: 3px 5px; border-radius: 6px; transition: background .12s; }
   .chart-legend-item:hover { background: var(--surface-2); }
@@ -782,7 +819,9 @@
      الفاضية والمحور مقصوص برّه الشاشة. الليبلات جوّه الرسم عربية وبتترسم صح
      في الحالتين. */
   .geo-chart-scroll { overflow-x: auto; overflow-y: hidden; direction: ltr; }
-  .geo-chart-canvas { position: relative; height: 340px; width: 100%; }
+  /* 340 → 388: الزيادة هي صف الـ chips المحجوز تحت منطقة الرسم
+     (`layout.padding.bottom`). من غيرها الرسم نفسه هو اللي بيتقلّص. */
+  .geo-chart-canvas { position: relative; height: 388px; width: 100%; }
   .geo-chart-legend { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; margin: 2px 0 12px; font-size: 12px; font-weight: 700; }
   .geo-chart-legend .geo-lg-item { display: inline-flex; align-items: center; gap: 6px; }
   .geo-chart-legend .geo-lg-dot { width: 11px; height: 11px; border-radius: 3px; display: inline-block; }
@@ -1267,6 +1306,14 @@
     <div class="eco-modal-body">
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">03-09-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>أسماء المحاور في كل الرسوم بقت «chips» بدل نص مرسوم على الرسم</b> — الاسم كان <b>10px بوزن عادي</b>، يعني مفتاح قراءة الرسم كله كان أصغر عنصر في الشاشة. بقى <b>15px بوزن أعرض</b> في إطار دائري بخلفية فاتحة، وخانة كل مجموعة بتتوسّع لحد ما أطول اسم يدخل من غير قص ولا تدوير — والرسم بيتمرّر أفقيًا لو احتاج.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>لون وخط الرسوم بقوا من نظام التصميم</b> — لون أسماء المحاور كان <code>#666</code> جاي من إعداد Chart.js الافتراضي، يعني <b>لون مش موجود في بالتة الأداة أصلًا</b>، واسم الخط كان مكتوب حرفيًا في <b>١١ موضع</b>. دلوقتي الاتنين بيتقروا من التوكنز <b>مرة واحدة</b> — فأي تغيير في النظام بيوصل كل الرسوم لوحده بدل ما تفضل على القديم.</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>عرض خانة المحافظة/المنطقة بقى مقيس بدل رقم ثابت</b> — كان <code>70px</code> للمحافظة و<code>120px</code> للمنطقة، مقيسين على الخط القديم الصغير. مع الاسم الأكبر الرقمين دول بقوا أضيق من الاسم نفسه — يعني <b>قصّ صامت</b>. العرض دلوقتي بيتقاس من أطول اسم فعلًا، فأي اسم جديد بيوسّع الخانة لوحده.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.18.0</span><span class="cl-ver-date">03-09-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>كارت لكل نوع فرعي في تاب «الإلغاءات والمرتجعات»</b> — <b>إلغاء قبل الشحن</b> · <b>مرتجع رفض الاستلام</b> · <b>مرتجع كامل بعد الاستلام</b>، كل كارت مقسوم مربّعين (<b>عدد</b> | <b>قيمة</b>) وتحت كل مربّع نسبته من الإجمالي. النسبتان مقامهما مختلف عن قصد (العدد من العدد والقيمة من القيمة) — نسبة واحدة للاتنين كانت هتبقى مبهمة، والفرق بينهم هو اللي بيبيّن النوع اللي أوردراته كتير وقيمته صغيرة والعكس. التلاتة بيجمعوا كارت الإجمالي بالظبط في الوحدتين.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الدلو من محرّك التصنيف، والقيمة من نفس دالة تاب المبيعات</b> — كروت الأنواع الفرعية بتقرا <code>LOST_CANCELLED</code> / <code>LOST_RTO</code> / <code>LOST_FULL_RETURN</code> زي ما هي، وقيمتها بتتحسب بـ <code>computeBoxesFromRows</code> نفسها اللي بتحسب كارت «إلغاءات ومرتجعات» — مفيش تعريف تاني لـ«قيمة الخسارة» يقدر يفترق عن أصله.</span></li>
@@ -2050,6 +2097,108 @@ const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(
 const canvasFont = (w, px) => `${w} ${px}px ${cssVar('--font-mono') || 'sans-serif'}`;
 
 // ══════════════════════════════════════════════════════
+// §CHART-JS::defaults — الخط واللون الافتراضيين لكل رسوم الأداة
+// ══════════════════════════════════════════════════════
+// (html-builder v6.3.0 · Standards #37 · references/chart-axis-chips.md §2-أ)
+// قبل كده كان اسم الخط مكتوب حرفيًا في **٦ مواضع** `ticks` + ٥ `tooltip`،
+// ولون الليبل واقع على `Chart.defaults.color` = `#666` — رمادي **مش من
+// التوكنز أصلًا** (أقرب توكن `--text-secondary` = `#6b7280`). يعني الرسوم
+// كانت بلون وخط برّه النظام، ونفس عيلة باج IBM Plex Mono: قيمة بصرية ليها
+// أكتر من مصدر، فتحديث `design-system.md` مايوصلهاش.
+// ⛔ بعد السطرين دول ممنوع كتابة `font.family` أو `color` في أي `ticks` أو
+//    `legend` أو `tooltip` — أي تكرار بيبقى مصدر تاني بيتعتّق لوحده.
+if (typeof Chart !== 'undefined') {
+  Chart.defaults.font.family = cssVar('--font-mono');
+  Chart.defaults.color       = cssVar('--text-secondary');
+}
+
+// ══════════════════════════════════════════════════════
+// §CHART-JS::axisChips — ليبلات المحور الفئوي كـ HTML مش نص على كانفس
+// ══════════════════════════════════════════════════════
+// (html-builder v6.3.0 · Standards #37 · references/chart-axis-chips.md)
+// الليبل الفئوي هو **مفتاح قراءة الرسم كله**، وكان أصغر عنصر في الشاشة
+// (10px بوزن عادي). الـ chips بتديله وزنه الصح، وبتخليه عنصر HTML يقرا
+// التوكنز زي أي حاجة تانية في الأداة بدل ما يكون نص محبوس في كانفس.
+// ⛔ ممنوع حل ضيق العرض بـ `maxRotation` أو بالقص بـ «…» — المجموعة
+//    بتتوسّع لحد ما الاسم يدخل، والسكرول الأفقي هو التمن المقبول.
+const CHIP = { size: 15, weight: 600, padX: 10, border: 3, gap: 8, minSlot: 74 };
+
+// أضيق عرض مجموعة يخلّي أطول اسم يدخل من غير قص — بيتقاس بنفس الخط
+// والوزن اللي الـ chip هتترسم بيهم فعلاً، مش برقم ثابت متكتوب بالإيد.
+function chipSlotWidth(labels) {
+  const m = document.createElement('canvas').getContext('2d');
+  m.font = `${CHIP.weight} ${CHIP.size}px ${cssVar('--font-mono') || 'sans-serif'}`;
+  const widest = Math.max(0, ...labels.map(l => m.measureText(String(l)).width));
+  return Math.max(CHIP.minSlot, Math.ceil(widest + (CHIP.padX + CHIP.border) * 2 + CHIP.gap));
+}
+
+// عرض الكانفس المطلوب: الحاوية أو مجموع الخانات، أيهما أكبر.
+function chartWidthFor(labels, scrollerEl, yAxisSpace = 52) {
+  return Math.max((scrollerEl && scrollerEl.clientWidth) || 900,
+                  labels.length * chipSlotWidth(labels) + yAxisSpace);
+}
+
+// المحور الفئوي أفقي (bar عمودي): الـ chips تحت منطقة الرسم.
+// ⚠️ الصفحة RTL فالإزاحة بتتحسب من **اليمين**: `chart.width − cx − w/2`.
+//    استخدام `left` بيقلب الترتيب أو بيرمي الـ chips برّه الشاشة.
+function renderAxisChips(chart, labels, rowEl) {
+  if (!rowEl || !chart.chartArea) return;
+  rowEl.innerHTML = '';
+  const area = chart.chartArea, x = chart.scales.x;
+  const w = Math.max(24, (area.right - area.left) / labels.length - CHIP.gap);
+  labels.forEach((label, i) => {
+    const cx = x.getPixelForTick(i);
+    const el = document.createElement('div');
+    el.className = 'axis-chip';
+    el.textContent = label;
+    el.title = label;
+    el.style.top   = (area.bottom + 12) + 'px';
+    el.style.right = (chart.width - cx - w / 2) + 'px';
+    el.style.width = w + 'px';
+    rowEl.appendChild(el);
+  });
+}
+
+// المحور الفئوي رأسي (`indexAxis: 'y'`): نفس المواصفة، والأسماء في العمود
+// المحجوز جنب الرسم — التموضع من `getPixelForTick` على المحور `y`.
+// → chart-axis-chips.md §7 (الحالة الوحيدة اللي بتاخد chips بمحور تاني).
+function renderAxisChipsY(chart, labels, rowEl, slotW) {
+  if (!rowEl || !chart.chartArea) return;
+  rowEl.innerHTML = '';
+  const area = chart.chartArea, y = chart.scales.y;
+  const band = Math.max(18, (area.bottom - area.top) / labels.length - 4);
+  const h = Math.min(band, CHIP.size + 16);
+  labels.forEach((label, i) => {
+    const cy = y.getPixelForTick(i);
+    const el = document.createElement('div');
+    el.className = 'axis-chip is-y';
+    el.textContent = label;
+    el.title = label;
+    el.style.top    = (cy - h / 2) + 'px';
+    el.style.height = h + 'px';
+    // الحاوية `direction: ltr` والمحور على الشمال — فالعمود المحجوز
+    // بيبدأ من صفر لحد بداية منطقة الرسم.
+    el.style.left   = '0px';
+    el.style.width  = Math.max(24, slotW - CHIP.gap) + 'px';
+    rowEl.appendChild(el);
+  });
+}
+
+// الـ plugin بيرسم الـ chips بعد **كل** رسمة — مش مرة واحدة بعد الإنشاء:
+// الرسم بيعيد نفسه مع أي `update()` أو `resize()`، والـ chips لازم تتبعه.
+// و`chartArea` مابتبقاش موجودة قبل أول رسمة، فالقراءة جوّه `afterDraw` بس.
+function makeAxisChipsPlugin(labels, rowId, opts = {}) {
+  return {
+    id: 'axisChips',
+    afterDraw: (c) => {
+      const rowEl = document.getElementById(rowId);
+      if (opts.axis === 'y') renderAxisChipsY(c, labels, rowEl, opts.slotW || 0);
+      else                   renderAxisChips(c, labels, rowEl);
+    },
+  };
+}
+
+// ══════════════════════════════════════════════════════
 // §CONFIG
 // ══════════════════════════════════════════════════════
 // ─── §CONFIG::URLs — constants مش حقول إعدادات (html-builder v2.2.0 · #28) ───
@@ -2068,7 +2217,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.18.0';
+const TOOL_VERSION = 'v3.19.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -3529,6 +3678,24 @@ window.addEventListener('resize', () => {
   stickyResizeTimer = setTimeout(measureSticky, 150);
 });
 
+// ─── §CHART-JS::resize — إعادة حساب عرض الرسوم ذات responsive:false ───
+// (chart-axis-chips.md §4-٦). رسما المبيعات والأوردرات بقوا `responsive:false`
+// لأن عرضهم بيتحدد من الليبلات مش من الحاوية — يعني Chart.js مش هيعيد قياسهم
+// لوحده، فلازم نعيد رسمهم على تغيّر **العرض** بس، بنفس منطق `measureSticky`.
+// باقي الرسوم `responsive:true` وبتتولّى نفسها، والـ chips بتتبعها لأن الـ
+// plugin شغّال على `afterDraw` مش مرة واحدة بعد الإنشاء.
+let chartResizeTimer, chartResizeW = window.innerWidth;
+window.addEventListener('resize', () => {
+  if (window.innerWidth === chartResizeW) return;
+  chartResizeW = window.innerWidth;
+  clearTimeout(chartResizeTimer);
+  chartResizeTimer = setTimeout(() => {
+    if (state.viewState !== 'ready') return;
+    if (document.getElementById('mainBar'))   renderMainBar(activeBoxes());
+    if (document.getElementById('ordersBar') && state.orderBoxes) renderOrdersBar(state.orderBoxes);
+  }, 160);
+});
+
 function updateTabChip() {
   const btn = document.getElementById(TAB_DEFS[state.activePage]?.btn || TAB_DEFS.main.btn);
   const label = (btn?.textContent || '').trim();
@@ -3852,7 +4019,7 @@ function renderBoxes() {
       <div class="chart-card-hdr"><span class="kpi-icon">📊</span>مقارنة المربعات الأساسية</div>
       <div class="chart-card-sub">نفس تصنيف الدونات — بالأرقام والنسبة مباشرة على العمود</div>
       <div class="chart-card-body">
-        <div class="chart-canvas-wrap bar-wrap"><canvas id="mainBar"></canvas></div>
+        <div class="chart-scroller bar-wrap"><div class="chart-plot" id="mainBarPlot"><canvas id="mainBar"></canvas><div class="chart-chiprow" id="mainBarChips"></div></div></div>
       </div>
     </div>
   `;
@@ -3927,8 +4094,6 @@ function renderMainPie(b) {
         legend: { display: false },
         tooltip: {
           rtl: true,
-          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
-          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
           callbacks: {
             label: (ctx) => {
               const v = ctx.parsed || 0;
@@ -4026,10 +4191,21 @@ function renderMainBar(b) {
 
   const maxVal = Math.max(...segments.map(s => s.value), 1);
 
+  // ─── ترتيب إلزامي (chart-axis-chips.md §4): العرض بيتحسب من الليبلات
+  //     الأول، وبعدين الـ plot والكانفس ياخدوه — مش العكس.
+  const labels   = segments.map(s => s.label);
+  const scroller = canvas.closest('.chart-scroller');
+  const plotEl   = document.getElementById('mainBarPlot');
+  const chartW   = chartWidthFor(labels, scroller);
+  const chartH   = 288 - 14;
+  plotEl.style.width  = chartW + 'px';
+  canvas.style.width  = chartW + 'px';
+  canvas.style.height = chartH + 'px';
+
   mainBarChart = new Chart(canvas.getContext('2d'), {
     type: 'bar',
     data: {
-      labels: segments.map(s => s.label),
+      labels,
       datasets: [{
         data: segments.map(s => s.value),
         backgroundColor: segments.map(s => s.colour),
@@ -4037,21 +4213,21 @@ function renderMainBar(b) {
         maxBarThickness: 56,
       }],
     },
-    plugins: [makeBarValueLabelsPlugin(fmtAmt)],
+    plugins: [makeBarValueLabelsPlugin(fmtAmt), makeAxisChipsPlugin(labels, 'mainBarChips')],
     options: {
-      responsive: true,
+      // responsive: false — العرض بيتحدد من الليبلات فوق، والحاوية بتمرّر.
+      responsive: false,
       maintainAspectRatio: false,
-      layout: { padding: { top: 26 } },
+      // bottom = مكان صف الـ chips المحجوز. من غيرها بتركب على الأعمدة (§5).
+      layout: { padding: { top: 26, bottom: CHIP.size + 32 } },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10.5 }, maxRotation: 0, minRotation: 0 } },
+        x: { grid: { display: false }, ticks: { display: false } },
         y: { beginAtZero: true, max: maxVal * 1.22, ticks: { display: false }, grid: { color: cssVar('--chart-grid') } }, // beginAtZero — أبدًا مش من غير الصفر
       },
       plugins: {
         legend: { display: false },
         tooltip: {
           rtl: true,
-          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
-          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
           callbacks: { label: (ctx) => ' ' + fmtAmt(ctx.parsed.y) },
         },
       },
@@ -4070,6 +4246,7 @@ function renderMainBar(b) {
       },
     },
   });
+  mainBarChart.resize(chartW, chartH);
 }
 
 // ─── §TOOL-JS::renderIdentityCheck ───
@@ -4451,7 +4628,7 @@ function renderOrderBoxes() {
         <div class="chart-card-hdr"><span class="kpi-icon">📊</span>مقارنة المربعات الأساسية</div>
         <div class="chart-card-sub">نفس تصنيف الدونات — بالأرقام والنسبة مباشرة على العمود</div>
         <div class="chart-card-body">
-          <div class="chart-canvas-wrap bar-wrap"><canvas id="ordersBar"></canvas></div>
+          <div class="chart-scroller bar-wrap"><div class="chart-plot" id="ordersBarPlot"><canvas id="ordersBar"></canvas><div class="chart-chiprow" id="ordersBarChips"></div></div></div>
         </div>
       </div>
     `;
@@ -4625,8 +4802,6 @@ function renderOrdersPie(b) {
         legend: { display: false },
         tooltip: {
           rtl: true,
-          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
-          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
           callbacks: {
             label: (ctx) => {
               const v = ctx.parsed || 0;
@@ -4676,10 +4851,21 @@ function renderOrdersBar(b) {
   ];
   const KEYS = ['OB1','OB_PREP','OB_SHIP','OB_LOST','OB_DELIV'];
 
+  // ─── ترتيب إلزامي (chart-axis-chips.md §4): العرض بيتحسب من الليبلات
+  //     الأول، وبعدين الـ plot والكانفس ياخدوه — مش العكس.
+  const labels   = segments.map(s => s.label);
+  const scroller = canvas.closest('.chart-scroller');
+  const plotEl   = document.getElementById('ordersBarPlot');
+  const chartW   = chartWidthFor(labels, scroller);
+  const chartH   = 288 - 14;
+  plotEl.style.width  = chartW + 'px';
+  canvas.style.width  = chartW + 'px';
+  canvas.style.height = chartH + 'px';
+
   ordersBarChart = new Chart(canvas.getContext('2d'), {
     type: 'bar',
     data: {
-      labels: segments.map(s => s.label),
+      labels,
       datasets: [{
         data: segments.map(s => s.value),
         backgroundColor: segments.map(s => s.colour),
@@ -4687,21 +4873,21 @@ function renderOrdersBar(b) {
         maxBarThickness: 56,
       }],
     },
-    plugins: [makeBarValueLabelsPlugin(fmtInt)],
+    plugins: [makeBarValueLabelsPlugin(fmtInt), makeAxisChipsPlugin(labels, 'ordersBarChips')],
     options: {
-      responsive: true,
+      // responsive: false — العرض بيتحدد من الليبلات فوق، والحاوية بتمرّر.
+      responsive: false,
       maintainAspectRatio: false,
-      layout: { padding: { top: 26 } },
+      // bottom = مكان صف الـ chips المحجوز. من غيرها بتركب على الأعمدة (§5).
+      layout: { padding: { top: 26, bottom: CHIP.size + 32 } },
       scales: {
-        x: { grid: { display: false }, ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10.5 }, maxRotation: 0, minRotation: 0 } },
+        x: { grid: { display: false }, ticks: { display: false } },
         y: { beginAtZero: true, max: maxVal * 1.22, ticks: { display: false }, grid: { color: cssVar('--chart-grid') } }, // beginAtZero — أبدًا مش من غير الصفر
       },
       plugins: {
         legend: { display: false },
         tooltip: {
           rtl: true,
-          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
-          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
           callbacks: { label: (ctx) => ' ' + fmtInt(ctx.parsed.y) },
         },
       },
@@ -4712,6 +4898,7 @@ function renderOrdersBar(b) {
       },
     },
   });
+  ordersBarChart.resize(chartW, chartH);
 }
 
 // §ORDERS-JS::renderOrderIdentityCheck
@@ -5481,14 +5668,17 @@ function renderGeoCharts(elId, dim, { groups, totals }) {
   const isProv = dim !== 'zone';
   // عرض أدنى محسوب بعدد المجموعات — تحته الأعمدة التلاتة بتبقى خطوط، وفوقه
   // الكارت بيتمدّ على عرض الصفحة عادي (min-width مع width:100%).
-  // 🔴 عرض المجموعة مشتق من **أعرض ليبل** بعد قرار «مفيش ليبلات مايلة»
-  //    (02-09-2026). أعرض اسم محافظة مقيس = ٦١px («مرسى مطروح»)، وأعرض اسم
-  //    منطقة = ٨٩px («قاهرة وجيزة (مناديب)») — بزيادة أمان للخط الفعلي.
-  //    ⚠️ الأثر المقصود والمقبول: العرض الافتراضي (كل المحافظات) بقى أوسع من
+  // 🔴 عرض المجموعة **بيتقاس، مابيتكتبش** (html-builder v6.3.0 · §2-ج).
+  //    كان رقمين ثابتين (٧٠px محافظة · ١٢٠px منطقة) مقيسين على ليبل 10px —
+  //    ومع الـ chips (15px/600) الرقمين دول بقوا أضيق من الاسم نفسه، يعني
+  //    قصّ صامت. `chipSlotWidth` بتقيس أعرض اسم بنفس الخط والوزن اللي الـ
+  //    chip هتترسم بيهم فعلاً، فأي اسم جديد يتضاف بيوسّع الخانة لوحده.
+  //    ⚠️ الأثر المقصود والمقبول: العرض الافتراضي (كل المحافظات) أوسع من
   //    الشاشة وبيتمرّر أفقيًا. المخرج هو **فلتر المحافظات** فوق — تقصّه على
-  //    اللي بتقارنه ويقعد كله في الشاشة.
-  const GEO_GROUP_W = isProv ? 70 : 120;
-  const minW = Math.max(680, rows.length * GEO_GROUP_W);
+  //    اللي بتقارنه ويقعد كله في الشاشة. ⛔ مش بترجيع `maxRotation` ولا بالقص.
+  const geoLabels   = rows.map(r => r.label);
+  const GEO_GROUP_W = chipSlotWidth(geoLabels);
+  const minW = Math.max(680, rows.length * GEO_GROUP_W + 52);
   const needsScroll = minW > 1180;
 
   const legend = GEO_STATUS.map(st =>
@@ -5513,7 +5703,7 @@ function renderGeoCharts(elId, dim, { groups, totals }) {
         needsScroll ? '<span class="geo-stat">↔ مرّر الرسم أفقيًا أو قصّه من الفلتر فوق</span>' : ''}</div>
       <div class="geo-chart-legend">${legend}</div>
       <div class="geo-chart-scroll">
-        <div class="geo-chart-canvas" style="min-width:${minW}px"><canvas id="${elId}_ordersBar"></canvas></div>
+        <div class="geo-chart-canvas chart-plot" style="min-width:${minW}px"><canvas id="${elId}_ordersBar"></canvas><div class="chart-chiprow" id="${elId}_ordersBarChips"></div></div>
       </div>
     </div>
     <div class="geo-chart-card">
@@ -5521,7 +5711,7 @@ function renderGeoCharts(elId, dim, { groups, totals }) {
       <div class="chart-card-sub geo-stat-row"><span class="geo-stat">🔁 نفس ترتيب الرسم اللي فوق بالظبط — بالجنيه بدل العدد</span><span class="geo-stat">💰 إجمالي <b>${fmtMoney(totals.mTotal)}</b></span></div>
       <div class="geo-chart-legend">${legend}</div>
       <div class="geo-chart-scroll">
-        <div class="geo-chart-canvas" style="min-width:${minW}px"><canvas id="${elId}_moneyBar"></canvas></div>
+        <div class="geo-chart-canvas chart-plot" style="min-width:${minW}px"><canvas id="${elId}_moneyBar"></canvas><div class="chart-chiprow" id="${elId}_moneyBarChips"></div></div>
       </div>
     </div>
   `;
@@ -5555,12 +5745,15 @@ function geoAxisTick(v) {
 // جنب بعض"، والمقارنة بين المحافظات في نفس الحالة بتبقى مباشرة على نفس القاعدة).
 function buildGeoStackChart(canvasId, dim, rows, fields, fmtFn, tickFn, totalOf) {
   const canvas = document.getElementById(canvasId);
-  if (!canvas) return null;
+  if (!canvas || typeof Chart === 'undefined') return null;
+
+  const labels = rows.map(r => r.label);
 
   return new Chart(canvas.getContext('2d'), {
     type: 'bar',
+    plugins: [makeAxisChipsPlugin(labels, canvasId + 'Chips')],
     data: {
-      labels: rows.map(r => r.label),
+      labels,
       datasets: GEO_STATUS.map((st, i) => ({
         label: st.label,
         data: rows.map(r => r[fields[i]]),
@@ -5575,28 +5768,29 @@ function buildGeoStackChart(canvasId, dim, rows, fields, fmtFn, tickFn, totalOf)
     },
     options: {
       responsive: true, maintainAspectRatio: false,
+      // مكان صف الـ chips المحجوز تحت منطقة الرسم (chart-axis-chips.md §4-٤).
+      layout: { padding: { bottom: CHIP.size + 32 } },
       interaction: { mode: 'index', intersect: false },
       scales: {
         x: {
           grid: { display: false },
           // 🔴 قرار أحمد 02-09-2026: **مفيش ليبلات مايلة في أي bar chart**.
-          //    عشان كده عرض المجموعة الواحدة (`GEO_GROUP_W`) اتحسب على أساس
-          //    أعرض اسم في القايمة — الليبل الأفقي محتاج عرض، والسكرول الأفقي
-          //    هو التمن. ⛔ ممنوع ترجيع `maxRotation` كـ"حل" لضيق العرض.
-          ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, maxRotation: 0, minRotation: 0, autoSkip: false },
+          //    الليبل بقى chip في HTML (v6.3.0)، وعرض المجموعة (`GEO_GROUP_W`)
+          //    بيتقاس من أعرض اسم بـ `chipSlotWidth` — الليبل الأفقي محتاج
+          //    عرض، والسكرول الأفقي هو التمن. ⛔ ممنوع ترجيع `maxRotation`
+          //    كـ"حل" لضيق العرض، وممنوع القص بـ «…».
+          ticks: { display: false },
         },
         y: {
           beginAtZero: true,
           grid: { color: cssVar('--chart-grid') },
-          ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, callback: v => tickFn(v) },
+          ticks: { callback: v => tickFn(v) },
         },
       },
       plugins: {
         legend: { display: false },          // المفتاح مرسوم فوق الرسم كـ HTML
         tooltip: {
           rtl: true,
-          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
-          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
           callbacks: {
             label: (ctx) => {
               const total = totalOf(rows[ctx.dataIndex]) || 0;
@@ -6132,7 +6326,7 @@ function renderRsnCharts(groups) {
         <span class="geo-stat">↓ مرتّبة بقيمة الخسارة تنازليًا — نفس ترتيب الرسم التاني</span>
       </div>
       <div class="geo-chart-legend">${legend}</div>
-      <div class="rsn-chart-scroll"><div style="height:${H}px"><canvas id="rsnCountBar"></canvas></div></div>
+      <div class="rsn-chart-scroll"><div class="chart-plot" style="height:${H}px"><canvas id="rsnCountBar"></canvas><div class="chart-chiprow" id="rsnCountBarChips"></div></div></div>
     </div>
     <div class="geo-chart-card">
       <div class="chart-card-hdr"><span class="kpi-icon">💰</span>قيمة الخسارة لكل سبب</div>
@@ -6140,7 +6334,7 @@ function renderRsnCharts(groups) {
         <span class="geo-stat">💰 إجمالي <b>${fmtMoney(rows.reduce((a, g) => a + g.value, 0))}</b></span>
         <span class="geo-stat">🔁 نفس ترتيب الرسم اللي فوق بالظبط — بالجنيه بدل العدد</span>
       </div>
-      <div class="rsn-chart-scroll"><div style="height:${H}px"><canvas id="rsnValueBar"></canvas></div></div>
+      <div class="rsn-chart-scroll"><div class="chart-plot" style="height:${H}px"><canvas id="rsnValueBar"></canvas><div class="chart-chiprow" id="rsnValueBarChips"></div></div></div>
     </div>`;
 
   kill();
@@ -6160,10 +6354,26 @@ function buildRsnBar(canvasId, rows, isCount) {
   const fmtFn = isCount ? fmtInt : fmtMoney;
   const F = { LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' };
 
+  // الرسم أفقي (`indexAxis: 'y'`) فالمحور الفئوي هو `y` — وده الاستثناء
+  // الوحيد اللي بياخد chips بمحور تاني (chart-axis-chips.md §7). أسماء
+  // الأسباب جمل عربية كاملة، فالعمود المحجوز جنب الرسم بيتقاس من أطولها.
+  // ⛔ **من غير أي سقف على عرض العمود.** السقف (جرّبناه ٤٢% من الحاوية) بيقصّ
+  //    الأسماء الطويلة على الشاشات الضيقة — وده بالظبط اللي المهارة شايلاه:
+  //    «ممنوع القص بـ «…» — المجموعة بتتوسّع لحد ما الاسم يدخل». العلاج
+  //    الصح إن **الرسم كله يتوسّع ويتمرّر** (`.rsn-chart-scroll` عليها
+  //    `overflow-x: auto` أصلاً)، مش إن الاسم يتقص.
+  //    القياس: على ٣٧٥px السقف كان بيقصّ ٢ من ٣ chips؛ بعد شيله = صفر قصّ.
+  const labels = rows.map(r => r.label);
+  const slotW  = chipSlotWidth(labels);
+  // أقل عرض للرسم = عمود الأسماء + مساحة أعمدة معقولة. تحته الحاوية بتمرّر
+  // أفقيًا بدل ما العمود ياكل الرسم اللي هو أصلاً البيانات.
+  if (canvas.parentElement) canvas.parentElement.style.minWidth = (slotW + 320) + 'px';
+
   return new Chart(canvas.getContext('2d'), {
     type: 'bar',
+    plugins: [makeAxisChipsPlugin(labels, canvasId + 'Chips', { axis: 'y', slotW })],
     data: {
-      labels: rows.map(r => r.label),
+      labels,
       datasets: isCount
         ? RSN_STAGE.map(st => ({
             label: st.label, data: rows.map(r => r[F[st.id]]),
@@ -6179,20 +6389,21 @@ function buildRsnBar(canvasId, rows, isCount) {
     options: {
       indexAxis: 'y',
       responsive: true, maintainAspectRatio: false,
+      // العمود المحجوز للـ chips على الشمال — الحاوية `direction: ltr`
+      // والمحور الفئوي مكانه هناك.
+      layout: { padding: { left: slotW } },
       interaction: { mode: 'index', intersect: false },
       scales: {
         x: { stacked: isCount, beginAtZero: true, grid: { color: cssVar('--chart-grid') },
-             ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, callback: v => geoAxisTick(v) } },
+             ticks: { callback: v => geoAxisTick(v) } },
         // ⛔ مفيش أي دوران على الليبلات — المحور الأفقي بيخليها أفقية أصلاً.
         y: { stacked: isCount, grid: { display: false },
-             ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, autoSkip: false } },
+             ticks: { display: false } },
       },
       plugins: {
         legend: { display: false },
         tooltip: {
           rtl: true,
-          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
-          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
           callbacks: {
             label: (ctx) => {
               const g = rows[ctx.dataIndex];
