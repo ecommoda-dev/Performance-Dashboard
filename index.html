@@ -1313,6 +1313,12 @@
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">03-09-2026</span></div>
         <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الجداول بقت فوق والرسوم تحتها</b> في تابات <b>المحافظات</b> و<b>المناطق</b> و<b>الإلغاءات والمرتجعات</b> — طلب أحمد. الجدول هو الرقم الدقيق والرسم هو المقارنة البصرية فوقه، فقراءة الرقم الأول وبعدها الشكل أقرب لطريقة الاستخدام الفعلية. ⚠️ <b>إعادة ترتيب بحتة</b>: صفر تغيير في أي رقم أو حساب أو تقسيمة، وصفر تعديل في الـ Worker.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.20.0</span><span class="cl-ver-date">03-09-2026</span></div>
+        <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>تاب «الإلغاءات والمرتجعات» بقى بنفس شكل تاب المحافظات بالظبط.</b> رسمان <b>عموديان</b> بدل الأفقيين — كل سبب عمود مقسوم تلات أعمدة فرعية (<b>إلغاء قبل الشحن</b> · <b>مرتجع رفض الاستلام</b> · <b>مرتجع كامل بعد الاستلام</b>) — وجدولا الأسباب والأسباب-جغرافيًا بقوا بمجموعتَي أعمدة (📦 عدد · 💰 قيمة)، كل مجموعة فيها الإجمالي + التلات مراحل، وتحت كل رقم شريط ونسبته من إجمالي نفس الصف. ومعاهم عمود <b>النسبة</b> في الجدولين.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>قيمة الخسارة اتفصّلت على التلات مراحل.</b> الفاقد بيتحسب على مستوى القطعة ومالوش مرحلة على الصف، فالعمود كان واحد موحّد. دلوقتي صفوف القطع نفسها بتتقسم برقم الأوردر على مرحلة أوردرها، وكل خلية بتتحسب بـ <b>نفس دالة تاب المبيعات</b> — رقم محسوب مش توزيع تقديري، ومجموع التلاتة = الإجمالي رياضيًا.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الكروت الأربعة بقت بنفس التقسيمة</b> — كارت الإجمالي كان رقم واحد كبير، بقى مربّعين زي التلاتة اللي جنبه. و<b>الوحدة بقت أيقونة</b> (📦 / 💰) بدل كلمة «عدد»/«قيمة» في الأربعة. ⚠️ نسبة كارت الإجمالي مقامها <b>الفترة كلها</b> (نسبته لنفسه كانت هتبقى 100% وبلا معلومة): العدد من كل أوردرات الفترة = <b>معدل الخسارة العام</b>، والقيمة من إجمالي قيمة الفترة.</span></li>
@@ -1883,6 +1889,11 @@ JS بيقرا التوكن مش بيكتبه         │ HTML   │ §SHELL-JS  
 جدول الأسباب جغرافيًا بنفس الهيكل │ HTML   │ §REASONS   │ renderRsnGeo (+ معدل الخسارة والمؤشر)
 شيل مصفوفة السبب × المرحلة        │ HTML   │ §REASONS   │ (اتلمّت جوّه مجموعة «📦 عدد الأوردرات»)
 إصلاح كلاسات فلتر الأسباب         │ HTML   │ §REASONS   │ renderRsnFilter (geo-filter-chips · .on)
+── v3.21.0 — الجدول فوق والرسم تحته ──────────────────────────
+ترتيب تاب المحافظات               │ HTML   │ §SHELL-JS  │ geoProvTable ثم geoProvCharts
+ترتيب تاب المناطق                 │ HTML   │ §SHELL-JS  │ geoZoneTable ثم geoZoneCharts
+ترتيب تاب الإلغاءات والمرتجعات    │ HTML   │ §SHELL-JS  │ rsnTable ثم rsnCharts
+⚠️ إعادة ترتيب markup بحتة — صفر تغيير في أي دالة حساب أو رسم أو جدول
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -2248,7 +2259,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.20.0';
+const TOOL_VERSION = 'v3.21.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -3512,8 +3523,8 @@ function renderShell() {
       <div class="geo-filter-card" id="geoFilterCard"></div>
 
       <div class="geo-section-hdr"><span class="kpi-icon">🌍</span>المحافظات<span id="geoProvFlag"></span></div>
-      <div id="geoProvCharts"></div>
       <div class="geo-table-card" id="geoProvTable"></div>
+      <div id="geoProvCharts"></div>
 
       <div class="details-section${state.geoDetails.prov.open ? ' open' : ''}" id="provDetailsSection">
         <div class="details-hdr" onclick="toggleGeoDetails('prov')">
@@ -3531,8 +3542,8 @@ function renderShell() {
       <div id="zoneGuardNote"></div>
 
       <div class="geo-section-hdr"><span class="kpi-icon">🚚</span>مناطق التوزيع <span class="geo-section-sub">من ميتافيلد الأوردر <code>custom.zone</code> — مستقل تمامًا عن المحافظة، وعن فلتر المحافظات</span></div>
-      <div id="geoZoneCharts"></div>
       <div class="geo-table-card" id="geoZoneTable"></div>
+      <div id="geoZoneCharts"></div>
 
       <div class="details-section${state.geoDetails.zone.open ? ' open' : ''}" id="zoneDetailsSection">
         <div class="details-hdr" onclick="toggleGeoDetails('zone')">
@@ -3553,8 +3564,8 @@ function renderShell() {
       <div class="geo-filter-card" id="rsnFilterCard"></div>
 
       <div class="geo-section-hdr"><span class="kpi-icon">📊</span>الأسباب بالعدد وبالقيمة<span id="rsnFlag"></span></div>
-      <div id="rsnCharts"></div>
       <div class="geo-table-card" id="rsnTable"></div>
+      <div id="rsnCharts"></div>
 
       <div class="geo-section-hdr"><span class="kpi-icon">🌍</span>الأسباب جغرافيًا<span id="rsnGeoFlag"></span></div>
       <div class="geo-table-card" id="rsnGeoTable"></div>
