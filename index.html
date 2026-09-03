@@ -711,9 +711,6 @@
     background:var(--amber-soft);color:var(--amber-dark);border:1px solid var(--amber-soft-border);margin-inline-start:5px;white-space:nowrap}
   .rsn-chart-scroll{overflow-x:auto;overflow-y:hidden;direction:ltr}
   .rsn-toolbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:12px}
-  .rsn-switch{display:inline-flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;
-    border:1px solid var(--border);border-radius:100px;padding:5px 12px;background:var(--surface);user-select:none}
-  .rsn-switch.is-on{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);font-weight:600}
   .rsn-heat td.rsn-hc{font-family:'Courier New',monospace;direction:ltr;text-align:center}
   .rsn-dim-btn{font-size:12.5px;padding:4px 12px;border-radius:100px;border:1px solid var(--border);
     background:var(--surface);cursor:pointer}
@@ -1289,7 +1286,6 @@
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تاب «الإلغاءات والمرتجعات»</b> — بيفكّ كارت «إلغاءات ومرتجعات» لأسباب بالعدد وبالقيمة، من ميتافيلدي الأوردر <code>custom.cancel_manual_reason</code> و<code>custom.return_manual_reason</code>. أقسامه: كروت · فلتر chips · رسمان أفقيان · جدول الأسباب · مصفوفة السبب × المرحلة · الأسباب جغرافيًا (محافظة/منطقة) · جودة البيانات · جدول أوردرات السبب المختار.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>السبب بيتاخد من أي حقل فيه قيمة</b> — الأداة <b>مش</b> بتفترض إن حقل الإلغاء يخص الإلغاء وحقل المرتجع يخص المرتجع. القياس على المتجر لقى أوردر رفض استلام شايل سببه في حقل الإلغاء، ولو الأداة قرأت الحقل «المتوقع» بس كان هيتعدّ «بدون سبب» وهو عليه سبب مكتوب. عدم التطابق بيتعرض في قسم جودة البيانات <b>من غير ما يحرّك أي رقم</b>.</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مفتاح «استبعاد الخسائر التشغيلية»</b> — بيشيل «أوردر مكرر وتم دمجه» و«استلام جزئي - بوسطة» (دول مش فقد مبيعات) ويعيد حساب أرقام التاب. ⚠️ عرض في التاب ده وحده — كارت «إلغاءات ومرتجعات» في تاب الأوردرات ما بيتأثرش.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>قسم <b>الأسباب جغرافيًا</b> بمفتاح (محافظة / منطقة) وأرقام <b>مطبّعة</b>: معدل الخسارة داخل المجموعة + مؤشر تركّز، مع حد أدنى للعيّنة (٢٥ أوردر) — العدد الخام كان هيخلي أكبر محافظة تتصدّر كل صف لأنها أكبر مش لأن عندها مشكلة.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>الرسمان في التاب الجديد <b>أفقيان</b> (<code>indexAxis:'y'</code>) — أسماء الأسباب جمل عربية كاملة، والأفقي بيخليها تتقرا من غير أي دوران، تطبيقًا لقاعدة «ممنوع ليبلات مايلة».</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>شريط التابات بقى بيلفّ لصفّين تحت <code>800px</code>. مع خمس تابات كان الزرار الأخير بيتقصّ في صمت (<code>overflow:hidden</code> اللازمة لأنيميشن الـ sticky) ومايتوصلش له — والقصّ ده كان موجود أصلاً على الزرار الرابع تحت <code>375px</code>.</span></li>
@@ -1799,7 +1795,6 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 عالم التاب = دلاو الخسارة التلاتة │ HTML   │ §REASONS   │ RSN_STAGE / rsnIsLoss
 قرار الفلترة في مكان واحد         │ HTML   │ §REASONS   │ rsnRowsFor(rows)
 صف لكل سبب بالعدد وبالقيمة        │ HTML   │ §REASONS   │ rsnGroups / rsnRow
-استبعاد الخسائر التشغيلية (عرض)   │ HTML   │ §REASONS   │ state.rsnExcludeOps / toggleRsnExcludeOps
 رسمان أفقيان (بلا أي دوران ليبل)  │ HTML   │ §REASONS   │ buildRsnBar (indexAxis:'y')
 مصفوفة السبب × المرحلة            │ HTML   │ §REASONS   │ renderRsnMatrix
 الأسباب جغرافيًا (مطبّعة + مؤشر)  │ HTML   │ §REASONS   │ renderRsnGeo / RSN_MIN_SAMPLE
@@ -1813,7 +1808,7 @@ JS بيقرا التوكن مش بيكتبه         │ HTML   │ §SHELL-JS  
 ── v3.18.0 — كروت الأنواع الفرعية ────────────────────────────
 كارت لكل نوع فرعي (عدد | قيمة)    │ HTML   │ §REASONS   │ rsnStageTotals / renderRsnKpis
 مربّع بنسبته تحته (.rsn-split)    │ HTML   │ §CSS       │ .rsn-split · .rsn-box · .rsn-sbar
-قايمة الأسباب المقفولة            │ HTML   │ §REASONS   │ RSN_REASONS / RSN_OPS_REASONS
+قايمة الأسباب المقفولة            │ HTML   │ §REASONS   │ RSN_REASONS
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -2396,7 +2391,6 @@ const state = {
   // ══ v3.16.0 — تاب الإلغاءات والمرتجعات ══
   // rsnSel فاضية = مفيش فلتر = كل الأسباب (نفس نمط الـ facets في geoProvSel).
   rsnSel: new Set(),
-  rsnExcludeOps: false,        // سويتش «استبعاد الخسائر التشغيلية» — عرض بس
   rsnDim: 'prov',              // البُعد الجغرافي المعروض في قسم الأسباب جغرافيًا
   rsnSortKey: 'value',
   rsnSortDir: 'desc',
@@ -5831,14 +5825,7 @@ const RSN_REASONS = [
   'لا يوجد سبب',
 ];
 
-// ⚠️ الاتنين دول **مش فقد مبيعات**: المكرر اتدمج في أوردر تاني اتسلّم فعلًا،
-//    والاستلام الجزئي جزء منه اتسلّم. سويتش «استبعاد الخسائر التشغيلية»
-//    بيشيلهم من أرقام التاب ده **وحده** — ⛔ ممنوع يلمس كارت «إلغاءات
-//    ومرتجعات» في تاب الأوردرات ولا أي رقم برّه التاب.
-const RSN_OPS_REASONS = ['أوردر مكرر وتم دمجه', 'استلام جزئي - بوسطة'];
-
 function rsnKeyOf(r)    { const v = r.reason; return (v == null || v === '') ? RSN_NONE : v; }
-function rsnIsOps(k)    { return RSN_OPS_REASONS.includes(k); }
 function rsnLabel(k)    { return k === RSN_NONE ? 'بدون سبب' : k; }
 function rsnIsLoss(r)   { return RSN_STAGE_IDS.includes(r.bucket); }
 
@@ -5854,13 +5841,10 @@ function rsnFieldMismatch(r) {
 // ⛔ ممنوع أي مستهلك جديد يفلتر بنفسه — نفس قاعدة `geoRowsFor` بالظبط. كل
 //    قارئ للصفوف بيعدّي من هنا، فمستحيل جدول يقرا من مصدر والأرقام اللي فوقه
 //    تتحسب من مصدر تاني.
-// ⚠️ سويتش «استبعاد التشغيلي» **عرض بس** وبيخص التاب ده وحده — ⛔ ممنوع
-//    يلمس كارت «إلغاءات ومرتجعات» في تاب الأوردرات ولا أي رقم برّه التاب.
 function rsnFilterActive() { return !!(state.rsnSel && state.rsnSel.size); }
 function rsnRowsFor(rows) {
   let out = (rows || []).filter(rsnIsLoss);
-  if (state.rsnExcludeOps) out = out.filter(r => !rsnIsOps(rsnKeyOf(r)));
-  if (state.rsnSel.size)   out = out.filter(r => state.rsnSel.has(rsnKeyOf(r)));
+  if (state.rsnSel.size) out = out.filter(r => state.rsnSel.has(rsnKeyOf(r)));
   return out;
 }
 
@@ -5978,7 +5962,6 @@ function toggleRsnReason(key) {
   applyRsnFilter();
 }
 function clearRsnFilter() { state.rsnSel.clear(); applyRsnFilter(); }
-function toggleRsnExcludeOps() { state.rsnExcludeOps = !state.rsnExcludeOps; applyRsnFilter(); }
 function setRsnDim(dim) { state.rsnDim = dim; renderReasons(); }
 
 function applyRsnFilter() {
@@ -5996,7 +5979,6 @@ function applyRsnFilter() {
 function rsnFilterFlag() {
   const bits = [];
   if (state.rsnSel.size)    bits.push(`${fmtInt(state.rsnSel.size)} سبب`);
-  if (state.rsnExcludeOps)  bits.push('بدون التشغيلي');
   return bits.length ? `<span class="geo-filter-flag">🔎 مفلتر على ${bits.join(' · ')}</span>` : '';
 }
 
@@ -6112,16 +6094,6 @@ function renderRsnFilter() {
     <div class="geo-filter-hdr">
       <span class="geo-filter-title">🔎 فلتر الأسباب</span>
       ${rsnFilterActive() ? `<button class="hbtn geo-clear-btn" onclick="clearRsnFilter()">مسح الفلتر</button>` : ''}
-    </div>
-    <div class="rsn-toolbar">
-      <span class="rsn-switch${state.rsnExcludeOps ? ' is-on' : ''}" onclick="toggleRsnExcludeOps()"
-            title="بيشيل «أوردر مكرر وتم دمجه» و«استلام جزئي - بوسطة» من أرقام التاب ده وحده">
-        ${state.rsnExcludeOps ? '☑' : '☐'} استبعاد الخسائر التشغيلية
-      </span>
-      <span class="geo-filter-hint" style="margin:0">
-        الأوردر المكرر اتدمج في أوردر تاني اتسلّم فعلًا، والاستلام الجزئي جزء منه اتسلّم — فوجودهم جوّه معدل الخسارة بيضخّمه.
-        ⚠️ السويتش ده <b>عرض في التاب ده بس</b>: كارت «إلغاءات ومرتجعات» في تاب الأوردرات ما بيتأثرش بيه إطلاقًا.
-      </span>
     </div>
     <p class="geo-filter-hint">مفيش اختيار = كل الأسباب. السبب اللي مالوش أوردرات في الفترة بيبان باهت ومش قابل للضغط.</p>
     <div class="geo-chips">${chips}</div>`;
