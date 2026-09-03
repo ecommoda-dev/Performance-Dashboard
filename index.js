@@ -259,8 +259,8 @@ const TOOL_NAME     = 'performance_dashboard';
 // get_config بيرجّعها — والواجهة بتقارنها بـ MIN_WORKER_VERSION عندها (**مش**
 // بـ TOOL_VERSION): السؤال هو «الـ Worker جديد كفاية؟» مش «النسختين متطابقتين؟»،
 // لأن الرقمين مستقلين بالتصميم هنا (html-builder v4.0.0 · Standards #29).
-const WORKER_VERSION = 'v3.7.0';
-const CACHE_VERSION = 'v12'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا) → v11(hasRE على كل صف أوردر — عشان الواجهة تحسب «كام أوردر فيه نشاط إرجاع/استبدال» لأي جزء من الفترة بعد التقسيم الشهري) → v12(prov/zone على كل صف — تاب المحافظات والمناطق؛ الحقلين على الصف مش مجمّعين في الـ payload عشان يتحسبوا لأي جزء من الفترة)
+const WORKER_VERSION = 'v3.8.0';
+const CACHE_VERSION = 'v13'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا) → v11(hasRE على كل صف أوردر — عشان الواجهة تحسب «كام أوردر فيه نشاط إرجاع/استبدال» لأي جزء من الفترة بعد التقسيم الشهري) → v12(prov/zone على كل صف — تاب المحافظات والمناطق؛ الحقلين على الصف مش مجمّعين في الـ payload عشان يتحسبوا لأي جزء من الفترة) → v13(reason/reasonField على كل صف — تاب الإلغاءات والمرتجعات؛ سبب واحد لكل أوردر مقروء من أي من الميتافيلدين بلا افتراض إن الحقل بيحدد الدلو)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
 const LINE_ITEMS_PAGE     = 25;   // lineItems(first: 25) — absolute max
@@ -473,6 +473,31 @@ function zoneOf(order) {
   return (v == null || v === '') ? null : v;
 }
 
+// §SHARED::reasonOf — سبب الإلغاء/المرتجع لأوردر واحد (v3.8.0)
+// بيرجّع { reason, reasonField }:
+//   reason      = نص السبب الخام زي ما هو في شوبيفاي، أو null لو الاتنين فاضيين
+//   reasonField = 'cancel' | 'return' | null — الحقل اللي القيمة جت منه
+//
+// 🔴 **ممنوع افتراض إن الحقل بيحدد الدلو** — ده قرار أحمد الصريح (03-09-2026)
+//    ومقيس على المتجر: الأوردر #52113 ملغي + Fulfilled (يعني «مرتجع رفض
+//    استلام» عند المحرك) وشايل سببه في `cancel_manual_reason`. لو الواجهة
+//    قرأت حقل المرتجع بس على الدلاو دي، الأوردر ده كان هيتعدّ «بدون سبب» وهو
+//    عليه سبب مكتوب — رقم غلط شكله سليم.
+//    فالقاعدة: **أول قيمة موجودة من الحقلين**، والدلو بيفضل جاي من
+//    classifyOrderForCounts() وحدها. التطابق بين الحقل والدلو بيتعرض في
+//    الواجهة كتحذير جودة بيانات — مش بيغيّر ولا رقم (Rule 13: علّم ماتحركش).
+//
+// ⛔ وممنوع التعريب أو التجميع هنا — الـ Worker بيملك القيمة الخام والواجهة
+//    بتملك الكلام والعائلات (نفس فصل BUCKET / BUCKET_LABELS و zone / ZONE_AR).
+//    قيمة برّه القايمة المقفولة بتعدّي زي ما هي عشان تبان بدل ما تتبلع.
+function reasonOf(order) {
+  const c = order.cancelReason?.value;
+  const r = order.returnReason?.value;
+  if (c != null && c !== '') return { reason: c, reasonField: 'cancel' };
+  if (r != null && r !== '') return { reason: r, reasonField: 'return' };
+  return { reason: null, reasonField: null };
+}
+
 // §SHARED::isLineFulfilled — على مستوى السطر، مش الأوردر.
 // unfulfilledQuantity = 0 يعني كل كمية السطر اتشحنت. بيتستخدم كـ **تأكيد إضافي**
 // (assertion) بس — أبداً مش بيحدد الـ bucket، عشان مايختفيش أي جنيه من التصنيف
@@ -600,6 +625,14 @@ async function fetchStage1(env, token, dateFrom, dateTo) {
           # بيانات العملاء المحمية ناقصة في التطبيق. geoOf() بتتعامل مع الحالتين.
           shippingAddress { province provinceCode }
           zone: metafield(namespace: "custom", key: "zone") { value }
+          # v3.8.0 — تاب الإلغاءات والمرتجعات. ميتافيلدان عاديان على نفس النود:
+          # صفر نداء إضافي وصفر endpoint جديد (نفس تكلفة zone بالظبط).
+          # ممنوع افتراض إن الحقل بيحدد الدلو — اتقاس على المتجر (03-09-2026)
+          # إن أوردر رفض استلام شايل سببه في cancel_manual_reason مش في
+          # return_manual_reason. reasonOf() بتاخد أول قيمة موجودة من الاتنين
+          # وبتسجّل جاية من أنهي حقل. التفاصيل في تعليق reasonOf فوق.
+          cancelReason: metafield(namespace: "custom", key: "cancel_manual_reason") { value }
+          returnReason: metafield(namespace: "custom", key: "return_manual_reason") { value }
           lineItems(first: ${LINE_ITEMS_PAGE}) {
             pageInfo { hasNextPage }
             nodes {
@@ -890,6 +923,9 @@ function pushRow(rows, ctx, li, qty, value, bucket, note = null) {
     // تجميع جاهز هنا بيبقى رقم غلط شكله سليم على أي فترة مش على حدود شهر.
     prov:             ctx.prov,
     zone:             ctx.zone,
+    // v3.8.0 — نفس السبب بالظبط: السبب على الصف، مش رقم مجمّع في الـ payload.
+    reason:           ctx.reason,
+    reasonField:      ctx.reasonField,
   });
 }
 
@@ -946,6 +982,7 @@ function computeBoxes(stage1Orders, stage2Map) {
       cycleNote:        cycNote,
       prov:             provinceOf(order),
       zone:             zoneOf(order),
+      ...reasonOf(order),
     };
 
     // §4.1 — ملغي/RTO: كل قيمة السطر (Q×P) بتروح للفاقد، مش بس الفرق (Q−C)
@@ -1218,6 +1255,11 @@ function pushOrderRow(rows, order, bucket, cycNote = null, hasRE = false) {
     // v3.7.0 — نفس السبب بالظبط: المحافظة والمنطقة على الصف (تاب المحافظات)
     prov:             provinceOf(order),
     zone:             zoneOf(order),
+    // v3.8.0 — سبب الإلغاء/المرتجع على الصف (تاب الإلغاءات والمرتجعات).
+    // ⛔ ممنوع تجميعه في الـ payload — بعد التقسيم الشهري الـ payload بيوصف
+    // شهر تقويمي كامل والمعروض جزء منه، فأي عدّاد جاهز هنا بيبقى رقم غلط
+    // شكله سليم على أي فترة مش على حدود شهر.
+    ...reasonOf(order),
   });
 }
 
@@ -1652,7 +1694,7 @@ export default {
         try {
           const token2 = await getAccessToken(env);
           const probe = await shopifyGQL(env, token2,
-            `{ orders(first: 1, sortKey: CREATED_AT, reverse: true) { nodes { name shippingAddress { province } zone: metafield(namespace: "custom", key: "zone") { value } } } }`);
+            `{ orders(first: 1, sortKey: CREATED_AT, reverse: true) { nodes { name shippingAddress { province } zone: metafield(namespace: "custom", key: "zone") { value } cancelReason: metafield(namespace: "custom", key: "cancel_manual_reason") { value } returnReason: metafield(namespace: "custom", key: "return_manual_reason") { value } } } }`);
           const node = probe.data?.orders?.nodes?.[0];
           if (!node) {
             checks.push({ check: 'قراءة المحافظة (shippingAddress.province)', ok: true, detail: 'مفيش أوردرات للفحص' });
@@ -1668,6 +1710,16 @@ export default {
             checks.push({
               check: 'قراءة المنطقة (custom.zone)', ok: true,
               detail: node.zone?.value ? `${node.name} → ${node.zone.value}` : `${node.name} → الميتافيلد مش متكتب (بيتعرض "غير محدد")`,
+            });
+            // v3.8.0 — الميتافيلدان بتوع تاب الإلغاءات والمرتجعات. الفحص هنا
+            // بيثبت إن **القراءة شغّالة**، مش إن الحقل متملي: أوردر واحد
+            // فاضي مش مشكلة (التغطية بتتقاس في الواجهة على الفترة كلها).
+            const rsn = reasonOf(node);
+            checks.push({
+              check: 'قراءة سبب الإلغاء/المرتجع (custom.cancel_manual_reason · custom.return_manual_reason)', ok: true,
+              detail: rsn.reason
+                ? `${node.name} → "${rsn.reason}" (من حقل ${rsn.reasonField === 'cancel' ? 'الإلغاء' : 'المرتجع'})`
+                : `${node.name} → الحقلان فاضيان على الأوردر ده — طبيعي لأوردر لسه شغّال. التغطية الحقيقية بتتعرض في بانر تاب الإلغاءات والمرتجعات`,
             });
           }
         } catch (e) {
