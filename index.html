@@ -54,7 +54,7 @@
     --surface-soft:   #fafafa;   /* خلفية مفتاح الأسباب (.legend-row) */
     --row-note:       #fffdf5;   /* خلفية صف عليه ملاحظة أو تعارض دورات */
     --chart-grid:     #f1f5f9;   /* خطوط شبكة الرسوم (Chart.js) */
-    --track:          #e2e8f0;   /* خلفية شريط التغطية */
+    --track:          #e2e8f0;   /* خلفية شريط النسبة */
     --green-text:     #166534;   /* نص أخضر داكن في كارت الهوية */
     --red-text:       #991b1b;   /* نص أحمر داكن في التحذيرات والـ pills */
     --red-soft:       #fee2e2;   /* خلفية pill حمراء */
@@ -62,10 +62,9 @@
     --amber-soft:     #fef3c7;   /* خلفية وسم صغير كهرماني */
     --amber-soft-border:#fcd34d;
     /* بالتة الرسوم — ألوان تصنيف مالهاش نظير في design-system.md */
-    --teal:           #0f766e;   /* عائلة «مقاس وتوفّر» · زرار البُعد المفعّل */
+    --teal:           #0f766e;   /* زرار البُعد المفعّل */
     --orange:         #ea580c;   /* مرحلة «مرتجع رفض الاستلام» */
-    --slate:          #64748b;   /* عائلة «تشغيلي داخلي» */
-    --slate-light:    #94a3b8;   /* «غير محدد» · «غير مصنّف» */
+    --slate-light:    #94a3b8;   /* «غير محدد» */
     --radius:         14px;
     --radius-sm:      8px;
     --shadow:         0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04);
@@ -683,37 +682,28 @@
   /* ── §REASONS — تاب الإلغاءات والمرتجعات (v3.16.0) ── */
   /* بيعيد استخدام كل كلاسات .geo-* (الكارت · الجدول · الشريط · الشارات) —
      اللي هنا هو اللي مالوش نظير هناك بس. */
-  .rsn-cov{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;
-    border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:14px;background:var(--surface)}
-  .rsn-cov-t{font-weight:700;font-size:15px}
-  .rsn-cov-s{font-size:12.5px;color:var(--text-secondary);max-width:70ch;line-height:1.7}
-  .rsn-cov.is-ok{background:var(--green-light);border-color:var(--green-border)}
-  .rsn-cov.is-ok .rsn-cov-t{color:var(--green)}
-  .rsn-cov.is-warn{background:var(--amber-light);border-color:var(--amber-border)}
-  .rsn-cov.is-warn .rsn-cov-t{color:var(--amber)}
-  .rsn-cov.is-bad{background:var(--red-light);border-color:var(--red-border)}
-  .rsn-cov.is-bad .rsn-cov-t{color:var(--red)}
-  .rsn-cov-bar{flex:1 1 220px;height:10px;border-radius:6px;background:var(--track);overflow:hidden;min-width:160px}
-  .rsn-cov-bar i{display:block;height:100%;border-radius:6px}
-  /* عائلات الأسباب */
   /* ٤ كروت بالظبط — الشبكة العامة (.kpi-grid) بـ auto-fit مضبوطة على تابات
      فيها ٦–٧ كروت، فمع ٤ بتدّي ٣+١ والكارت الرابع بيقعد لوحده في صف.
-     الأربعة هنا بيتقروا كمجموعة واحدة (أكتر سبب ↔ أغلى سبب)، فتقسيمهم بيضيّع
-     المقارنة اللي هي سبب وجودهم. */
+     الأربعة هنا بيتقروا كمجموعة واحدة (الإجمالي + التلات أنواع اللي بتكوّنه)،
+     فتقسيمهم بيضيّع المقارنة اللي هي سبب وجودهم. */
   #rsnKpis{grid-template-columns:repeat(4,1fr)}
   @media (max-width:1100px){ #rsnKpis{grid-template-columns:repeat(2,1fr)} }
   @media (max-width:560px){  #rsnKpis{grid-template-columns:1fr} }
   .rsn-kpi-sub{font-size:11.5px;color:var(--text-secondary);margin-top:6px;line-height:1.6}
-  .rsn-fam-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:6px}
-  .rsn-fam{border:1px solid var(--border);border-left:4px solid var(--border);border-radius:10px;
-    padding:11px 13px;background:var(--surface);cursor:pointer;transition:box-shadow .15s}
-  .rsn-fam:hover{box-shadow:0 2px 10px rgba(15,23,42,.08)}
-  .rsn-fam.is-on{outline:2px solid var(--accent);outline-offset:-2px}
-  .rsn-fam-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
-  .rsn-fam-n{font-weight:700;font-size:13.5px}
-  .rsn-fam-o{font-size:11px;color:var(--text-secondary)}
-  .rsn-fam-v{font-family:'Courier New',monospace;direction:ltr;font-size:17px;font-weight:700;margin-top:4px}
-  .rsn-fam-s{font-size:11.5px;color:var(--text-secondary);margin-top:2px}
+  /* كروت الأنواع الفرعية — مربّعان (عدد | قيمة) جوّه الكارت الواحد، وتحت كل
+     مربّع نسبته من الإجمالي. النسبتان مقامهما مختلف (عدد ÷ عدد · قيمة ÷ قيمة)،
+     فكل مربّع بياخد نسبته تحته — نسبة واحدة للاتنين كانت هتبقى مبهمة. */
+  #rsnKpis .kpi-card{cursor:default}
+  #rsnKpis .kpi-card:hover{box-shadow:none;transform:none}
+  .rsn-split{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:4px}
+  .rsn-box{border:1px solid var(--border);border-radius:10px;padding:7px 9px;min-width:0;background:var(--surface-2)}
+  .rsn-box-k{font-size:10.5px;color:var(--text-secondary);font-weight:800;margin-bottom:2px}
+  .rsn-box-v{font-family:var(--font-mono);direction:ltr;text-align:right;font-size:16px;font-weight:700;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .rsn-sbar{height:4px;border-radius:3px;background:var(--track);overflow:hidden;margin:5px 0 3px}
+  .rsn-sbar i{display:block;height:100%;border-radius:3px}
+  .rsn-box-p{font-size:10.5px;color:var(--text-muted)}
+  .rsn-box-p b{font-family:var(--font-mono);direction:ltr;display:inline-block;color:var(--text-secondary)}
   /* شارة المرحلة داخل الجدول */
   .rsn-stage-pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:100px;
     border:1px solid currentColor;white-space:nowrap;line-height:1.7}
@@ -721,9 +711,6 @@
     background:var(--amber-soft);color:var(--amber-dark);border:1px solid var(--amber-soft-border);margin-inline-start:5px;white-space:nowrap}
   .rsn-chart-scroll{overflow-x:auto;overflow-y:hidden;direction:ltr}
   .rsn-toolbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:12px}
-  .rsn-switch{display:inline-flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;
-    border:1px solid var(--border);border-radius:100px;padding:5px 12px;background:var(--surface);user-select:none}
-  .rsn-switch.is-on{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);font-weight:600}
   .rsn-heat td.rsn-hc{font-family:'Courier New',monospace;direction:ltr;text-align:center}
   .rsn-dim-btn{font-size:12.5px;padding:4px 12px;border-radius:100px;border:1px solid var(--border);
     background:var(--surface);cursor:pointer}
@@ -1281,6 +1268,13 @@
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">03-09-2026</span></div>
         <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>كارت لكل نوع فرعي في تاب «الإلغاءات والمرتجعات»</b> — <b>إلغاء قبل الشحن</b> · <b>مرتجع رفض الاستلام</b> · <b>مرتجع كامل بعد الاستلام</b>، كل كارت مقسوم مربّعين (<b>عدد</b> | <b>قيمة</b>) وتحت كل مربّع نسبته من الإجمالي. النسبتان مقامهما مختلف عن قصد (العدد من العدد والقيمة من القيمة) — نسبة واحدة للاتنين كانت هتبقى مبهمة، والفرق بينهم هو اللي بيبيّن النوع اللي أوردراته كتير وقيمته صغيرة والعكس. التلاتة بيجمعوا كارت الإجمالي بالظبط في الوحدتين.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>الدلو من محرّك التصنيف، والقيمة من نفس دالة تاب المبيعات</b> — كروت الأنواع الفرعية بتقرا <code>LOST_CANCELLED</code> / <code>LOST_RTO</code> / <code>LOST_FULL_RETURN</code> زي ما هي، وقيمتها بتتحسب بـ <code>computeBoxesFromRows</code> نفسها اللي بتحسب كارت «إلغاءات ومرتجعات» — مفيش تعريف تاني لـ«قيمة الخسارة» يقدر يفترق عن أصله.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.17.0</span><span class="cl-ver-date">03-09-2026</span></div>
+        <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>كارت «الخسائر» اتسمّى «إلغاءات ومرتجعات»</b> في <b>كل</b> الأداة — تاب المبيعات وتاب الأوردرات، في المربّع نفسه وفي الدونات والبار وعنوان جدول التفاصيل وصف التوقّع. الاسم بقى مطابق لعمود «إلغاءات ومرتجعات» في تاب المحافظات/المناطق ولاسم تاب «الإلغاءات والمرتجعات» — نفس الأوردرات بنفس الاسم في التلاتة. ⚠️ <b>الأرقام والدلاو ما اتغيّرتش إطلاقًا</b>: تسمية بس، صفر تعديل في <code>index.js</code> وصفر <code>CACHE_VERSION</code> bump.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>صفر <code>#hex</code> حرفي خارج <code>:root</code></b> (<code>ecommoda-html-builder</code> v6.2.0 · Standards #35) — ١٠٨ قيمة لون كانت مكتوبة حرفيًا في الـ CSS وفي بالتة الرسوم بقت توكنز. اتضافت الـ ١١ توكن القياسية (<code>--on-accent</code> · <code>--accent-border</code> · <code>--green-dark</code> …) + توكنز محلية للقيم اللي مالهاش نظير في <code>design-system.md</code>. <b>صفر تغيير بصري</b> — نفس القيم بالظبط.</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span><b>الأرقام المرسومة على الدونات والبار كانت بخط مكتوب حرفيًا</b> — بقت بتقرا التوكن وقت الرسم بـ <code>cssVar()</code> (<code>ecommoda-dashboard-builder</code> v3.2.0). الـ canvas بياخد نص مش CSS، فالقيمة الحرفية بتتعتّق من غير أي رسالة خطأ لما التوكن يتغيّر.</span></li>
@@ -1290,10 +1284,8 @@
       <div class="cl-version-block">
         <div class="cl-version-row"><span class="cl-ver-badge old">v3.16.0</span><span class="cl-ver-date">03-09-2026</span></div>
         <ul class="cl-items">
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تاب «الإلغاءات والمرتجعات»</b> — بيفكّ كارت «إلغاءات ومرتجعات» لأسباب بالعدد وبالقيمة، من ميتافيلدي الأوردر <code>custom.cancel_manual_reason</code> و<code>custom.return_manual_reason</code>. أقسامه: بانر التغطية · ٤ كروت · عائلات الأسباب · فلتر chips · رسمان أفقيان · جدول الأسباب · مصفوفة السبب × المرحلة · الأسباب جغرافيًا (محافظة/منطقة) · جودة البيانات · جدول أوردرات السبب المختار.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تاب «الإلغاءات والمرتجعات»</b> — بيفكّ كارت «إلغاءات ومرتجعات» لأسباب بالعدد وبالقيمة، من ميتافيلدي الأوردر <code>custom.cancel_manual_reason</code> و<code>custom.return_manual_reason</code>. أقسامه: كروت · فلتر chips · رسمان أفقيان · جدول الأسباب · مصفوفة السبب × المرحلة · الأسباب جغرافيًا (محافظة/منطقة) · جودة البيانات · جدول أوردرات السبب المختار.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>السبب بيتاخد من أي حقل فيه قيمة</b> — الأداة <b>مش</b> بتفترض إن حقل الإلغاء يخص الإلغاء وحقل المرتجع يخص المرتجع. القياس على المتجر لقى أوردر رفض استلام شايل سببه في حقل الإلغاء، ولو الأداة قرأت الحقل «المتوقع» بس كان هيتعدّ «بدون سبب» وهو عليه سبب مكتوب. عدم التطابق بيتعرض في قسم جودة البيانات <b>من غير ما يحرّك أي رقم</b>.</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>بانر التغطية</b> فوق كل حاجة — بيقول كام أوردر خسارة عليه سبب. لازم لأن التغطية مش موحّدة: الإلغاء قبل الشحن تغطيته شبه كاملة، والمرتجع لسه بيتبني. و«بدون سبب» <b>صف كامل في الجدول</b> مش استبعاد صامت، عشان المجموع يفضل مساوي لكارت «إلغاءات ومرتجعات».</span></li>
-          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مفتاح «استبعاد الخسائر التشغيلية»</b> — بيشيل «أوردر مكرر وتم دمجه» و«استلام جزئي - بوسطة» (دول مش فقد مبيعات) ويعيد حساب أرقام التاب. ⚠️ عرض في التاب ده وحده — كارت «إلغاءات ومرتجعات» في تاب الأوردرات ما بيتأثرش.</span></li>
           <li class="cl-item"><span class="cl-tag new">جديد</span><span>قسم <b>الأسباب جغرافيًا</b> بمفتاح (محافظة / منطقة) وأرقام <b>مطبّعة</b>: معدل الخسارة داخل المجموعة + مؤشر تركّز، مع حد أدنى للعيّنة (٢٥ أوردر) — العدد الخام كان هيخلي أكبر محافظة تتصدّر كل صف لأنها أكبر مش لأن عندها مشكلة.</span></li>
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span>الرسمان في التاب الجديد <b>أفقيان</b> (<code>indexAxis:'y'</code>) — أسماء الأسباب جمل عربية كاملة، والأفقي بيخليها تتقرا من غير أي دوران، تطبيقًا لقاعدة «ممنوع ليبلات مايلة».</span></li>
           <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>شريط التابات بقى بيلفّ لصفّين تحت <code>800px</code>. مع خمس تابات كان الزرار الأخير بيتقصّ في صمت (<code>overflow:hidden</code> اللازمة لأنيميشن الـ sticky) ومايتوصلش له — والقصّ ده كان موجود أصلاً على الزرار الرابع تحت <code>375px</code>.</span></li>
@@ -1802,10 +1794,7 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 سبب الإلغاء/المرتجع على الصف      │ Worker │ §SHARED    │ reasonOf(order) → { reason, reasonField }
 عالم التاب = دلاو الخسارة التلاتة │ HTML   │ §REASONS   │ RSN_STAGE / rsnIsLoss
 قرار الفلترة في مكان واحد         │ HTML   │ §REASONS   │ rsnRowsFor(rows)
-بانر التغطية (قبل أي رقم)         │ HTML   │ §REASONS   │ rsnCoverage / renderRsnCoverage
 صف لكل سبب بالعدد وبالقيمة        │ HTML   │ §REASONS   │ rsnGroups / rsnRow
-عائلات الأسباب (تجميع تشغيلي)     │ HTML   │ §REASONS   │ REASON_FAMILY / RSN_FAMILY_DEF
-استبعاد الخسائر التشغيلية (عرض)   │ HTML   │ §REASONS   │ state.rsnExcludeOps / toggleRsnExcludeOps
 رسمان أفقيان (بلا أي دوران ليبل)  │ HTML   │ §REASONS   │ buildRsnBar (indexAxis:'y')
 مصفوفة السبب × المرحلة            │ HTML   │ §REASONS   │ renderRsnMatrix
 الأسباب جغرافيًا (مطبّعة + مؤشر)  │ HTML   │ §REASONS   │ renderRsnGeo / RSN_MIN_SAMPLE
@@ -1816,6 +1805,10 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 كارت «إلغاءات ومرتجعات» (كان «خسائر») │ HTML │ §KPI-JS · §ORDERS-JS │ showDetails/showOrderDetails + segments[]
 صفر #hex حرفي خارج :root          │ HTML   │ §CSS       │ :root (١١ توكن قياسية + توكنز محلية)
 JS بيقرا التوكن مش بيكتبه         │ HTML   │ §SHELL-JS  │ cssVar(name) / canvasFont(w, px)
+── v3.18.0 — كروت الأنواع الفرعية ────────────────────────────
+كارت لكل نوع فرعي (عدد | قيمة)    │ HTML   │ §REASONS   │ rsnStageTotals / renderRsnKpis
+مربّع بنسبته تحته (.rsn-split)    │ HTML   │ §CSS       │ .rsn-split · .rsn-box · .rsn-sbar
+قايمة الأسباب المقفولة            │ HTML   │ §REASONS   │ RSN_REASONS
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -2051,7 +2044,7 @@ NOTES
 //    من غير أي رسالة خطأ — وده بالظبط اللي خلّى أرقام الدونات في الأداة دي
 //    تترسم بخط مش متحمّل في `<head>`. الحل التالت: اقرا التوكن وقت الرسم.
 // ⚠️ لازم تفضل معرّفة **فوق** أي const بيستهلكها (ZONE_AR · GEO_STATUS ·
-//    RSN_STAGE · RSN_FAMILY_DEF) — دول بيتقيّموا وقت تحميل السكربت.
+//    RSN_STAGE) — دول بيتقيّموا وقت تحميل السكربت.
 const cssVar = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 // خط الأرقام المرسومة على الكانفس — الحجم والوزن قرار داشبورد، الاسم من التوكن.
 const canvasFont = (w, px) => `${w} ${px}px ${cssVar('--font-mono') || 'sans-serif'}`;
@@ -2075,7 +2068,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.17.0';
+const TOOL_VERSION = 'v3.18.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -2398,8 +2391,6 @@ const state = {
   // ══ v3.16.0 — تاب الإلغاءات والمرتجعات ══
   // rsnSel فاضية = مفيش فلتر = كل الأسباب (نفس نمط الـ facets في geoProvSel).
   rsnSel: new Set(),
-  rsnFamSel: null,             // عائلة مختارة (مفتاح واحد) أو null
-  rsnExcludeOps: false,        // سويتش «استبعاد الخسائر التشغيلية» — عرض بس
   rsnDim: 'prov',              // البُعد الجغرافي المعروض في قسم الأسباب جغرافيًا
   rsnSortKey: 'value',
   rsnSortDir: 'desc',
@@ -3377,11 +3368,7 @@ function renderShell() {
 
     <div id="reasonsPageContent" class="${state.activePage === 'reasons' ? '' : 'hidden'}">
       <div id="rsnGuardNote"></div>
-      <div id="rsnCoverage"></div>
       <div class="kpi-grid" id="rsnKpis"></div>
-
-      <div class="geo-section-hdr"><span class="kpi-icon">🧭</span>عائلات الأسباب<span class="geo-section-sub">تجميع تشغيلي — كل عائلة ليها جهة مسؤولة وفعل مختلف. اضغط عائلة لقصّ التاب عليها.</span></div>
-      <div id="rsnFamilies"></div>
 
       <div class="geo-filter-card" id="rsnFilterCard"></div>
 
@@ -5812,45 +5799,33 @@ const RSN_STAGE_BY  = Object.fromEntries(RSN_STAGE.map(x => [x.id, x]));
 //    القايمة تتغيّر شكلها مع كل فترة).
 const RSN_MIN_SAMPLE = 25;
 
-// ─── §REASONS::REASON_FAMILY — تجميع تشغيلي، مش تصنيف تقني ───
-// ⚠️ ده **قرار تشغيلي** اتراجع مع أحمد: كل عائلة ليها جهة مسؤولة وفعل مختلف.
-//    تعديله بيغيّر مين بيتحاسب على إيه — مش مجرد إعادة تسمية.
-//    سبب مش مكتوب هنا بيروح 'unknown' و**بيتعرض خام** عشان النقص يبان
-//    (نفس قاعدة PROVINCE_AR: اسم مش في الخريطة يتعرض خام، ما يتبلعش).
-const REASON_FAMILY = {
-  'لا يرد نهائي على المندوب': 'contact',
-  'لم يتم الرد للتأكيد':      'contact',
-  'رقم غير صحيح':             'contact',
-  'السعر غالي':               'customer',
-  'طلب الأوردر بالخطأ':       'customer',
-  'العميل سافر':              'customer',
-  'تأجيل غير محدد':           'customer',
-  'المنتج غير أصلي':          'trust',
-  'عطلان':                    'trust',
-  'الجودة / الخامة':          'trust',
-  'المقاس غير متوفر':         'size',
-  'مقاس غير مظبوط':           'size',
-  'حرامي':                    'fraud',
-  'يتهرب من الاستلام':        'fraud',
-  'أوردر مكرر وتم دمجه':      'ops',
-  'استلام جزئي - بوسطة':      'ops',
-  'لا يوجد سبب':              'unknown',
-};
-
-const RSN_FAMILY_DEF = {
-  contact:  { label: 'تأكيد وتواصل',  owner: 'خدمة العملاء',            colour: cssVar('--amber') },
-  customer: { label: 'قرار العميل',   owner: 'تسويق وتسعير',            colour: cssVar('--accent') },
-  trust:    { label: 'ثقة ومنتج',     owner: 'المشتريات والجودة',       colour: cssVar('--red') },
-  size:     { label: 'مقاس وتوفّر',   owner: 'المخزون والمحتوى',        colour: cssVar('--teal') },
-  fraud:    { label: 'احتيال وتهرّب', owner: 'العمليات والشحن',         colour: cssVar('--purple') },
-  ops:      { label: 'تشغيلي داخلي',  owner: 'العمليات — مش خسارة فعلية', colour: cssVar('--slate') },
-  unknown:  { label: 'غير مصنّف',     owner: 'جودة الإدخال',            colour: cssVar('--slate-light') },
-};
-const RSN_FAMILY_IDS = ['contact', 'customer', 'trust', 'size', 'fraud', 'ops', 'unknown'];
+// ─── §REASONS::RSN_REASONS — قايمة اختيارات الميتافيلد المقفولة ───
+// ⚠️ مالهاش أي أثر على التصنيف ولا على أي رقم — وظيفتها اتنين بس:
+//    ① الـ chips بتتبني منها فالسبب اللي مالوش أوردرات في الفترة بيبان
+//      **باهت ومعطّل** بدل ما يختفي والقايمة تتغيّر شكلها مع كل فترة.
+//    ② قيمة برّه القايمة بتتعرض **خام** في الجدول وفي قسم جودة البيانات
+//      (نفس قاعدة PROVINCE_AR: اللي مش في القايمة يبان، ما يتبلعش).
+const RSN_REASONS = [
+  'لا يرد نهائي على المندوب',
+  'لم يتم الرد للتأكيد',
+  'رقم غير صحيح',
+  'السعر غالي',
+  'طلب الأوردر بالخطأ',
+  'العميل سافر',
+  'تأجيل غير محدد',
+  'المنتج غير أصلي',
+  'عطلان',
+  'الجودة / الخامة',
+  'المقاس غير متوفر',
+  'مقاس غير مظبوط',
+  'حرامي',
+  'يتهرب من الاستلام',
+  'أوردر مكرر وتم دمجه',
+  'استلام جزئي - بوسطة',
+  'لا يوجد سبب',
+];
 
 function rsnKeyOf(r)    { const v = r.reason; return (v == null || v === '') ? RSN_NONE : v; }
-function rsnFamilyOf(k) { return k === RSN_NONE ? 'unknown' : (REASON_FAMILY[k] || 'unknown'); }
-function rsnIsOps(k)    { return rsnFamilyOf(k) === 'ops'; }
 function rsnLabel(k)    { return k === RSN_NONE ? 'بدون سبب' : k; }
 function rsnIsLoss(r)   { return RSN_STAGE_IDS.includes(r.bucket); }
 
@@ -5866,26 +5841,47 @@ function rsnFieldMismatch(r) {
 // ⛔ ممنوع أي مستهلك جديد يفلتر بنفسه — نفس قاعدة `geoRowsFor` بالظبط. كل
 //    قارئ للصفوف بيعدّي من هنا، فمستحيل جدول يقرا من مصدر والأرقام اللي فوقه
 //    تتحسب من مصدر تاني.
-// ⚠️ سويتش «استبعاد التشغيلي» **عرض بس** وبيخص التاب ده وحده — ⛔ ممنوع
-//    يلمس كارت «إلغاءات ومرتجعات» في تاب الأوردرات ولا أي رقم برّه التاب.
-function rsnFilterActive() { return !!(state.rsnSel && state.rsnSel.size) || !!state.rsnFamSel; }
+function rsnFilterActive() { return !!(state.rsnSel && state.rsnSel.size); }
 function rsnRowsFor(rows) {
   let out = (rows || []).filter(rsnIsLoss);
-  if (state.rsnExcludeOps) out = out.filter(r => !rsnIsOps(rsnKeyOf(r)));
-  if (state.rsnFamSel)     out = out.filter(r => rsnFamilyOf(rsnKeyOf(r)) === state.rsnFamSel);
-  if (state.rsnSel.size)   out = out.filter(r => state.rsnSel.has(rsnKeyOf(r)));
+  if (state.rsnSel.size) out = out.filter(r => state.rsnSel.has(rsnKeyOf(r)));
   return out;
 }
 
-// ─── §REASONS::rsnCoverage — التغطية ───
-// ⚠️ بتتحسب على **كل** أوردرات الخسارة في الفترة، قبل أي فلتر أو استبعاد:
-//    البانر بيوصف جودة بيانات الفترة نفسها، فلو اتحسب على المفلتر كان
-//    هيتغيّر مع كل ضغطة chip ويبقى بلا معنى.
-function rsnCoverage() {
-  const all = (state.orderRows || []).filter(rsnIsLoss);
-  const covered = all.filter(r => rsnKeyOf(r) !== RSN_NONE).length;
-  return { total: all.length, covered, missing: all.length - covered,
-           pct: all.length ? (covered / all.length) * 100 : 0 };
+// ─── §REASONS::rsnStageTotals — التلات أنواع الفرعية بالعدد وبالقيمة ───
+// 🔴 القيمة من `computeBoxesFromRows` — نفس الدالة اللي تاب المبيعات وتاب
+//    المحافظات وجدول الأسباب بيستخدموها. ⛔ ممنوع تعريف تاني لـ«قيمة الخسارة»
+//    هنا: التعريف المكرر بيتفرّق عن أصله عند أول تعديل في التصنيف، والفرق
+//    بيبان في كارت مقابل عمود في نفس التاب — آخر مكان حد بيبص فيه.
+// الربط بالـ orderId مش بإعادة قراءة الـ bucket من صف القطعة، عشان الوحدتين
+// يوصفوا نفس مجموعة الأوردرات بالظبط (نفس طريقة rsnGroups).
+// ⚠️ الهوية مضمونة: التلاتة بيتقسّموا نفس الصفوف المفلترة، فمجموع العدد =
+//    كارت الإجمالي ومجموع القيمة = قيمته.
+function rsnStageTotals() {
+  const orderRows = rsnRowsFor(state.orderRows);
+  const cnt        = Object.fromEntries(RSN_STAGE_IDS.map(id => [id, 0]));
+  const stageByOrd = new Map();
+  orderRows.forEach(r => { stageByOrd.set(String(r.orderId), r.bucket); cnt[r.bucket]++; });
+
+  const pieceBy = new Map();
+  (state.rows || []).forEach(r => {
+    const st = stageByOrd.get(String(r.orderId));
+    if (st === undefined) return;
+    const a = pieceBy.get(st); if (a) a.push(r); else pieceBy.set(st, [r]);
+  });
+
+  return RSN_STAGE.map(st => ({
+    ...st,
+    orders: cnt[st.id],
+    value:  computeBoxesFromRows(pieceBy.get(st.id) || [], 'value').lost,
+  }));
+}
+
+// عدد أوردرات الخسارة اللي مفيهاش سبب — بيتحسب على **كل** أوردرات الفترة قبل
+// أي فلتر أو استبعاد: ده بلاغ عن جودة إدخال الفترة نفسها، فلو اتحسب على
+// المفلتر كان هيتغيّر مع كل ضغطة chip ويبقى بلا معنى.
+function rsnMissingReason() {
+  return (state.orderRows || []).filter(r => rsnIsLoss(r) && rsnKeyOf(r) === RSN_NONE).length;
 }
 
 // ─── §REASONS::rsnGroups — صف لكل سبب، بالعدد وبالقيمة ───
@@ -5935,8 +5931,7 @@ function rsnRow(key, orderRows, pieceRows) {
     isNone:     key === RSN_NONE,
     // قيمة برّه القايمة المقفولة في شوبيفاي — بتتعرض خام بعلامة، ما تتبلعش
     // في دلو «أخرى» يخفيها للأبد (نفس قاعدة الـ zone الغريبة).
-    isUnlisted: key !== RSN_NONE && !REASON_FAMILY[key],
-    family:     rsnFamilyOf(key),
+    isUnlisted: key !== RSN_NONE && !RSN_REASONS.includes(key),
     orders,
     value:        money.lost,
     avg:          orders ? money.lost / orders : 0,
@@ -5966,15 +5961,7 @@ function toggleRsnReason(key) {
   if (sel.has(key)) sel.delete(key); else sel.add(key);
   applyRsnFilter();
 }
-function clearRsnFilter() { state.rsnSel.clear(); state.rsnFamSel = null; applyRsnFilter(); }
-function toggleRsnFamily(fam) {
-  state.rsnFamSel = state.rsnFamSel === fam ? null : fam;
-  // الاختيار الصريح للأسباب بيتمسح مع تغيير العائلة — سيبانه معناه فلترين
-  // متداخلين والنتيجة ممكن تبقى فاضية من غير ما يبان ليه.
-  state.rsnSel.clear();
-  applyRsnFilter();
-}
-function toggleRsnExcludeOps() { state.rsnExcludeOps = !state.rsnExcludeOps; applyRsnFilter(); }
+function clearRsnFilter() { state.rsnSel.clear(); applyRsnFilter(); }
 function setRsnDim(dim) { state.rsnDim = dim; renderReasons(); }
 
 function applyRsnFilter() {
@@ -5991,9 +5978,7 @@ function applyRsnFilter() {
 
 function rsnFilterFlag() {
   const bits = [];
-  if (state.rsnFamSel)      bits.push(`عائلة «${esc(RSN_FAMILY_DEF[state.rsnFamSel].label)}»`);
   if (state.rsnSel.size)    bits.push(`${fmtInt(state.rsnSel.size)} سبب`);
-  if (state.rsnExcludeOps)  bits.push('بدون التشغيلي');
   return bits.length ? `<span class="geo-filter-flag">🔎 مفلتر على ${bits.join(' · ')}</span>` : '';
 }
 
@@ -6018,9 +6003,7 @@ function renderReasons() {
   guard.innerHTML = rsnDataGuard();
 
   const { groups, totals } = rsnGroups();
-  renderRsnCoverage();
-  renderRsnKpis(groups, totals);
-  renderRsnFamilies();
+  renderRsnKpis(totals);
   renderRsnFilter();
   const flag = document.getElementById('rsnFlag');
   if (flag) flag.innerHTML = rsnFilterFlag();
@@ -6031,33 +6014,9 @@ function renderReasons() {
   renderRsnQuality(totals);
 }
 
-function renderRsnCoverage() {
-  const el = document.getElementById('rsnCoverage');
-  if (!el) return;
-  const c = rsnCoverage();
-  if (!c.total) { el.innerHTML = ''; return; }
-  const cls = c.pct >= 90 ? 'is-ok' : (c.pct >= 60 ? 'is-warn' : 'is-bad');
-  const col = c.pct >= 90 ? 'var(--green)' : (c.pct >= 60 ? 'var(--amber)' : 'var(--red)');
-  el.innerHTML = `
-    <div class="rsn-cov ${cls}">
-      <div>
-        <div class="rsn-cov-t">${c.pct >= 90 ? '✅' : '⚠️'} التغطية ${fmtPct(c.pct)} — ${fmtInt(c.covered)} من ${fmtInt(c.total)} أوردر خسارة عليه سبب</div>
-        <div class="rsn-cov-s">كل النسب في التاب ده محسوبة على أوردرات الخسارة المعروضة، و<b>«بدون سبب»</b> صف كامل في الجدول (${fmtInt(c.missing)} أوردر) مش استبعاد صامت — عشان مجموع الأعمدة يفضل مساوي لكارت «إلغاءات ومرتجعات» بالظبط.</div>
-      </div>
-      <div class="rsn-cov-bar" title="${esc(fmtPct(c.pct))}"><i style="width:${Math.min(Math.max(c.pct,0),100).toFixed(1)}%;background:${col}"></i></div>
-    </div>`;
-}
-
-function renderRsnKpis(groups, totals) {
+function renderRsnKpis(totals) {
   const el = document.getElementById('rsnKpis');
   if (!el) return;
-  // «أكتر سبب» و«أغلى سبب» عن قصد **مربعين مستقلين**: الأكتر تكرارًا نادرًا ما
-  // يكون الأغلى، والفرق بينهم هو اللي بيحدد أولوية التدخل. عرض واحد منهم بس
-  // كان هيخلي القرار يتاخد على الرقم الغلط.
-  const named   = groups.filter(g => !g.isNone);
-  const topCnt  = rsnSortGroups(named, 'orders', 'desc')[0] || null;
-  const topVal  = rsnSortGroups(named, 'value',  'desc')[0] || null;
-  const valRank = topVal ? rsnSortGroups(named, 'orders', 'desc').findIndex(g => g.key === topVal.key) + 1 : 0;
 
   // نفس هيكل الكارت المستخدم في التابين التانيين بالظبط (kpi-label-row +
   // kpi-value-row) — كارت بهيكل خاص كان هيبان مختلف في نفس الشبكة.
@@ -6071,58 +6030,42 @@ function renderRsnKpis(groups, totals) {
       <div class="rsn-kpi-sub">${sub}</div>
     </div>`;
 
-  const noneN = groups.find(g => g.isNone)?.orders || 0;
+  // كارت النوع الفرعي: مربّعان (عدد | قيمة) وتحت كل واحد نسبته من الإجمالي.
+  // ⚠️ النسبتان مقامهما مختلف (عدد ÷ عدد · قيمة ÷ قيمة) — نسبة واحدة تحت
+  //    المربعين كانت هتبقى مبهمة، ونوع فيه أوردرات رخيصة بيبان بنسبتين
+  //    متباعدتين وده **هو** الإشارة المطلوبة مش تشويش.
+  const w   = p => Math.min(Math.max(p, 0), 100).toFixed(1);
+  const box = (label, val, pct, colour) => `
+    <div class="rsn-box">
+      <div class="rsn-box-k">${label}</div>
+      <div class="rsn-box-v" style="color:${colour}">${val}</div>
+      <div class="rsn-sbar"><i style="width:${w(pct)}%;background:${colour}"></i></div>
+      <div class="rsn-box-p"><b>${fmtPct(pct)}</b> من الإجمالي</div>
+    </div>`;
+
+  const stCard = (st) => {
+    const pctN = totals.orders ? (st.orders / totals.orders) * 100 : 0;
+    const pctV = totals.value  ? (st.value  / totals.value)  * 100 : 0;
+    return `
+    <div class="kpi-card" data-state="neutral">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">${st.icon}</span>${esc(st.label)}</span>
+        ${infoIcon(`نوع فرعي من كارت «إلغاءات ومرتجعات» (<code>${st.id}</code>) — الدلو من محرّك التصنيف نفسه، مش من الميتافيلد.
+                    <b>العدد</b> أوردرات، و<b>القيمة</b> فاقد القطع جوّاها محسوب بنفس دالة تاب المبيعات.
+                    كل نسبة مقامها الإجمالي بوحدتها: العدد من العدد والقيمة من القيمة.`)}
+      </div>
+      <div class="rsn-split">
+        ${box('عدد',  fmtInt(st.orders),  pctN, st.colour)}
+        ${box('قيمة', fmtMoney(st.value), pctV, st.colour)}
+      </div>
+    </div>`;
+  };
 
   el.innerHTML =
     card('📉', 'إجمالي الإلغاءات والمرتجعات المعروضة', fmtInt(totals.orders),
          `${fmtMoney(totals.value)} · متوسط ${fmtMoney(totals.orders ? totals.value / totals.orders : 0)} للأوردر`, 'clr-red',
-         'إلغاء قبل الشحن + مرتجع رفض الاستلام + مرتجع كامل بعد الاستلام — نفس تعريف كارت «إلغاءات ومرتجعات» في تاب الأوردرات بالظبط. بيطابقه لما يكون مفيش فلتر شغّال هنا.') +
-    card('🧾', 'عليه سبب', fmtInt(totals.orders - noneN),
-         `${fmtInt(noneN)} أوردر بدون سبب في العرض الحالي`, '',
-         'عدد أوردرات الخسارة اللي فيها قيمة في أي من الميتافيلدين. الأداة بتاخد أول قيمة موجودة من الاتنين — الحقل مش بيحدد الدلو.') +
-    card('🔁', 'أكتر سبب تكرارًا', topCnt ? fmtInt(topCnt.orders) : '—',
-         topCnt ? `${esc(topCnt.label)} · ${fmtMoney(topCnt.value)}` : 'مفيش سبب متسجّل', 'clr-purple',
-         'السبب اللي اتكرر أكتر عدد مرات (من غير «بدون سبب»). ⚠️ نادرًا ما يكون هو نفسه أغلى سبب — والمربع اللي جنبه بيوضّح الفرق.') +
-    card('💸', 'أغلى سبب بالقيمة', topVal ? fmtMoney(topVal.value) : '—',
-         topVal ? `${esc(topVal.label)} — الترتيب ${fmtInt(valRank)} بالعدد` : 'مفيش سبب متسجّل', 'clr-red',
-         'السبب اللي كلّف أكتر بالجنيه. الفرق بينه وبين «أكتر سبب تكرارًا» هو اللي بيحدد أولوية التدخل: القرار بيتاخد على الفلوس مش على العدد.');
-}
-
-function renderRsnFamilies() {
-  const el = document.getElementById('rsnFamilies');
-  if (!el) return;
-  // العائلات بتتحسب من الصفوف **قبل** فلتر العائلة نفسه — لو اتحسبت بعده،
-  // أول ضغطة كانت هتصفّر باقي الكروت وتقفل الطريق على تغيير الاختيار.
-  const base = (state.orderRows || []).filter(rsnIsLoss)
-    .filter(r => !state.rsnExcludeOps || !rsnIsOps(rsnKeyOf(r)));
-  const byFam = new Map();
-  const ordIds = new Map();
-  base.forEach(r => {
-    const f = rsnFamilyOf(rsnKeyOf(r));
-    byFam.set(f, (byFam.get(f) || 0) + 1);
-    ordIds.set(String(r.orderId), f);
-  });
-  const valByFam = new Map();
-  (state.rows || []).forEach(r => {
-    const f = ordIds.get(String(r.orderId));
-    if (f === undefined) return;
-    const a = valByFam.get(f); if (a) a.push(r); else valByFam.set(f, [r]);
-  });
-  const totalOrders = base.length;
-
-  el.innerHTML = `<div class="rsn-fam-grid">` + RSN_FAMILY_IDS.map(f => {
-    const def = RSN_FAMILY_DEF[f];
-    const n   = byFam.get(f) || 0;
-    const v   = computeBoxesFromRows(valByFam.get(f) || [], 'value').lost;
-    const on  = state.rsnFamSel === f;
-    return `
-      <div class="rsn-fam${on ? ' is-on' : ''}" style="border-left-color:${def.colour}"
-           onclick="toggleRsnFamily('${f}')" title="اضغط لقصّ التاب على العائلة دي">
-        <div class="rsn-fam-h"><span class="rsn-fam-n">${esc(def.label)}</span><span class="rsn-fam-o">${esc(def.owner)}</span></div>
-        <div class="rsn-fam-v" style="color:${def.colour}">${fmtInt(n)}</div>
-        <div class="rsn-fam-s">${fmtPct(totalOrders ? (n / totalOrders) * 100 : 0)} من الإجمالي · ${fmtMoney(v)}</div>
-      </div>`;
-  }).join('') + `</div>`;
+         'إلغاء قبل الشحن + مرتجع رفض الاستلام + مرتجع كامل بعد الاستلام — نفس تعريف كارت «إلغاءات ومرتجعات» في تاب الأوردرات بالظبط. بيطابقه لما يكون مفيش فلتر شغّال هنا، والتلات كروت اللي جنبه بيجمعوه بالظبط في الوحدتين.') +
+    rsnStageTotals().map(stCard).join('');
 }
 
 function renderRsnFilter() {
@@ -6135,8 +6078,7 @@ function renderRsnFilter() {
     const k = rsnKeyOf(r);
     counts.set(k, (counts.get(k) || 0) + 1);
   });
-  const universe = [...new Set([...Object.keys(REASON_FAMILY), RSN_NONE, ...counts.keys()])]
-    .filter(k => !state.rsnFamSel || rsnFamilyOf(k) === state.rsnFamSel)
+  const universe = [...new Set([...RSN_REASONS, RSN_NONE, ...counts.keys()])]
     .map(k => ({ key: k, n: counts.get(k) || 0, label: rsnLabel(k) }))
     .sort((a, b) => (b.n - a.n) || a.label.localeCompare(b.label, 'ar'));
 
@@ -6152,16 +6094,6 @@ function renderRsnFilter() {
     <div class="geo-filter-hdr">
       <span class="geo-filter-title">🔎 فلتر الأسباب</span>
       ${rsnFilterActive() ? `<button class="hbtn geo-clear-btn" onclick="clearRsnFilter()">مسح الفلتر</button>` : ''}
-    </div>
-    <div class="rsn-toolbar">
-      <span class="rsn-switch${state.rsnExcludeOps ? ' is-on' : ''}" onclick="toggleRsnExcludeOps()"
-            title="بيشيل عائلة «تشغيلي داخلي» (أوردر مكرر وتم دمجه · استلام جزئي) من أرقام التاب ده وحده">
-        ${state.rsnExcludeOps ? '☑' : '☐'} استبعاد الخسائر التشغيلية
-      </span>
-      <span class="geo-filter-hint" style="margin:0">
-        الأوردر المكرر اتدمج في أوردر تاني اتسلّم فعلًا، والاستلام الجزئي جزء منه اتسلّم — فوجودهم جوّه معدل الخسارة بيضخّمه.
-        ⚠️ السويتش ده <b>عرض في التاب ده بس</b>: كارت «إلغاءات ومرتجعات» في تاب الأوردرات ما بيتأثرش بيه إطلاقًا.
-      </span>
     </div>
     <p class="geo-filter-hint">مفيش اختيار = كل الأسباب. السبب اللي مالوش أوردرات في الفترة بيبان باهت ومش قابل للضغط.</p>
     <div class="geo-chips">${chips}</div>`;
@@ -6238,9 +6170,10 @@ function buildRsnBar(canvasId, rows, isCount) {
             backgroundColor: st.colour, borderRadius: 3, maxBarThickness: 26,
           }))
         // بالقيمة: الفاقد بيتحسب على مستوى القطعة فمالوش تفصيل بالمرحلة —
-        // عمود واحد بلون السبب نفسه أصدق من توزيع تقديري على التلاتة.
+        // عمود واحد موحّد أصدق من توزيع تقديري على التلاتة، ولونه أحمر
+        // «قيمة الخسارة» نفسه المستخدم في الجدول وفي كروت التاب.
         : [{ label: 'قيمة الخسارة', data: rows.map(r => r.value),
-             backgroundColor: rows.map(r => RSN_FAMILY_DEF[r.family].colour),
+             backgroundColor: cssVar('--red'),
              borderRadius: 3, maxBarThickness: 26 }],
     },
     options: {
@@ -6303,13 +6236,11 @@ function renderRsnTable(groups, totals) {
     const active = state.rsnDetails.key === g.key ? ' geo-row-active' : '';
     const pctN = totals.orders ? (g.orders / totals.orders) * 100 : 0;
     const pctV = totals.value  ? (g.value  / totals.value)  * 100 : 0;
-    const fam  = RSN_FAMILY_DEF[g.family];
     const stages = RSN_STAGE.filter(st => g[{ LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' }[st.id]] > 0)
       .map(st => `<span class="rsn-stage-pill" style="color:${st.colour}">${st.icon} ${fmtInt(g[{ LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' }[st.id]])}</span>`).join(' ');
     return `
     <tr class="${active}" onclick="showRsnDetails(${JSON.stringify(g.key).replace(/"/g, '&quot;')})">
       <td class="geo-name">${esc(g.label)}${g.isUnlisted ? '<span class="note-pill">قيمة برّه القايمة</span>' : ''}${g.mismatched ? `<span class="rsn-mm-pill" title="سبب متكتب في حقل غير المتوقع لدلوه — تشخيص بس، مش بيغيّر أي رقم">حقل مختلف: ${fmtInt(g.mismatched)}</span>` : ''}</td>
-      <td><span class="rsn-stage-pill" style="color:${fam.colour}">${esc(fam.label)}</span></td>
       <td class="col-num">${stages || '—'}</td>
       <td class="col-num geo-sep"><span class="geo-n">${fmtInt(g.orders)}</span>${bar(pctN, 'var(--red)')}<span class="geo-pct">${fmtPct(pctN)}</span></td>
       <td class="col-num"><span class="geo-n clr-red">${fmtMoney(g.value)}</span>${bar(pctV, 'var(--red)')}<span class="geo-pct">${fmtPct(pctV)}</span></td>
@@ -6329,7 +6260,6 @@ function renderRsnTable(groups, totals) {
         <thead>
           <tr>
             <th class="geo-name-th">السبب</th>
-            <th>العائلة</th>
             <th>المرحلة</th>
             ${th('orders', 'عدد الأوردرات', 'عدد أوردرات الخسارة اللي عليها السبب ده', 'geo-sep')}
             ${th('value',  'قيمة الخسارة (ج.م)', 'فاقد القطع في الأوردرات دي — محسوب بنفس دالة تاب المبيعات')}
@@ -6339,7 +6269,7 @@ function renderRsnTable(groups, totals) {
         <tbody>${body}</tbody>
         <tfoot>
           <tr class="geo-total-row">
-            <td class="geo-name">الإجمالي</td><td>—</td><td class="col-num">—</td>
+            <td class="geo-name">الإجمالي</td><td class="col-num">—</td>
             <td class="col-num geo-strong geo-sep">${fmtInt(totals.orders)}</td>
             <td class="col-num geo-strong clr-red">${fmtMoney(totals.value)}</td>
             <td class="col-num geo-strong">${fmtMoney(totals.orders ? totals.value / totals.orders : 0)}</td>
@@ -6488,9 +6418,8 @@ function renderRsnGeo() {
 function renderRsnQuality(totals) {
   const el = document.getElementById('rsnQuality');
   if (!el) return;
-  const c    = rsnCoverage();
   const all  = (state.orderRows || []).filter(rsnIsLoss);
-  const unl  = new Set(all.map(rsnKeyOf).filter(k => k !== RSN_NONE && !REASON_FAMILY[k]));
+  const unl  = new Set(all.map(rsnKeyOf).filter(k => k !== RSN_NONE && !RSN_REASONS.includes(k)));
   const mism = all.filter(rsnFieldMismatch).length;
 
   const item = (icon, title, n, body) => `
@@ -6499,7 +6428,7 @@ function renderRsnQuality(totals) {
     </div>`;
 
   el.innerHTML =
-    item('🧾', 'إلغاءات ومرتجعات بلا أي سبب', fmtInt(c.missing),
+    item('🧾', 'إلغاءات ومرتجعات بلا أي سبب', fmtInt(rsnMissingReason()),
          `اضغط صف «بدون سبب» في الجدول فوق لمراجعتهم. الرقم ده مؤشر على <b>العملية</b> مش على العميل — هدفه ينزل.`) +
     item('🔀', 'سبب متكتب في حقل غير المتوقع لدلوه', fmtInt(mism),
          `زي سبب إلغاء على أوردر رفض استلام. ⚠️ <b>مش خطأ في الأداة ولا بيغيّر أي رقم</b> — الأداة بتاخد أول قيمة موجودة من الحقلين
