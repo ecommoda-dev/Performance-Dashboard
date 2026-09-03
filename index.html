@@ -137,6 +137,18 @@
     max-height: 0 !important; opacity: 0; padding: 0; margin-bottom: 0; border-width: 0;
   }
 
+  /* ⚠️ ٥ تابات من 03-09-2026 (تاب الإلغاءات والمرتجعات): الصف الواحد بقى أعرض
+     من الشاشات الضيقة، و`.main-tabs-bar` عليها `overflow:hidden` (لازمة
+     لأنيميشن الـ sticky فوق) — يعني الزرار الأخير كان **بيتقصّ في صمت
+     ومايتوصلش له** بدل ما يبان إن فيه حاجة برّه. اللف لصفّين بيحل ده من غير
+     ما يلمس الأنيميشن ولا الـ chip. ⛔ ممنوع تحويل الـ overflow لـ auto
+     كـ«حل» — بيكسر قفلة الـ max-height بتاعة الهيدر.
+     العتبة مشتقّة من أعرض زرار مقيس (١٤٧px × ٥ + المسافات ≈ ٧٦٥px). */
+  @media (max-width: 800px) {
+    .main-tabs-bar { flex-wrap: wrap; }
+    .main-tab-btn  { flex: 1 1 45%; }
+  }
+
   /* Chip التاب الحالي — يظهر بس وقت الـ Sticky */
   .active-tab-chip {
     display: none; align-items: center; gap: 6px; padding: 5px 10px;
@@ -639,6 +651,54 @@
   .legend-desc b { color: var(--text); }
   .details-empty { padding: 40px 20px; text-align: center; color: var(--text-muted); font-size: 13px; }
 
+  /* ── §REASONS — تاب الإلغاءات والمرتجعات (v3.16.0) ── */
+  /* بيعيد استخدام كل كلاسات .geo-* (الكارت · الجدول · الشريط · الشارات) —
+     اللي هنا هو اللي مالوش نظير هناك بس. */
+  .rsn-cov{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;justify-content:space-between;
+    border:1px solid var(--border);border-radius:12px;padding:12px 16px;margin-bottom:14px;background:var(--surface)}
+  .rsn-cov-t{font-weight:700;font-size:15px}
+  .rsn-cov-s{font-size:12.5px;color:var(--text-secondary);max-width:70ch;line-height:1.7}
+  .rsn-cov.is-ok{background:var(--green-light);border-color:var(--green-border)}
+  .rsn-cov.is-ok .rsn-cov-t{color:var(--green)}
+  .rsn-cov.is-warn{background:var(--amber-light);border-color:var(--amber-border)}
+  .rsn-cov.is-warn .rsn-cov-t{color:var(--amber)}
+  .rsn-cov.is-bad{background:var(--red-light);border-color:var(--red-border)}
+  .rsn-cov.is-bad .rsn-cov-t{color:var(--red)}
+  .rsn-cov-bar{flex:1 1 220px;height:10px;border-radius:6px;background:#e2e8f0;overflow:hidden;min-width:160px}
+  .rsn-cov-bar i{display:block;height:100%;border-radius:6px}
+  /* عائلات الأسباب */
+  /* ٤ كروت بالظبط — الشبكة العامة (.kpi-grid) بـ auto-fit مضبوطة على تابات
+     فيها ٦–٧ كروت، فمع ٤ بتدّي ٣+١ والكارت الرابع بيقعد لوحده في صف.
+     الأربعة هنا بيتقروا كمجموعة واحدة (أكتر سبب ↔ أغلى سبب)، فتقسيمهم بيضيّع
+     المقارنة اللي هي سبب وجودهم. */
+  #rsnKpis{grid-template-columns:repeat(4,1fr)}
+  @media (max-width:1100px){ #rsnKpis{grid-template-columns:repeat(2,1fr)} }
+  @media (max-width:560px){  #rsnKpis{grid-template-columns:1fr} }
+  .rsn-kpi-sub{font-size:11.5px;color:var(--text-secondary);margin-top:6px;line-height:1.6}
+  .rsn-fam-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-bottom:6px}
+  .rsn-fam{border:1px solid var(--border);border-left:4px solid var(--border);border-radius:10px;
+    padding:11px 13px;background:var(--surface);cursor:pointer;transition:box-shadow .15s}
+  .rsn-fam:hover{box-shadow:0 2px 10px rgba(15,23,42,.08)}
+  .rsn-fam.is-on{outline:2px solid var(--accent);outline-offset:-2px}
+  .rsn-fam-h{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  .rsn-fam-n{font-weight:700;font-size:13.5px}
+  .rsn-fam-o{font-size:11px;color:var(--text-secondary)}
+  .rsn-fam-v{font-family:'Courier New',monospace;direction:ltr;font-size:17px;font-weight:700;margin-top:4px}
+  .rsn-fam-s{font-size:11.5px;color:var(--text-secondary);margin-top:2px}
+  /* شارة المرحلة داخل الجدول */
+  .rsn-stage-pill{display:inline-block;font-size:11px;padding:1px 8px;border-radius:100px;
+    border:1px solid currentColor;white-space:nowrap;line-height:1.7}
+  .rsn-mm-pill{display:inline-block;font-size:10.5px;padding:0 6px;border-radius:100px;
+    background:#fef3c7;color:#92400e;border:1px solid #fcd34d;margin-inline-start:5px;white-space:nowrap}
+  .rsn-chart-scroll{overflow-x:auto;overflow-y:hidden;direction:ltr}
+  .rsn-toolbar{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;margin-bottom:12px}
+  .rsn-switch{display:inline-flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;
+    border:1px solid var(--border);border-radius:100px;padding:5px 12px;background:var(--surface);user-select:none}
+  .rsn-switch.is-on{background:var(--accent-light);border-color:var(--accent);color:var(--accent-dark);font-weight:600}
+  .rsn-heat td.rsn-hc{font-family:'Courier New',monospace;direction:ltr;text-align:center}
+  .rsn-dim-btn{font-size:12.5px;padding:4px 12px;border-radius:100px;border:1px solid var(--border);
+    background:var(--surface);cursor:pointer}
+  .rsn-dim-btn.is-on{background:#0f766e;border-color:#0f766e;color:#fff;font-weight:600}
   /* ── §GEO — تاب المحافظات والمناطق (v3.10.0) ── */
   .geo-section-hdr { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; font-size: 15px; font-weight: 800; color: var(--text-primary); margin: 22px 0 12px; padding-bottom: 8px; border-bottom: 2px solid var(--border); }
   .geo-section-hdr .kpi-icon { font-size: 16px; }
@@ -972,6 +1032,7 @@
     <button class="main-tab-btn" id="mainTabOrders" onclick="switchMainTab('orders')">📦 الأوردرات</button>
     <button class="main-tab-btn" id="mainTabGeo" onclick="switchMainTab('geo')">🗺️ المحافظات</button>
     <button class="main-tab-btn" id="mainTabZones" onclick="switchMainTab('zones')">🚚 المناطق</button>
+    <button class="main-tab-btn" id="mainTabReasons" onclick="switchMainTab('reasons')">🚫 الإلغاءات والمرتجعات</button>
   </div>
 
   </div><!-- /.sticky-header-wrap -->
@@ -1189,7 +1250,20 @@
     <div class="eco-modal-hdr"><span>📋 سجل التحديثات</span><button class="modal-close-x" onclick="closeChangelog()">✕</button></div>
     <div class="eco-modal-body">
       <div class="cl-version-block">
-        <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">02-09-2026</span></div>
+        <div class="cl-version-row"><span class="cl-ver-badge" id="clLatestVerBadge"></span><span class="cl-ver-date">03-09-2026</span></div>
+        <ul class="cl-items">
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>تاب «الإلغاءات والمرتجعات»</b> — بيفكّ كارت «خسائر» لأسباب بالعدد وبالقيمة، من ميتافيلدي الأوردر <code>custom.cancel_manual_reason</code> و<code>custom.return_manual_reason</code>. أقسامه: بانر التغطية · ٤ كروت · عائلات الأسباب · فلتر chips · رسمان أفقيان · جدول الأسباب · مصفوفة السبب × المرحلة · الأسباب جغرافيًا (محافظة/منطقة) · جودة البيانات · جدول أوردرات السبب المختار.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>السبب بيتاخد من أي حقل فيه قيمة</b> — الأداة <b>مش</b> بتفترض إن حقل الإلغاء يخص الإلغاء وحقل المرتجع يخص المرتجع. القياس على المتجر لقى أوردر رفض استلام شايل سببه في حقل الإلغاء، ولو الأداة قرأت الحقل «المتوقع» بس كان هيتعدّ «بدون سبب» وهو عليه سبب مكتوب. عدم التطابق بيتعرض في قسم جودة البيانات <b>من غير ما يحرّك أي رقم</b>.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>بانر التغطية</b> فوق كل حاجة — بيقول كام أوردر خسارة عليه سبب. لازم لأن التغطية مش موحّدة: الإلغاء قبل الشحن تغطيته شبه كاملة، والمرتجع لسه بيتبني. و«بدون سبب» <b>صف كامل في الجدول</b> مش استبعاد صامت، عشان المجموع يفضل مساوي لكارت «خسائر».</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span><b>مفتاح «استبعاد الخسائر التشغيلية»</b> — بيشيل «أوردر مكرر وتم دمجه» و«استلام جزئي - بوسطة» (دول مش فقد مبيعات) ويعيد حساب أرقام التاب. ⚠️ عرض في التاب ده وحده — كارت «خسائر» في تاب الأوردرات ما بيتأثرش.</span></li>
+          <li class="cl-item"><span class="cl-tag new">جديد</span><span>قسم <b>الأسباب جغرافيًا</b> بمفتاح (محافظة / منطقة) وأرقام <b>مطبّعة</b>: معدل الخسارة داخل المجموعة + مؤشر تركّز، مع حد أدنى للعيّنة (٢٥ أوردر) — العدد الخام كان هيخلي أكبر محافظة تتصدّر كل صف لأنها أكبر مش لأن عندها مشكلة.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span>الرسمان في التاب الجديد <b>أفقيان</b> (<code>indexAxis:'y'</code>) — أسماء الأسباب جمل عربية كاملة، والأفقي بيخليها تتقرا من غير أي دوران، تطبيقًا لقاعدة «ممنوع ليبلات مايلة».</span></li>
+          <li class="cl-item"><span class="cl-tag fix">إصلاح</span><span>شريط التابات بقى بيلفّ لصفّين تحت <code>800px</code>. مع خمس تابات كان الزرار الأخير بيتقصّ في صمت (<code>overflow:hidden</code> اللازمة لأنيميشن الـ sticky) ومايتوصلش له — والقصّ ده كان موجود أصلاً على الزرار الرابع تحت <code>375px</code>.</span></li>
+          <li class="cl-item"><span class="cl-tag change">تغيير</span><span><code>MIN_WORKER_VERSION</code> اترفعت <code>3.7.0</code> → <code>3.8.0</code> في نفس التسليم (قاعدة الصيانة الإلزامية) — الواجهة بقت معتمدة على حقلي <code>reason</code>/<code>reasonField</code>.</span></li>
+        </ul>
+      </div>
+      <div class="cl-version-block">
+        <div class="cl-version-row"><span class="cl-ver-badge old">v3.15.0</span><span class="cl-ver-date">02-09-2026</span></div>
         <ul class="cl-items">
           <li class="cl-item"><span class="cl-tag change">تغيير</span><span><b>صف مربعات الشهور والفترة والتحديث بقى بنفس تصميم Logistics Control Center بالظبط.</b> كان صفين منفصلين (مربعات الشهور لوحدها فوق، وتحتها فترة سريعة/من/إلى/طريقة العرض) — دلوقتي صف واحد: الشهر ثم من تاريخ ثم إلى تاريخ ثم <b>طول الفترة</b> (شارة جديدة بتعرض عدد الأيام) ثم فترة سريعة (اختياري) ثم طريقة العرض. زرار التحديث اسمه بقى «تحديث الشهر الحالي» / «تحديث أحدث شهر» دايمًا بدل «تحديث» المختصرة. واجهة بحتة — صفر تعديل في <code>index.js</code>، صفر <code>CACHE_VERSION</code> bump.</span></li>
         </ul>
@@ -1686,6 +1760,20 @@ probe متوازي + بوابة بالتكلفة      │ HTML   │ §DASH-JS  
 رسم بُعد واحد بدل الاتنين        │ HTML   │ §GEO-JS    │ renderGeo(only)
 ── v3.14.0 — شريط تحت النسبة في خلايا الحالة ─────────────────
 شريط ملوّن تحت رقم كل خلية حالة  │ HTML   │ §GEO-JS · §CSS │ statBar() جوّه cell/mCell · .geo-stat-bar
+── v3.16.0 — تاب الإلغاءات والمرتجعات ───────────────────────
+سبب الإلغاء/المرتجع على الصف      │ Worker │ §SHARED    │ reasonOf(order) → { reason, reasonField }
+عالم التاب = دلاو الخسارة التلاتة │ HTML   │ §REASONS   │ RSN_STAGE / rsnIsLoss
+قرار الفلترة في مكان واحد         │ HTML   │ §REASONS   │ rsnRowsFor(rows)
+بانر التغطية (قبل أي رقم)         │ HTML   │ §REASONS   │ rsnCoverage / renderRsnCoverage
+صف لكل سبب بالعدد وبالقيمة        │ HTML   │ §REASONS   │ rsnGroups / rsnRow
+عائلات الأسباب (تجميع تشغيلي)     │ HTML   │ §REASONS   │ REASON_FAMILY / RSN_FAMILY_DEF
+استبعاد الخسائر التشغيلية (عرض)   │ HTML   │ §REASONS   │ state.rsnExcludeOps / toggleRsnExcludeOps
+رسمان أفقيان (بلا أي دوران ليبل)  │ HTML   │ §REASONS   │ buildRsnBar (indexAxis:'y')
+مصفوفة السبب × المرحلة            │ HTML   │ §REASONS   │ renderRsnMatrix
+الأسباب جغرافيًا (مطبّعة + مؤشر)  │ HTML   │ §REASONS   │ renderRsnGeo / RSN_MIN_SAMPLE
+جودة البيانات (٣ حالات)           │ HTML   │ §REASONS   │ renderRsnQuality / rsnFieldMismatch
+أوردرات السبب المختار             │ HTML   │ §REASONS-DETAILS │ showRsnDetails (بلا scrollIntoView)
+لف شريط التابات على الشاشة الضيقة │ HTML   │ §CSS       │ @media (max-width:800px) .main-tabs-bar
 ──────────────────────────────────────────────────────────────
 
 KEY VARIABLES (HTML)
@@ -1699,8 +1787,8 @@ LS_SECRET = 'perfdash_worker_secret'  ← **مفتاح الـ localStorage ال�
                    (`perfdash_worker_url` و`admin_worker_url` بيتمسحوا مرة
                    واحدة عند التحميل — بقايا من قبل #28)
 TOOL_VERSION            = نسخة الواجهة (مصدر واحد — الهيدر + شاشة الدخول + الـ Changelog)
-MIN_WORKER_VERSION      = **أقل** نسخة Worker الواجهة دي بتشتغل معاها ('3.7.0'
-  — النسخة اللي ضافت prov/zone على كل صف، وهي أحدث حاجة الواجهة معتمدة عليها). ⚠️ **مالهاش أي علاقة بـ
+MIN_WORKER_VERSION      = **أقل** نسخة Worker الواجهة دي بتشتغل معاها ('3.8.0'
+  — النسخة اللي ضافت reason/reasonField على كل صف، وهي أحدث حاجة الواجهة معتمدة عليها). ⚠️ **مالهاش أي علاقة بـ
   TOOL_VERSION** ومتزامنهاش معاه. تحذير الهيدر بيولّع بس لو الـ Worker المنشور
   **أقدم** منها (cmpVersion رقمية) — يعني rollback أو بناء فاشل أو Promote
   ناقص. ⚠️ صيانة: أي endpoint/حقل جديد الواجهة تعتمد عليه → ارفعها لنسخة
@@ -1930,7 +2018,7 @@ const LS_SECRET    = 'perfdash_worker_secret';
 // مفاتيح localStorage قديمة من قبل #28 — بتتمسح مرة واحدة عشان ماتفضلش قيمة
 // ميتة يحاول حد يفسّرها بعدين على إنها الرابط الفعّال.
 ['perfdash_worker_url', 'admin_worker_url'].forEach(k => { try { localStorage.removeItem(k); } catch {} });
-const TOOL_VERSION = 'v3.15.0';
+const TOOL_VERSION = 'v3.16.0';
 // ─── §CONFIG::MIN_WORKER_VERSION (html-builder v4.0.0 · Standards #29) ───
 // **أقل** نسخة Worker الواجهة دي بتشتغل معاها — مش النسخة اللي اتكتبت عليها.
 // 🔴 v3.8.0: النمط القديم (EXPECTED_WORKER_VERSION + تطابق حرفي) كان بيقارن
@@ -1944,7 +2032,7 @@ const TOOL_VERSION = 'v3.15.0';
 // ⚠️ v3.9.0: اترفعت لـ 3.7.0 — النسخة اللي ضافت `prov`/`zone` على كل صف
 // (تاب المحافظات والمناطق). الصيانة دي **إلزامية في نفس التسليم**: من غيرها
 // الحارس بيسكت على Worker قديم والتاب الجديد بيرندر «غير محدد» لكل حاجة.
-const MIN_WORKER_VERSION = '3.7.0';
+const MIN_WORKER_VERSION = '3.8.0';
 let workerLiveVersion = '';
 let workerLiveStoreStart = '';
 
@@ -2250,6 +2338,16 @@ const state = {
   // v3.11.0 — فلتر المحافظات. **Set فاضية = مفيش فلتر = كل المحافظات** (نمط
   // الـ facets القياسي: مفيش اختيار يعني مفيش تضييق). أي محافظة مختارة بتقصّ
   // **كل** التاب: الرسمين + الجدولين + قسم المناطق + جدول الأوردرات تحت.
+  // ══ v3.16.0 — تاب الإلغاءات والمرتجعات ══
+  // rsnSel فاضية = مفيش فلتر = كل الأسباب (نفس نمط الـ facets في geoProvSel).
+  rsnSel: new Set(),
+  rsnFamSel: null,             // عائلة مختارة (مفتاح واحد) أو null
+  rsnExcludeOps: false,        // سويتش «استبعاد الخسائر التشغيلية» — عرض بس
+  rsnDim: 'prov',              // البُعد الجغرافي المعروض في قسم الأسباب جغرافيًا
+  rsnSortKey: 'value',
+  rsnSortDir: 'desc',
+  rsnDetails: { key: null, open: false, title: '', limit: DETAILS_ROW_LIMIT, search: '' },
+
   geoProvSel:  new Set(),
   geoSortKey:  'mDelivered', // عمود الترتيب في جدول المحافظات (تسليمات بالقيمة)
   geoSortDir:  'desc',
@@ -3220,6 +3318,41 @@ function renderShell() {
       </div>
     </div>
 
+    <div id="reasonsPageContent" class="${state.activePage === 'reasons' ? '' : 'hidden'}">
+      <div id="rsnGuardNote"></div>
+      <div id="rsnCoverage"></div>
+      <div class="kpi-grid" id="rsnKpis"></div>
+
+      <div class="geo-section-hdr"><span class="kpi-icon">🧭</span>عائلات الأسباب<span class="geo-section-sub">تجميع تشغيلي — كل عائلة ليها جهة مسؤولة وفعل مختلف. اضغط عائلة لقصّ التاب عليها.</span></div>
+      <div id="rsnFamilies"></div>
+
+      <div class="geo-filter-card" id="rsnFilterCard"></div>
+
+      <div class="geo-section-hdr"><span class="kpi-icon">📊</span>الأسباب بالعدد وبالقيمة<span id="rsnFlag"></span></div>
+      <div id="rsnCharts"></div>
+      <div class="geo-table-card" id="rsnTable"></div>
+
+      <div class="geo-section-hdr"><span class="kpi-icon">🔀</span>السبب × المرحلة<span class="geo-section-sub">نفس السبب في مرحلة مختلفة = مشكلة مختلفة وجهة مسؤولة مختلفة.</span></div>
+      <div class="geo-table-card" id="rsnMatrix"></div>
+
+      <div class="geo-section-hdr"><span class="kpi-icon">🗺️</span>الأسباب جغرافيًا<span id="rsnGeoFlag"></span></div>
+      <div class="geo-table-card" id="rsnGeoTable"></div>
+
+      <div class="geo-section-hdr"><span class="kpi-icon">🩺</span>جودة البيانات</div>
+      <div id="rsnQuality"></div>
+
+      <div class="details-section${state.rsnDetails.open ? ' open' : ''}" id="rsnDetailsSection">
+        <div class="details-hdr" onclick="toggleRsnDetails()">
+          <div class="details-hdr-right">
+            <span class="details-caret">▶</span>
+            <span class="details-title">📋 أوردرات السبب المختار</span>
+            <span class="details-scope" id="rsnDetailsScope"></span>
+          </div>
+        </div>
+        <div class="details-body" id="rsnDetailsBody"></div>
+      </div>
+    </div>
+
     <div id="ordersPageContent" class="${state.activePage === 'orders' ? '' : 'hidden'}">
       ${orderWarnBits.length ? `<div class="warn-note">⚠️ ${orderWarnBits.join(' · ')} — اضغط على المربع المعني لمراجعة الأوردرات.</div>` : ''}
       <div class="kpi-grid" id="orderOverviewKpis"></div>
@@ -3250,6 +3383,8 @@ function renderShell() {
   renderGeo();
   renderGeoDetails('prov');
   renderGeoDetails('zone');
+  renderReasons();
+  renderRsnDetails();
 }
 
 // ══════════════════════════════════════════════════════
@@ -3266,6 +3401,7 @@ const TAB_DEFS = {
   orders: { btn: 'mainTabOrders', pane: 'ordersPageContent' },
   geo:    { btn: 'mainTabGeo',    pane: 'geoPageContent' },
   zones:  { btn: 'mainTabZones',  pane: 'zonePageContent' },
+  reasons:{ btn: 'mainTabReasons',pane: 'reasonsPageContent' },
 };
 
 function switchMainTab(page) {
@@ -5582,6 +5718,859 @@ function renderGeoDetailsTableWrap(dim) {
     </div>
     ${sorted.length > shown.length ? `<div class="details-more"><button class="btn" onclick="showMoreGeoDetails('${dim}')">عرض المزيد (${fmtInt(sorted.length - shown.length)} أوردر متبقي)</button></div>` : ''}
   `;
+}
+
+// ══════════════════════════════════════════════════════
+// §REASONS — تاب الإلغاءات والمرتجعات (v3.16.0)
+// ══════════════════════════════════════════════════════
+// التاب بيفكّ كارت «خسائر» بتاع تاب الأوردرات لأسباب، بالعدد وبالقيمة، على
+// المرحلة والمحافظة والمنطقة. السبب بيتقرا من ميتافيلدي الأوردر
+// (`custom.cancel_manual_reason` · `custom.return_manual_reason`) اللي الـ
+// Worker v3.8.0 بيحطهم على **الصف** كـ `reason`/`reasonField`.
+//
+// 🔴 **الدلو من المحرك، والسبب صفة فوقه — مش العكس.** الدلاو التلاتة تحت هي
+//    نفسها اللي `classifyOrderForCounts()` بترجّعها، فمجموع التاب ده بيساوي
+//    كارت «خسائر» بالظبط. أي تصنيف مبني على الميتافيلد كان هيخلي الرقمين
+//    يفترقوا والفرق مايبانش.
+// 🔴 **ممنوع افتراض إن الحقل بيحدد الدلو** (قرار أحمد 03-09-2026): السبب
+//    بيتاخد من أي حقل فيه قيمة (`reasonOf()` في الـ Worker)، وعدم التطابق
+//    بين الحقل والدلو بيتعرض في قسم جودة البيانات **من غير ما يحرّك أي رقم**
+//    (Rule 13: علّم ماتحركش). مقيس فعلًا على المتجر: أوردر رفض استلام شايل
+//    سببه في حقل الإلغاء.
+const RSN_NONE = '__none__';
+
+// الدلاو التلاتة اللي بتكوّن «خسائر» — نفس تعريف كارت الخسائر في تاب الأوردرات.
+const RSN_STAGE = [
+  { id: 'LOST_CANCELLED',   label: 'إلغاء قبل الشحن',        icon: '❌', colour: '#dc2626' },
+  { id: 'LOST_RTO',         label: 'مرتجع رفض الاستلام',      icon: '🚫', colour: '#ea580c' },
+  { id: 'LOST_FULL_RETURN', label: 'مرتجع كامل بعد الاستلام', icon: '↩️', colour: '#7c3aed' },
+];
+const RSN_STAGE_IDS = RSN_STAGE.map(x => x.id);
+const RSN_STAGE_BY  = Object.fromEntries(RSN_STAGE.map(x => [x.id, x]));
+
+// ⚠️ الحد الأدنى للعيّنة — بيرجع مع أي **معدل ترشيحي**. ده شرط مكتوب في
+//    CLAUDE.md وقت شيل الكروت الترشيحية القديمة: أي معدل بيترشّح حاجة لازم
+//    يبقى وراه عيّنة. محافظة بـ٦ أوردرات ومعدل ١٦٪ هي أوردر واحد مش اتجاه.
+//    الصف اللي تحت الحد **بيتعرض باهت بلا مؤشر** — مش بيتخفي (الإخفاء بيخلي
+//    القايمة تتغيّر شكلها مع كل فترة).
+const RSN_MIN_SAMPLE = 25;
+
+// ─── §REASONS::REASON_FAMILY — تجميع تشغيلي، مش تصنيف تقني ───
+// ⚠️ ده **قرار تشغيلي** اتراجع مع أحمد: كل عائلة ليها جهة مسؤولة وفعل مختلف.
+//    تعديله بيغيّر مين بيتحاسب على إيه — مش مجرد إعادة تسمية.
+//    سبب مش مكتوب هنا بيروح 'unknown' و**بيتعرض خام** عشان النقص يبان
+//    (نفس قاعدة PROVINCE_AR: اسم مش في الخريطة يتعرض خام، ما يتبلعش).
+const REASON_FAMILY = {
+  'لا يرد نهائي على المندوب': 'contact',
+  'لم يتم الرد للتأكيد':      'contact',
+  'رقم غير صحيح':             'contact',
+  'السعر غالي':               'customer',
+  'طلب الأوردر بالخطأ':       'customer',
+  'العميل سافر':              'customer',
+  'تأجيل غير محدد':           'customer',
+  'المنتج غير أصلي':          'trust',
+  'عطلان':                    'trust',
+  'الجودة / الخامة':          'trust',
+  'المقاس غير متوفر':         'size',
+  'مقاس غير مظبوط':           'size',
+  'حرامي':                    'fraud',
+  'يتهرب من الاستلام':        'fraud',
+  'أوردر مكرر وتم دمجه':      'ops',
+  'استلام جزئي - بوسطة':      'ops',
+  'لا يوجد سبب':              'unknown',
+};
+
+const RSN_FAMILY_DEF = {
+  contact:  { label: 'تأكيد وتواصل',  owner: 'خدمة العملاء',            colour: '#d97706' },
+  customer: { label: 'قرار العميل',   owner: 'تسويق وتسعير',            colour: '#2563eb' },
+  trust:    { label: 'ثقة ومنتج',     owner: 'المشتريات والجودة',       colour: '#dc2626' },
+  size:     { label: 'مقاس وتوفّر',   owner: 'المخزون والمحتوى',        colour: '#0f766e' },
+  fraud:    { label: 'احتيال وتهرّب', owner: 'العمليات والشحن',         colour: '#7c3aed' },
+  ops:      { label: 'تشغيلي داخلي',  owner: 'العمليات — مش خسارة فعلية', colour: '#64748b' },
+  unknown:  { label: 'غير مصنّف',     owner: 'جودة الإدخال',            colour: '#94a3b8' },
+};
+const RSN_FAMILY_IDS = ['contact', 'customer', 'trust', 'size', 'fraud', 'ops', 'unknown'];
+
+function rsnKeyOf(r)    { const v = r.reason; return (v == null || v === '') ? RSN_NONE : v; }
+function rsnFamilyOf(k) { return k === RSN_NONE ? 'unknown' : (REASON_FAMILY[k] || 'unknown'); }
+function rsnIsOps(k)    { return rsnFamilyOf(k) === 'ops'; }
+function rsnLabel(k)    { return k === RSN_NONE ? 'بدون سبب' : k; }
+function rsnIsLoss(r)   { return RSN_STAGE_IDS.includes(r.bucket); }
+
+// عدم تطابق الحقل مع الدلو — **تشخيص بس**، مش تصنيف. الصف بيفضل في مربعه.
+function rsnFieldMismatch(r) {
+  if (!r.reasonField) return false;
+  return r.reasonField === 'cancel'
+    ? r.bucket !== 'LOST_CANCELLED'
+    : r.bucket === 'LOST_CANCELLED';
+}
+
+// ─── §REASONS::rsnRowsFor — 🔴 قرار الفلترة في مكان واحد ───
+// ⛔ ممنوع أي مستهلك جديد يفلتر بنفسه — نفس قاعدة `geoRowsFor` بالظبط. كل
+//    قارئ للصفوف بيعدّي من هنا، فمستحيل جدول يقرا من مصدر والأرقام اللي فوقه
+//    تتحسب من مصدر تاني.
+// ⚠️ سويتش «استبعاد التشغيلي» **عرض بس** وبيخص التاب ده وحده — ⛔ ممنوع
+//    يلمس كارت «خسائر» في تاب الأوردرات ولا أي رقم برّه التاب.
+function rsnFilterActive() { return !!(state.rsnSel && state.rsnSel.size) || !!state.rsnFamSel; }
+function rsnRowsFor(rows) {
+  let out = (rows || []).filter(rsnIsLoss);
+  if (state.rsnExcludeOps) out = out.filter(r => !rsnIsOps(rsnKeyOf(r)));
+  if (state.rsnFamSel)     out = out.filter(r => rsnFamilyOf(rsnKeyOf(r)) === state.rsnFamSel);
+  if (state.rsnSel.size)   out = out.filter(r => state.rsnSel.has(rsnKeyOf(r)));
+  return out;
+}
+
+// ─── §REASONS::rsnCoverage — التغطية ───
+// ⚠️ بتتحسب على **كل** أوردرات الخسارة في الفترة، قبل أي فلتر أو استبعاد:
+//    البانر بيوصف جودة بيانات الفترة نفسها، فلو اتحسب على المفلتر كان
+//    هيتغيّر مع كل ضغطة chip ويبقى بلا معنى.
+function rsnCoverage() {
+  const all = (state.orderRows || []).filter(rsnIsLoss);
+  const covered = all.filter(r => rsnKeyOf(r) !== RSN_NONE).length;
+  return { total: all.length, covered, missing: all.length - covered,
+           pct: all.length ? (covered / all.length) * 100 : 0 };
+}
+
+// ─── §REASONS::rsnGroups — صف لكل سبب، بالعدد وبالقيمة ───
+// 🔴 القيمة من `computeBoxesFromRows` — نفس الدالة اللي تاب المبيعات وتاب
+//    المحافظات بيستخدموها. ⛔ ممنوع تعريف تاني لـ«قيمة الخسارة» هنا: التعريف
+//    المكرر بيتفرّق عن أصله عند أول تعديل في التصنيف، والفرق بيبان في مجموع
+//    عمود في تاب مقابل كارت في تاب تاني — آخر مكان حد بيبص فيه.
+// ⚠️ القيمة = فاقد **الأوردرات دي** بالتحديد. وهي أقل من كارت «خسائر» في تاب
+//    المبيعات، لأن الكارت ده بيعدّ كمان فاقد جوّه أوردرات **اتسلّمت** (محذوف
+//    قبل الشحن · مرتجع استبدال) — والأوردرات دي مش خسارة على مستوى الأوردر.
+//    الفرق ده مكتوب صراحةً تحت الجدول بدل ما المستخدم يدوّر عليه.
+function rsnGroups() {
+  const orderRows = rsnRowsFor(state.orderRows);
+
+  const byKey     = new Map();   // reasonKey → orderRows[]
+  const keyByOrd  = new Map();   // orderId   → reasonKey
+  orderRows.forEach(r => {
+    const k = rsnKeyOf(r);
+    keyByOrd.set(String(r.orderId), k);
+    const a = byKey.get(k); if (a) a.push(r); else byKey.set(k, [r]);
+  });
+
+  // صفوف القطع بتاعة **نفس** الأوردرات دي بس — الربط بالـ orderId مش بإعادة
+  // قراءة الـ reason من صف القطعة، عشان الوحدتين يوصفوا نفس المجموعة بالظبط.
+  const pieceByKey = new Map();
+  (state.rows || []).forEach(r => {
+    const k = keyByOrd.get(String(r.orderId));
+    if (k === undefined) return;
+    const a = pieceByKey.get(k); if (a) a.push(r); else pieceByKey.set(k, [r]);
+  });
+
+  const groups = [...byKey.keys()].map(k => rsnRow(k, byKey.get(k) || [], pieceByKey.get(k) || []));
+
+  const SUMS = ['orders', 'value', 'stCancelled', 'stRTO', 'stFullReturn', 'mismatched'];
+  const totals = groups.reduce((t, g) => { SUMS.forEach(k => t[k] += g[k]); return t; },
+                               Object.fromEntries(SUMS.map(k => [k, 0])));
+  return { groups, totals };
+}
+
+function rsnRow(key, orderRows, pieceRows) {
+  const counts = computeOrderBoxesFromRows(orderRows);
+  const money  = computeBoxesFromRows(pieceRows, 'value');
+  const orders = orderRows.length;
+  return {
+    key,
+    label:      rsnLabel(key),
+    isNone:     key === RSN_NONE,
+    // قيمة برّه القايمة المقفولة في شوبيفاي — بتتعرض خام بعلامة، ما تتبلعش
+    // في دلو «أخرى» يخفيها للأبد (نفس قاعدة الـ zone الغريبة).
+    isUnlisted: key !== RSN_NONE && !REASON_FAMILY[key],
+    family:     rsnFamilyOf(key),
+    orders,
+    value:        money.lost,
+    avg:          orders ? money.lost / orders : 0,
+    stCancelled:  counts.lostCancelled,
+    stRTO:        counts.lostRTO,
+    stFullReturn: counts.lostFullReturn,
+    mismatched:   orderRows.filter(rsnFieldMismatch).length,
+  };
+}
+
+function rsnSortGroups(groups, key, dir) {
+  const sign = dir === 'asc' ? 1 : -1;
+  return [...groups].sort((a, b) => {
+    const d = (a[key] || 0) - (b[key] || 0);
+    return d !== 0 ? d * sign : a.label.localeCompare(b.label, 'ar');
+  });
+}
+function setRsnSort(key) {
+  if (state.rsnSortKey === key) state.rsnSortDir = state.rsnSortDir === 'desc' ? 'asc' : 'desc';
+  else { state.rsnSortKey = key; state.rsnSortDir = 'desc'; }
+  renderReasons();
+}
+
+// ─── §REASONS::الفلتر ───
+function toggleRsnReason(key) {
+  const sel = state.rsnSel;
+  if (sel.has(key)) sel.delete(key); else sel.add(key);
+  applyRsnFilter();
+}
+function clearRsnFilter() { state.rsnSel.clear(); state.rsnFamSel = null; applyRsnFilter(); }
+function toggleRsnFamily(fam) {
+  state.rsnFamSel = state.rsnFamSel === fam ? null : fam;
+  // الاختيار الصريح للأسباب بيتمسح مع تغيير العائلة — سيبانه معناه فلترين
+  // متداخلين والنتيجة ممكن تبقى فاضية من غير ما يبان ليه.
+  state.rsnSel.clear();
+  applyRsnFilter();
+}
+function toggleRsnExcludeOps() { state.rsnExcludeOps = !state.rsnExcludeOps; applyRsnFilter(); }
+function setRsnDim(dim) { state.rsnDim = dim; renderReasons(); }
+
+function applyRsnFilter() {
+  // السبب المفتوح تحت ممكن يكون اتشال من الاختيار — سيبانه مفتوح معناه جدول
+  // أوردرات بعنوان سبب مش ظاهر في أي رقم فوقه (نفس علّة applyGeoFilter).
+  const d = state.rsnDetails;
+  if (d.key != null && !rsnGroups().groups.some(g => g.key === d.key)) {
+    d.key = null; d.open = false;
+    document.getElementById('rsnDetailsSection')?.classList.remove('open');
+  }
+  renderReasons();
+  renderRsnDetails();
+}
+
+function rsnFilterFlag() {
+  const bits = [];
+  if (state.rsnFamSel)      bits.push(`عائلة «${esc(RSN_FAMILY_DEF[state.rsnFamSel].label)}»`);
+  if (state.rsnSel.size)    bits.push(`${fmtInt(state.rsnSel.size)} سبب`);
+  if (state.rsnExcludeOps)  bits.push('بدون التشغيلي');
+  return bits.length ? `<span class="geo-filter-flag">🔎 مفلتر على ${bits.join(' · ')}</span>` : '';
+}
+
+// ─── §REASONS::rsnDataGuard ───
+// نفس منطق geoDataGuard: الحقل مش موجود أصلاً = Worker أقدم من v3.8.0.
+// ⚠️ احتياطي بحت — showWorkerStale() المفروض تمسكها الأول (MIN_WORKER_VERSION
+//    اترفعت لـ 3.8.0 في نفس التسليم)، بس ده بيقرا البيانات نفسها مش نسخة معلنة.
+function rsnDataGuard() {
+  const rows = state.orderRows || [];
+  if (!rows.length) return '';
+  if (rows.every(r => r.reason === undefined)) {
+    return `<div class="warn-note warn-note-red">⛔ الصفوف الجاية من الـ Worker مفيهاش حقل السبب أصلًا — الـ Worker المنشور أقدم من <b>v3.8.0</b>.
+      التاب ده معطّل فعليًا لحد ما النسخة الصح تتنشر (Cloudflare → Workers → performance-dashboard-worker → Deployments → Promote).</div>`;
+  }
+  return '';
+}
+
+// ─── §REASONS::renderReasons ───
+function renderReasons() {
+  const guard = document.getElementById('rsnGuardNote');
+  if (!guard) return;                      // التاب مش مرسوم (viewState مش ready)
+  guard.innerHTML = rsnDataGuard();
+
+  const { groups, totals } = rsnGroups();
+  renderRsnCoverage();
+  renderRsnKpis(groups, totals);
+  renderRsnFamilies();
+  renderRsnFilter();
+  const flag = document.getElementById('rsnFlag');
+  if (flag) flag.innerHTML = rsnFilterFlag();
+  renderRsnCharts(groups, totals);
+  renderRsnTable(groups, totals);
+  renderRsnMatrix(groups, totals);
+  renderRsnGeo();
+  renderRsnQuality(totals);
+}
+
+function renderRsnCoverage() {
+  const el = document.getElementById('rsnCoverage');
+  if (!el) return;
+  const c = rsnCoverage();
+  if (!c.total) { el.innerHTML = ''; return; }
+  const cls = c.pct >= 90 ? 'is-ok' : (c.pct >= 60 ? 'is-warn' : 'is-bad');
+  const col = c.pct >= 90 ? 'var(--green)' : (c.pct >= 60 ? 'var(--amber)' : 'var(--red)');
+  el.innerHTML = `
+    <div class="rsn-cov ${cls}">
+      <div>
+        <div class="rsn-cov-t">${c.pct >= 90 ? '✅' : '⚠️'} التغطية ${fmtPct(c.pct)} — ${fmtInt(c.covered)} من ${fmtInt(c.total)} أوردر خسارة عليه سبب</div>
+        <div class="rsn-cov-s">كل النسب في التاب ده محسوبة على أوردرات الخسارة المعروضة، و<b>«بدون سبب»</b> صف كامل في الجدول (${fmtInt(c.missing)} أوردر) مش استبعاد صامت — عشان مجموع الأعمدة يفضل مساوي لكارت «خسائر» بالظبط.</div>
+      </div>
+      <div class="rsn-cov-bar" title="${esc(fmtPct(c.pct))}"><i style="width:${Math.min(Math.max(c.pct,0),100).toFixed(1)}%;background:${col}"></i></div>
+    </div>`;
+}
+
+function renderRsnKpis(groups, totals) {
+  const el = document.getElementById('rsnKpis');
+  if (!el) return;
+  // «أكتر سبب» و«أغلى سبب» عن قصد **مربعين مستقلين**: الأكتر تكرارًا نادرًا ما
+  // يكون الأغلى، والفرق بينهم هو اللي بيحدد أولوية التدخل. عرض واحد منهم بس
+  // كان هيخلي القرار يتاخد على الرقم الغلط.
+  const named   = groups.filter(g => !g.isNone);
+  const topCnt  = rsnSortGroups(named, 'orders', 'desc')[0] || null;
+  const topVal  = rsnSortGroups(named, 'value',  'desc')[0] || null;
+  const valRank = topVal ? rsnSortGroups(named, 'orders', 'desc').findIndex(g => g.key === topVal.key) + 1 : 0;
+
+  // نفس هيكل الكارت المستخدم في التابين التانيين بالظبط (kpi-label-row +
+  // kpi-value-row) — كارت بهيكل خاص كان هيبان مختلف في نفس الشبكة.
+  const card = (icon, k, v, sub, cls, hint) => `
+    <div class="kpi-card" data-state="neutral">
+      <div class="kpi-label-row">
+        <span class="kpi-label"><span class="kpi-icon">${icon}</span>${k}</span>
+        ${infoIcon(hint)}
+      </div>
+      <div class="kpi-value-row"><div class="kpi-value ${cls || ''}">${v}</div></div>
+      <div class="rsn-kpi-sub">${sub}</div>
+    </div>`;
+
+  const noneN = groups.find(g => g.isNone)?.orders || 0;
+
+  el.innerHTML =
+    card('📉', 'إجمالي الخسائر المعروضة', fmtInt(totals.orders),
+         `${fmtMoney(totals.value)} · متوسط ${fmtMoney(totals.orders ? totals.value / totals.orders : 0)} للأوردر`, 'clr-red',
+         'إلغاء قبل الشحن + مرتجع رفض الاستلام + مرتجع كامل بعد الاستلام — نفس تعريف كارت «خسائر» في تاب الأوردرات بالظبط. بيطابقه لما يكون مفيش فلتر شغّال هنا.') +
+    card('🧾', 'عليه سبب', fmtInt(totals.orders - noneN),
+         `${fmtInt(noneN)} أوردر بدون سبب في العرض الحالي`, '',
+         'عدد أوردرات الخسارة اللي فيها قيمة في أي من الميتافيلدين. الأداة بتاخد أول قيمة موجودة من الاتنين — الحقل مش بيحدد الدلو.') +
+    card('🔁', 'أكتر سبب تكرارًا', topCnt ? fmtInt(topCnt.orders) : '—',
+         topCnt ? `${esc(topCnt.label)} · ${fmtMoney(topCnt.value)}` : 'مفيش سبب متسجّل', 'clr-purple',
+         'السبب اللي اتكرر أكتر عدد مرات (من غير «بدون سبب»). ⚠️ نادرًا ما يكون هو نفسه أغلى سبب — والمربع اللي جنبه بيوضّح الفرق.') +
+    card('💸', 'أغلى سبب بالقيمة', topVal ? fmtMoney(topVal.value) : '—',
+         topVal ? `${esc(topVal.label)} — الترتيب ${fmtInt(valRank)} بالعدد` : 'مفيش سبب متسجّل', 'clr-red',
+         'السبب اللي كلّف أكتر بالجنيه. الفرق بينه وبين «أكتر سبب تكرارًا» هو اللي بيحدد أولوية التدخل: القرار بيتاخد على الفلوس مش على العدد.');
+}
+
+function renderRsnFamilies() {
+  const el = document.getElementById('rsnFamilies');
+  if (!el) return;
+  // العائلات بتتحسب من الصفوف **قبل** فلتر العائلة نفسه — لو اتحسبت بعده،
+  // أول ضغطة كانت هتصفّر باقي الكروت وتقفل الطريق على تغيير الاختيار.
+  const base = (state.orderRows || []).filter(rsnIsLoss)
+    .filter(r => !state.rsnExcludeOps || !rsnIsOps(rsnKeyOf(r)));
+  const byFam = new Map();
+  const ordIds = new Map();
+  base.forEach(r => {
+    const f = rsnFamilyOf(rsnKeyOf(r));
+    byFam.set(f, (byFam.get(f) || 0) + 1);
+    ordIds.set(String(r.orderId), f);
+  });
+  const valByFam = new Map();
+  (state.rows || []).forEach(r => {
+    const f = ordIds.get(String(r.orderId));
+    if (f === undefined) return;
+    const a = valByFam.get(f); if (a) a.push(r); else valByFam.set(f, [r]);
+  });
+  const totalOrders = base.length;
+
+  el.innerHTML = `<div class="rsn-fam-grid">` + RSN_FAMILY_IDS.map(f => {
+    const def = RSN_FAMILY_DEF[f];
+    const n   = byFam.get(f) || 0;
+    const v   = computeBoxesFromRows(valByFam.get(f) || [], 'value').lost;
+    const on  = state.rsnFamSel === f;
+    return `
+      <div class="rsn-fam${on ? ' is-on' : ''}" style="border-left-color:${def.colour}"
+           onclick="toggleRsnFamily('${f}')" title="اضغط لقصّ التاب على العائلة دي">
+        <div class="rsn-fam-h"><span class="rsn-fam-n">${esc(def.label)}</span><span class="rsn-fam-o">${esc(def.owner)}</span></div>
+        <div class="rsn-fam-v" style="color:${def.colour}">${fmtInt(n)}</div>
+        <div class="rsn-fam-s">${fmtPct(totalOrders ? (n / totalOrders) * 100 : 0)} من الخسائر · ${fmtMoney(v)}</div>
+      </div>`;
+  }).join('') + `</div>`;
+}
+
+function renderRsnFilter() {
+  const el = document.getElementById('rsnFilterCard');
+  if (!el) return;
+  // قايمة الـ chips بتتبني من الصفوف **غير المفلترة بالسبب** — نفس علّة
+  // geoChipUniverse: لو اتبنت من المفلترة، أول اختيار كان هيمسح باقي الـ chips.
+  const counts = new Map();
+  (state.orderRows || []).filter(rsnIsLoss).forEach(r => {
+    const k = rsnKeyOf(r);
+    counts.set(k, (counts.get(k) || 0) + 1);
+  });
+  const universe = [...new Set([...Object.keys(REASON_FAMILY), RSN_NONE, ...counts.keys()])]
+    .filter(k => !state.rsnFamSel || rsnFamilyOf(k) === state.rsnFamSel)
+    .map(k => ({ key: k, n: counts.get(k) || 0, label: rsnLabel(k) }))
+    .sort((a, b) => (b.n - a.n) || a.label.localeCompare(b.label, 'ar'));
+
+  const chips = universe.map(u => {
+    const on   = state.rsnSel.has(u.key);
+    const dead = u.n === 0;
+    return `<button class="geo-chip${on ? ' is-on' : ''}${dead ? ' is-empty' : ''}"
+      ${dead ? 'disabled title="مفيش أوردرات بالسبب ده في الفترة"' : ''}
+      onclick="toggleRsnReason(${JSON.stringify(u.key).replace(/"/g, '&quot;')})">${esc(u.label)}<span class="geo-chip-n">${fmtInt(u.n)}</span></button>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="geo-filter-hdr">
+      <span class="geo-filter-title">🔎 فلتر الأسباب</span>
+      ${rsnFilterActive() ? `<button class="hbtn geo-clear-btn" onclick="clearRsnFilter()">مسح الفلتر</button>` : ''}
+    </div>
+    <div class="rsn-toolbar">
+      <span class="rsn-switch${state.rsnExcludeOps ? ' is-on' : ''}" onclick="toggleRsnExcludeOps()"
+            title="بيشيل عائلة «تشغيلي داخلي» (أوردر مكرر وتم دمجه · استلام جزئي) من أرقام التاب ده وحده">
+        ${state.rsnExcludeOps ? '☑' : '☐'} استبعاد الخسائر التشغيلية
+      </span>
+      <span class="geo-filter-hint" style="margin:0">
+        الأوردر المكرر اتدمج في أوردر تاني اتسلّم فعلًا، والاستلام الجزئي جزء منه اتسلّم — فوجودهم جوّه معدل الخسارة بيضخّمه.
+        ⚠️ السويتش ده <b>عرض في التاب ده بس</b>: كارت «خسائر» في تاب الأوردرات ما بيتأثرش بيه إطلاقًا.
+      </span>
+    </div>
+    <p class="geo-filter-hint">مفيش اختيار = كل الأسباب. السبب اللي مالوش أوردرات في الفترة بيبان باهت ومش قابل للضغط.</p>
+    <div class="geo-chips">${chips}</div>`;
+}
+
+// ─── §REASONS::renderRsnCharts — رسمان أفقيان متراصّان ───
+// 🔴 **أفقي عن قصد** — أسماء الأسباب جمل عربية كاملة («لا يرد نهائي على
+//    المندوب»)، والرسم الرأسي كان هيحتاج ليبل مايل وده ممنوع بقرار أحمد
+//    (02-09-2026)، أو عرض مجموعة ضخم وسكرول أفقي بلا فايدة. المحور الأفقي
+//    بيخلي الليبل يتقرا أفقيًا من غير أي دوران — نفس القاعدة، تنفيذ أنسب.
+// الرسمان بنفس ترتيب الأسباب بالظبط (الرسم التاني بيتقري كـ«نفس الصف بالوحدة
+// التانية») — ترتيب مستقل لكل رسم بيخلي المقارنة الرأسية كذب.
+let rsnCharts = { count: null, value: null };
+
+function renderRsnCharts(groups) {
+  const host = document.getElementById('rsnCharts');
+  if (!host) return;
+  const kill = () => { rsnCharts.count?.destroy(); rsnCharts.value?.destroy(); rsnCharts = { count: null, value: null }; };
+
+  if (!groups.length) {
+    host.innerHTML = `<div class="geo-chart-card"><div class="details-empty">مفيش أوردرات خسارة في الفترة المختارة.</div></div>`;
+    kill();
+    return;
+  }
+
+  const rows = rsnSortGroups(groups, 'value', 'desc');
+  const H = Math.max(220, rows.length * 34 + 40);
+  const legend = RSN_STAGE.map(st =>
+    `<span class="geo-lg-item"><span class="geo-lg-dot" style="background:${st.colour}"></span>${st.label}</span>`).join('');
+
+  host.innerHTML = `
+    <div class="geo-chart-card">
+      <div class="chart-card-hdr"><span class="kpi-icon">📦</span>عدد أوردرات الخسارة لكل سبب</div>
+      <div class="chart-card-sub geo-stat-row">
+        <span class="geo-stat">🧾 <b>${fmtInt(rows.length)}</b> سبب في الفترة</span>
+        <span class="geo-stat">↓ مرتّبة بقيمة الخسارة تنازليًا — نفس ترتيب الرسم التاني</span>
+      </div>
+      <div class="geo-chart-legend">${legend}</div>
+      <div class="rsn-chart-scroll"><div style="height:${H}px"><canvas id="rsnCountBar"></canvas></div></div>
+    </div>
+    <div class="geo-chart-card">
+      <div class="chart-card-hdr"><span class="kpi-icon">💰</span>قيمة الخسارة لكل سبب</div>
+      <div class="chart-card-sub geo-stat-row">
+        <span class="geo-stat">💰 إجمالي <b>${fmtMoney(rows.reduce((a, g) => a + g.value, 0))}</b></span>
+        <span class="geo-stat">🔁 نفس ترتيب الرسم اللي فوق بالظبط — بالجنيه بدل العدد</span>
+      </div>
+      <div class="rsn-chart-scroll"><div style="height:${H}px"><canvas id="rsnValueBar"></canvas></div></div>
+    </div>`;
+
+  kill();
+  rsnCharts.count = buildRsnBar('rsnCountBar', rows, true);
+  rsnCharts.value = buildRsnBar('rsnValueBar', rows, false);
+}
+
+// stacked أفقي: التلات مراحل جوّه عمود السبب الواحد — بيجاوب على «السبب ده
+// بيحصل في أنهي مرحلة؟» في نفس الرسم بدل رسم تالت.
+function buildRsnBar(canvasId, rows, isCount) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return null;
+  const fmtFn = isCount ? fmtInt : fmtMoney;
+  const F = { LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' };
+
+  return new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: rows.map(r => r.label),
+      datasets: isCount
+        ? RSN_STAGE.map(st => ({
+            label: st.label, data: rows.map(r => r[F[st.id]]),
+            backgroundColor: st.colour, borderRadius: 3, maxBarThickness: 26,
+          }))
+        // بالقيمة: الفاقد بيتحسب على مستوى القطعة فمالوش تفصيل بالمرحلة —
+        // عمود واحد بلون السبب نفسه أصدق من توزيع تقديري على التلاتة.
+        : [{ label: 'قيمة الخسارة', data: rows.map(r => r.value),
+             backgroundColor: rows.map(r => RSN_FAMILY_DEF[r.family].colour),
+             borderRadius: 3, maxBarThickness: 26 }],
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        x: { stacked: isCount, beginAtZero: true, grid: { color: '#f1f5f9' },
+             ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, callback: v => geoAxisTick(v) } },
+        // ⛔ مفيش أي دوران على الليبلات — المحور الأفقي بيخليها أفقية أصلاً.
+        y: { stacked: isCount, grid: { display: false },
+             ticks: { font: { family: "'Noto Sans Arabic', sans-serif", size: 10 }, autoSkip: false } },
+      },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          rtl: true,
+          bodyFont: { family: "'Noto Sans Arabic', sans-serif" },
+          titleFont: { family: "'Noto Sans Arabic', sans-serif" },
+          callbacks: {
+            label: (ctx) => {
+              const g = rows[ctx.dataIndex];
+              const tot = isCount ? g.orders : g.value;
+              const pct = tot ? (ctx.parsed.x / tot) * 100 : 0;
+              return ` ${ctx.dataset.label}: ${fmtFn(ctx.parsed.x)}${isCount ? ` (${pct.toFixed(1)}%)` : ''}`;
+            },
+            footer: (items) => {
+              if (!items.length) return '';
+              const g = rows[items[0].dataIndex];
+              return isCount ? `الإجمالي: ${fmtInt(g.orders)} أوردر · ${fmtMoney(g.value)}`
+                             : `${fmtInt(g.orders)} أوردر · متوسط ${fmtMoney(g.avg)}`;
+            },
+          },
+        },
+      },
+      onClick: (evt, els) => { const r = els.length && rows[els[0].index]; if (r) showRsnDetails(r.key); },
+    },
+  });
+}
+
+// ─── §REASONS::renderRsnTable ───
+function renderRsnTable(groups, totals) {
+  const el = document.getElementById('rsnTable');
+  if (!el) return;
+  if (!groups.length) {
+    el.innerHTML = `<div class="details-empty">مفيش أوردرات خسارة في الفترة المختارة.</div>`;
+    return;
+  }
+
+  const sorted = rsnSortGroups(groups, state.rsnSortKey, state.rsnSortDir);
+  const arrow = k => state.rsnSortKey !== k ? '' :
+    `<span class="geo-sort-arrow">${state.rsnSortDir === 'desc' ? '▼' : '▲'}</span>`;
+  const th = (k, label, hint, cls) =>
+    `<th class="${cls || ''} geo-sortable${state.rsnSortKey === k ? ' is-sorted' : ''}" title="${esc(hint || label)}" onclick="setRsnSort('${k}')">${label}${arrow(k)}</th>`;
+
+  const bar = (pctVal, colour) =>
+    `<div class="geo-stat-bar"><div class="geo-stat-bar-fill" style="width:${Math.min(Math.max(pctVal, 0), 100).toFixed(1)}%;background:${colour}"></div></div>`;
+
+  const body = sorted.map(g => {
+    const active = state.rsnDetails.key === g.key ? ' geo-row-active' : '';
+    const pctN = totals.orders ? (g.orders / totals.orders) * 100 : 0;
+    const pctV = totals.value  ? (g.value  / totals.value)  * 100 : 0;
+    const fam  = RSN_FAMILY_DEF[g.family];
+    const stages = RSN_STAGE.filter(st => g[{ LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' }[st.id]] > 0)
+      .map(st => `<span class="rsn-stage-pill" style="color:${st.colour}">${st.icon} ${fmtInt(g[{ LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' }[st.id]])}</span>`).join(' ');
+    return `
+    <tr class="${active}" onclick="showRsnDetails(${JSON.stringify(g.key).replace(/"/g, '&quot;')})">
+      <td class="geo-name">${esc(g.label)}${g.isUnlisted ? '<span class="note-pill">قيمة برّه القايمة</span>' : ''}${g.mismatched ? `<span class="rsn-mm-pill" title="سبب متكتب في حقل غير المتوقع لدلوه — تشخيص بس، مش بيغيّر أي رقم">حقل مختلف: ${fmtInt(g.mismatched)}</span>` : ''}</td>
+      <td><span class="rsn-stage-pill" style="color:${fam.colour}">${esc(fam.label)}</span></td>
+      <td class="col-num">${stages || '—'}</td>
+      <td class="col-num geo-sep"><span class="geo-n">${fmtInt(g.orders)}</span>${bar(pctN, 'var(--red)')}<span class="geo-pct">${fmtPct(pctN)}</span></td>
+      <td class="col-num"><span class="geo-n clr-red">${fmtMoney(g.value)}</span>${bar(pctV, 'var(--red)')}<span class="geo-pct">${fmtPct(pctV)}</span></td>
+      <td class="col-num geo-strong">${fmtMoney(g.avg)}</td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML = `
+    <div class="geo-table-note">
+      اضغط على أي عمود للترتيب بيه · اضغط على أي صف لعرض أوردراته تحت.
+      <b>العدد</b> بيطابق كارت «خسائر» في تاب الأوردرات بالظبط لما يكون مفيش فلتر شغّال.
+      ⚠️ <b>القيمة</b> هي فاقد الأوردرات دي وحدها، فهي <b>أقل</b> من كارت «خسائر» في تاب المبيعات —
+      الكارت ده بيعدّ كمان فاقد جوّه أوردرات <b>اتسلّمت</b> (محذوف قبل الشحن · مرتجع استبدال)، وهي مش خسارة على مستوى الأوردر.
+    </div>
+    <div class="details-scroll">
+      <table class="details-table geo-table">
+        <thead>
+          <tr>
+            <th class="geo-name-th">السبب</th>
+            <th>العائلة</th>
+            <th>المرحلة</th>
+            ${th('orders', 'عدد الأوردرات', 'عدد أوردرات الخسارة اللي عليها السبب ده', 'geo-sep')}
+            ${th('value',  'قيمة الخسارة (ج.م)', 'فاقد القطع في الأوردرات دي — محسوب بنفس دالة تاب المبيعات')}
+            ${th('avg',    'متوسط الأوردر', 'قيمة الخسارة ÷ عدد الأوردرات — السبب النادر ممكن يبقى الأغلى')}
+          </tr>
+        </thead>
+        <tbody>${body}</tbody>
+        <tfoot>
+          <tr class="geo-total-row">
+            <td class="geo-name">الإجمالي</td><td>—</td><td class="col-num">—</td>
+            <td class="col-num geo-strong geo-sep">${fmtInt(totals.orders)}</td>
+            <td class="col-num geo-strong clr-red">${fmtMoney(totals.value)}</td>
+            <td class="col-num geo-strong">${fmtMoney(totals.orders ? totals.value / totals.orders : 0)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>`;
+}
+
+// ─── §REASONS::renderRsnMatrix — السبب × المرحلة ───
+function renderRsnMatrix(groups, totals) {
+  const el = document.getElementById('rsnMatrix');
+  if (!el) return;
+  if (!groups.length) { el.innerHTML = `<div class="details-empty">مفيش بيانات في الفترة المختارة.</div>`; return; }
+
+  const F = { LOST_CANCELLED: 'stCancelled', LOST_RTO: 'stRTO', LOST_FULL_RETURN: 'stFullReturn' };
+  const sorted = rsnSortGroups(groups, 'orders', 'desc');
+  const maxCell = Math.max(1, ...sorted.flatMap(g => RSN_STAGE_IDS.map(id => g[F[id]])));
+
+  const body = sorted.map(g => `
+    <tr class="${state.rsnDetails.key === g.key ? 'geo-row-active' : ''}" onclick="showRsnDetails(${JSON.stringify(g.key).replace(/"/g, '&quot;')})">
+      <td class="geo-name">${esc(g.label)}</td>
+      ${RSN_STAGE.map(st => {
+        const n = g[F[st.id]];
+        const a = n ? (0.10 + 0.55 * (n / maxCell)).toFixed(2) : 0;
+        return `<td class="rsn-hc" style="${n ? `background:rgba(220,38,38,${a})` : ''}">${n ? fmtInt(n) : '—'}</td>`;
+      }).join('')}
+      <td class="rsn-hc geo-strong">${fmtInt(g.orders)}</td>
+    </tr>`).join('');
+
+  el.innerHTML = `
+    <div class="geo-table-note">
+      نفس السبب في مرحلتين مختلفتين = مشكلتان مختلفتان: «المقاس غير متوفر» قبل الشحن مشكلة مخزون،
+      و«مقاس غير مظبوط» بعد التسليم مشكلة وصف وجدول مقاسات. الخلية الملوّنة بتقارن داخل الجدول كله.
+    </div>
+    <div class="details-scroll">
+      <table class="details-table geo-table rsn-heat">
+        <thead><tr>
+          <th class="geo-name-th">السبب</th>
+          ${RSN_STAGE.map(st => `<th title="${esc(st.label)}">${st.icon} ${esc(st.label)}</th>`).join('')}
+          <th>الإجمالي</th>
+        </tr></thead>
+        <tbody>${body}</tbody>
+        <tfoot><tr class="geo-total-row">
+          <td class="geo-name">الإجمالي</td>
+          <td class="rsn-hc">${fmtInt(totals.stCancelled)}</td>
+          <td class="rsn-hc">${fmtInt(totals.stRTO)}</td>
+          <td class="rsn-hc">${fmtInt(totals.stFullReturn)}</td>
+          <td class="rsn-hc geo-strong">${fmtInt(totals.orders)}</td>
+        </tr></tfoot>
+      </table>
+    </div>`;
+}
+
+// ─── §REASONS::renderRsnGeo — الأسباب × المحافظة/المنطقة ───
+// 🔴 **التطبيع إجباري.** لو الخلية عرضت العدد الخام، القاهرة هتتصدّر كل سبب
+//    وكل جدول **لأنها أكبر** مش لأن عندها مشكلة. فالعمود الحاسم هو **معدل
+//    الخسارة داخل المجموعة** (خسائر ÷ إجمالي أوردرات المجموعة)، والمؤشر =
+//    معدل المجموعة ÷ المعدل العام.
+// ⚠️ البُعد بيتبدّل بمفتاح (محافظة/منطقة) مش تابين: هنا البُعد الأساسي هو
+//    **السبب** والجغرافيا تفصيل تحته — قرار v3.13.0 كان بيخص بُعدين مستقلين
+//    بنفس الأهمية، ودي مش نفس الحالة.
+// ⛔ وفلتر المحافظات بتاع تاب المحافظات **مالوش أي أثر هنا** — القسم ده
+//    بيقرا من `state.orderRows` مباشرةً وبيفلتر بفلتر الأسباب وحده.
+function renderRsnGeo() {
+  const el = document.getElementById('rsnGeoTable');
+  if (!el) return;
+  const dim   = state.rsnDim;
+  const keyOf = dim === 'zone' ? zoneKeyOf : provKeyOf;
+  const lbl   = dim === 'zone' ? zoneLabel : provLabel;
+
+  const all   = state.orderRows || [];
+  const loss  = rsnRowsFor(all);
+  if (!all.length) { el.innerHTML = `<div class="details-empty">مفيش أوردرات في الفترة المختارة.</div>`; return; }
+
+  const totalBy = new Map();   // key → إجمالي أوردرات المجموعة (كل الحالات)
+  all.forEach(r => { const k = keyOf(r); totalBy.set(k, (totalBy.get(k) || 0) + 1); });
+
+  const lossBy   = new Map();  // key → أوردرات الخسارة
+  const reasonBy = new Map();  // key → Map(reason → n)
+  loss.forEach(r => {
+    const k = keyOf(r);
+    lossBy.set(k, (lossBy.get(k) || 0) + 1);
+    const m = reasonBy.get(k) || new Map();
+    const rk = rsnKeyOf(r);
+    m.set(rk, (m.get(rk) || 0) + 1);
+    reasonBy.set(k, m);
+  });
+
+  const overall = all.length ? (loss.length / all.length) * 100 : 0;
+
+  const rows = [...totalBy.keys()].map(k => {
+    const tot  = totalBy.get(k) || 0;
+    const ls   = lossBy.get(k) || 0;
+    const rate = tot ? (ls / tot) * 100 : 0;
+    const top  = [...(reasonBy.get(k) || new Map()).entries()].sort((a, b) => b[1] - a[1])[0] || null;
+    return { key: k, label: lbl(k), tot, ls, rate,
+             idx: overall ? rate / overall : 0,
+             topLabel: top ? rsnLabel(top[0]) : null, topN: top ? top[1] : 0,
+             enough: tot >= RSN_MIN_SAMPLE };
+  }).sort((a, b) => (b.ls - a.ls) || (b.tot - a.tot) || a.label.localeCompare(b.label, 'ar'));
+
+  const body = rows.map(r => `
+    <tr style="${r.enough ? '' : 'opacity:.5'}">
+      <td class="geo-name">${esc(r.label)}</td>
+      <td class="col-num">${fmtInt(r.tot)}</td>
+      <td class="col-num geo-strong clr-red">${fmtInt(r.ls)}</td>
+      <td class="col-num">
+        <span class="geo-n">${fmtPct(r.rate)}</span>
+        <div class="geo-stat-bar"><div class="geo-stat-bar-fill" style="width:${Math.min(r.rate, 100).toFixed(1)}%;background:var(--red)"></div></div>
+      </td>
+      <td class="col-num">${r.enough
+        ? `<b style="color:${r.idx >= 1.5 ? 'var(--red)' : 'inherit'}">${r.idx.toFixed(2)}</b>`
+        : `<span class="geo-pct">— عيّنة أقل من ${fmtInt(RSN_MIN_SAMPLE)}</span>`}</td>
+      <td>${r.topLabel ? `${esc(r.topLabel)} <span class="geo-pct">(${fmtInt(r.topN)})</span>` : '—'}</td>
+    </tr>`).join('');
+
+  el.innerHTML = `
+    <div class="geo-table-note">
+      <div class="rsn-toolbar">
+        <span style="font-size:12.5px;font-weight:700">البُعد:</span>
+        <button class="rsn-dim-btn${dim === 'prov' ? ' is-on' : ''}" onclick="setRsnDim('prov')">🗺️ المحافظة</button>
+        <button class="rsn-dim-btn${dim === 'zone' ? ' is-on' : ''}" onclick="setRsnDim('zone')">🚚 المنطقة</button>
+      </div>
+      🔴 <b>الأرقام مطبّعة عن قصد.</b> العدد الخام بيخلي أكبر محافظة تتصدّر كل صف <b>لأنها أكبر</b> مش لأن عندها مشكلة —
+      فالعمود الحاسم هو <b>معدل الخسارة</b> (خسائر ÷ إجمالي أوردرات المجموعة)، و<b>المؤشر</b> = معدل المجموعة ÷ المعدل العام
+      (<span class="mono">${overall.toFixed(1)}%</span>). مؤشر أعلى من <b>1.50</b> = إشارة تستاهل مراجعة.
+      الصف اللي عيّنته أقل من ${fmtInt(RSN_MIN_SAMPLE)} أوردر بيبان باهت وبلا مؤشر — مش بيتخفي.
+    </div>
+    <div class="details-scroll">
+      <table class="details-table geo-table">
+        <thead><tr>
+          <th class="geo-name-th">${dim === 'zone' ? 'المنطقة' : 'المحافظة'}</th>
+          <th title="كل أوردرات المجموعة في الفترة، بكل حالاتها">إجمالي الأوردرات</th>
+          <th title="أوردرات الخسارة بعد فلتر الأسباب الحالي">خسائر</th>
+          <th title="خسائر ÷ إجمالي أوردرات المجموعة">معدل الخسارة</th>
+          <th title="معدل المجموعة ÷ المعدل العام — فوق 1.5 يعني تركّز حقيقي">المؤشر</th>
+          <th>أعلى سبب في المجموعة</th>
+        </tr></thead>
+        <tbody>${body}</tbody>
+      </table>
+    </div>`;
+}
+
+// ─── §REASONS::renderRsnQuality ───
+function renderRsnQuality(totals) {
+  const el = document.getElementById('rsnQuality');
+  if (!el) return;
+  const c    = rsnCoverage();
+  const all  = (state.orderRows || []).filter(rsnIsLoss);
+  const unl  = new Set(all.map(rsnKeyOf).filter(k => k !== RSN_NONE && !REASON_FAMILY[k]));
+  const mism = all.filter(rsnFieldMismatch).length;
+
+  const item = (icon, title, n, body) => `
+    <div class="warn-note" style="margin-bottom:8px">
+      ${icon} <b>${title}: ${n}</b> — ${body}
+    </div>`;
+
+  el.innerHTML =
+    item('🧾', 'خسائر بلا أي سبب', fmtInt(c.missing),
+         `اضغط صف «بدون سبب» في الجدول فوق لمراجعتهم. الرقم ده مؤشر على <b>العملية</b> مش على العميل — هدفه ينزل.`) +
+    item('🔀', 'سبب متكتب في حقل غير المتوقع لدلوه', fmtInt(mism),
+         `زي سبب إلغاء على أوردر رفض استلام. ⚠️ <b>مش خطأ في الأداة ولا بيغيّر أي رقم</b> — الأداة بتاخد أول قيمة موجودة من الحقلين
+          بقرار صريح. ده بلاغ لخدمة العملاء يتصلّح في شوبيفاي.`) +
+    (unl.size
+      ? item('❓', 'قيم برّه القايمة المقفولة', fmtInt(unl.size),
+             `${[...unl].map(esc).join(' · ')} — بتتعرض <b>خام</b> في الجدول بدل ما تتبلع في دلو «أخرى» يخفيها للأبد.`)
+      : '');
+}
+
+// ══════════════════════════════════════════════════════
+// §REASONS-DETAILS — أوردرات السبب المختار
+// ══════════════════════════════════════════════════════
+function showRsnDetails(key) {
+  const d = state.rsnDetails;
+  if (d.key === key) { d.key = null; d.open = false; }
+  else { d.key = key; d.title = rsnLabel(key); d.open = true; }
+  d.limit = DETAILS_ROW_LIMIT;
+  d.search = '';
+  document.getElementById('rsnDetailsSection')?.classList.toggle('open', d.open);
+  renderReasons();
+  renderRsnDetails();
+  // ⛔ ممنوع `scrollIntoView` — الضغطة فعل فلترة، والقفزة بتودّي المستخدم بعيد
+  //    عن اللي بيقارن فيه. مفيش ولا واحد في الملف كله.
+}
+function toggleRsnDetails() {
+  const d = state.rsnDetails;
+  d.open = !d.open;
+  document.getElementById('rsnDetailsSection')?.classList.toggle('open', d.open);
+}
+function onRsnDetailsSearch(v) {
+  state.rsnDetails.search = v;
+  state.rsnDetails.limit  = DETAILS_ROW_LIMIT;
+  renderRsnDetailsTableWrap();
+}
+function showMoreRsnDetails() {
+  state.rsnDetails.limit += DETAILS_ROW_LIMIT;
+  renderRsnDetailsTableWrap();
+}
+
+// ⚠️ نفس مصدر الصفوف اللي الأرقام فوق اتحسبت منه بالظبط (`rsnRowsFor`) —
+//    لو الجدول قرا من مصدر تاني، هيعرض أوردرات مش داخلة في الرقم اللي فوقه.
+function rsnSelectedRows() {
+  const key = state.rsnDetails.key;
+  if (key == null) return [];
+  return rsnRowsFor(state.orderRows).filter(r => rsnKeyOf(r) === key);
+}
+function searchFilteredRsnRows() {
+  const q = (state.rsnDetails.search || '').trim().toLowerCase();
+  const rows = rsnSelectedRows();
+  if (!q) return rows;
+  return rows.filter(r =>
+    String(r.orderName || '').toLowerCase().includes(q) ||
+    String(r.orderId   || '').toLowerCase().includes(q) ||
+    String(r.s1        || '').toLowerCase().includes(q) ||
+    String(r.s2        || '').toLowerCase().includes(q));
+}
+
+function renderRsnDetails() {
+  const scope = document.getElementById('rsnDetailsScope');
+  const body  = document.getElementById('rsnDetailsBody');
+  if (!scope || !body) return;
+  const d = state.rsnDetails;
+
+  if (d.key == null) {
+    scope.textContent = '— اضغط على أي سبب لعرض أوردراته';
+    body.innerHTML = `<div class="details-placeholder">اضغط على أي صف في جدول الأسباب فوق (أو على أي عمود في الرسم) وهتظهر أوردرات السبب ده هنا.</div>`;
+    return;
+  }
+  scope.textContent = `— ${d.title} · ${state.range.from} → ${state.range.to}`;
+  body.innerHTML = `
+    <div class="details-search-row">
+      <div class="details-search-wrap">
+        <input type="text" id="rsnDetailsSearchInput" class="details-search-input${d.search ? ' has-value' : ''}"
+               value="${esc(d.search)}"
+               oninput="onRsnDetailsSearch(this.value); toggleSearchActiveState(this)">
+        <span class="details-search-icon">🔍</span>
+      </div>
+    </div>
+    <div id="rsnDetailsTableWrap"></div>`;
+  renderRsnDetailsTableWrap();
+}
+
+function renderRsnDetailsTableWrap() {
+  const wrap = document.getElementById('rsnDetailsTableWrap');
+  if (!wrap) return;
+  const d    = state.rsnDetails;
+  const rows = searchFilteredRsnRows();
+  const totalPieces = rows.reduce((s, r) => s + (r.orderTotalPieces || 0), 0);
+
+  const summary = `
+    <div class="details-summary-row">
+      <span class="details-summary-item">عدد الأوردرات: <b>${fmtInt(rows.length)}</b></span>
+      <span class="details-summary-item">إجمالي عدد القطع فيهم: <b>${fmtInt(totalPieces)}</b></span>
+    </div>`;
+
+  if (!rows.length) {
+    wrap.innerHTML = summary + `<div class="details-empty">مفيش أوردرات مطابقة${d.search ? ' للبحث' : ''} في الفترة المختارة.</div>`;
+    return;
+  }
+
+  const sorted = [...rows].sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+  const shown  = sorted.slice(0, d.limit);
+
+  const fieldLabel = r => r.reasonField === 'cancel' ? 'حقل الإلغاء'
+                        : r.reasonField === 'return' ? 'حقل المرتجع' : '—';
+
+  const tbody = shown.map(r => `
+    <tr class="${r.cycleNote === 'CYCLE_OVERLAP' ? 'has-cycle-overlap' : ''}">
+      <td>${orderLink(r.orderName || r.orderId, r.orderId)}</td>
+      <td class="col-num">${fmtInt(r.orderTotalPieces)}</td>
+      <td class="col-num">${fmtRowDate(r.createdAt)}</td>
+      <td>${esc(rsnLabel(rsnKeyOf(r)))}</td>
+      <td>${fieldLabel(r)}${rsnFieldMismatch(r) ? '<span class="rsn-mm-pill">حقل مختلف</span>' : ''}</td>
+      <td>${orderBucketPill(r.bucket)}${cyclePill(r.cycleNote)}</td>
+      <td>${esc(provLabel(provKeyOf(r)))}</td>
+      <td>${esc(zoneLabel(zoneKeyOf(r)))}</td>
+      <td>${esc(r.s1 || '—')}</td>
+    </tr>`).join('');
+
+  wrap.innerHTML = summary + `
+    <div class="details-scroll">
+      <table class="details-table">
+        <thead><tr>
+          <th>رقم الأوردر</th><th>عدد القطع</th><th>التاريخ</th>
+          <th>السبب</th><th>مصدر السبب</th><th>الحالة</th>
+          <th>المحافظة</th><th>المنطقة</th><th>حالة الأوردر (S1)</th>
+        </tr></thead>
+        <tbody>${tbody}</tbody>
+      </table>
+    </div>
+    ${sorted.length > shown.length ? `<div class="details-more"><button class="btn" onclick="showMoreRsnDetails()">عرض المزيد (${fmtInt(sorted.length - shown.length)} أوردر متبقي)</button></div>` : ''}`;
 }
 
 // ══════════════════════════════════════════════════════
