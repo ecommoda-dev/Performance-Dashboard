@@ -1113,8 +1113,8 @@ index.html  blob SHA 15e3af845754036eb42875c594c1c6f127eff405
   حسابه — بس بيكلّف نداءات GraphQL كاملة لكل فترة بعدها.
 - **`index.html` بحروف صغيرة إجباري.** GitHub Pages بيدوّر على `index.html` كملف
   افتراضي للمجلد — `Index.html` بحرف كبير بيدي **404** على الرابط المختصر.
-  الـ `Index.html` الموجود دلوقتي **صفحة تحويل بس** (`meta refresh`، صفر منطق) —
-  متحطش فيه أي كود.
+  `Index.html` اتشالت نهائيًا — 23-09-2026، قرار أحمد. الرابط الوحيد للأداة:
+  `https://ecommoda-dev.github.io/Performance-Dashboard/`
 - **الأسرار متتكتبش في الريبو أبدًا.** `CLIENT_ID` · `CLIENT_SECRET` · `WORKER_SECRET`
   موجودين في الداشبورد وهيفضلوا. وبعد أي سر جديد → **Promote**.
 - **🔴 ممنوع ترجّع قصّ الـ chunk على حدود الفترة المختارة.** الشكل `first > from ? …`
