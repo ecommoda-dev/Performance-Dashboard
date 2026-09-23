@@ -94,7 +94,7 @@ Cloudflare KV.
 | `index.js` | كود الـ Worker — `v3.8.0` |
 | `wrangler.toml` | إعدادات النشر — الاسم و الـ bindings و الـ vars |
 | `index.html` | الواجهة — `v3.18.0` |
-| `Index.html` | صفحة تحويل للرابط القديم (بحرف كبير) — مفيهاش أي منطق |
+| ~~`Index.html`~~ | اتشالت — 23-09-2026، قرار أحمد. الرابط الوحيد: `https://ecommoda-dev.github.io/Performance-Dashboard/` |
 | `CLAUDE.md` | قواعد الأداة — بتتحمّل في كل جلسة Claude |
 | `.gitignore` | القياسي |
 
