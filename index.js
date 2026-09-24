@@ -241,9 +241,22 @@
 //      **كل** الصفوف كده، لأن ده عرض صلاحية مش عرض بيانات.
 //   → CACHE_VERSION **v11 → v12** (شكل الصف اتغيّر — من غير الرفع الشهور
 //     المتكاشة بترجّع صفوف بلا الحقلين والتاب بيرندر فاضي بلا أي خطأ).
+// v3.8.1 (24-09-2026): مراقبة بس — صفر تغيير منطق تشغيلي، صفر CACHE_VERSION bump:
+//   1. `check-log-values.mjs` اتستبدل بالنسخة المصلَّحة (worker-builder v3.7.0) —
+//      القديمة كانت بتدوّر على `type:` بنقطتين بس، فـ object shorthand
+//      (`{ tool, type }`) كان بيعدّي في صمت. الأداة دي مفيهاش shorthand أصلاً
+//      (اتأكد بالتشغيل: exit 0، ٢ قيمة مسجّلة = ٢ مستخدمة)، فالاستبدال صفر
+//      أثر على النتيجة النهارده — بس بيقفل الثغرة قبل أول استخدام شرطي.
+//   2. الطبقة ٥ — الحارس الديناميكي لقيم اللوج (worker-builder Step 7-ج):
+//      `LOG_REGISTRY` + `isRegisteredLogValue` + `noteUnregisteredLogValues`
+//      جوّه `writeLog` (§LOG-REG). قيمة (tool,type) غير مسجّلة بتتكتب عادي
+//      + `extra._unregistered=true` + UPSERT صامت في `log_value_alerts`
+//      (الجدول مشترك على مستوى الستاك — مفيش CREATE TABLE هنا) — بعد الكتابة
+//      مش قبلها، ومفيش رفض كتابة أبدًا. الأداة دي مالهاش writeLogsBatch ولا
+//      أنكور تاني — `writeLog` هي المستهلك الوحيد.
 //
-// skills: worker-builder v2.0.0 · constants v1.4.3 · dashboard-builder v3.1.0 ·
-//         order-lifecycle v1.2.0 — 01-09-2026
+// skills: worker-builder v3.7.0 · constants v3.1.0 · dashboard-builder v3.1.0 ·
+//         order-lifecycle v1.2.0 — 24-09-2026
 // ⚠️ البندان الكاسران في worker-builder v2.0.0 **مش منطبقين على الأداة دي**،
 //    واتأكدوا بالفحص مش بالافتراض:
 //    · «انتظار التأكيد بعد ميوتيشن غير متزامنة» — الأداة **قراءة فقط**، مفيش
@@ -259,7 +272,7 @@ const TOOL_NAME     = 'performance_dashboard';
 // get_config بيرجّعها — والواجهة بتقارنها بـ MIN_WORKER_VERSION عندها (**مش**
 // بـ TOOL_VERSION): السؤال هو «الـ Worker جديد كفاية؟» مش «النسختين متطابقتين؟»،
 // لأن الرقمين مستقلين بالتصميم هنا (html-builder v4.0.0 · Standards #29).
-const WORKER_VERSION = 'v3.8.0';
+const WORKER_VERSION = 'v3.8.1';
 const CACHE_VERSION = 'v13'; // v2(rows) → v3(buckets) → v4(fix assertion) → v5(+orderBoxes/orderRows) → v6(fix normalBucket + stageFromS2) → v7(RETURNS_PAGE 5→10, EXCHANGE_LINES_PAGE 10→20 — كانت بتوقف طلبات لأوردرات حقيقية) → v8(دورات R/E متعددة: قراءة أحدث دورة + حقل cycleNote في الصفوف) → v9(ttlFor متدرّج بدل كاش دائم على الفترات المقفولة — dashboard-builder v2.0.0) → v10(ROWS_MAX_DAYS: rows/orderRows بيتقصّوا فوق 45 يوم + rowsIncluded/rowsOmittedReason — boxes/orderBoxes فضلوا كاملين دايمًا) → v11(hasRE على كل صف أوردر — عشان الواجهة تحسب «كام أوردر فيه نشاط إرجاع/استبدال» لأي جزء من الفترة بعد التقسيم الشهري) → v12(prov/zone على كل صف — تاب المحافظات والمناطق؛ الحقلين على الصف مش مجمّعين في الـ payload عشان يتحسبوا لأي جزء من الفترة) → v13(reason/reasonField على كل صف — تاب الإلغاءات والمرتجعات؛ سبب واحد لكل أوردر مقروء من أي من الميتافيلدين بلا افتراض إن الحقل بيحدد الدلو)
 
 // الحدود دي منسوخة حرفياً من Data Contract v2 §6 — ممنوع تتغير من غير Data Contract جديد
@@ -1426,7 +1439,67 @@ async function registerPin(db, username, pin) {
   return true;
 }
 
+// ════════════════════════════════════════════════════════════
+// §LOG-REG — الحارس الديناميكي لقيم اللوج (الطبقة ٥ · worker-builder Step 7-ج)
+// ════════════════════════════════════════════════════════════
+// قطعة الأداة دي بس من log-values.json اللي جنبها — بتتحدّث معاه في نفس
+// الـ commit. الأداة دي بتكتب type='login'/'logout' بس (Step 7-ج مفتاحه
+// الزوج (tool, type) عشان أي tool تاني في المستقبل ما يتلخبطش مع اللي هنا).
+const LOG_REGISTRY = {
+  performance_dashboard: new Set(['login', 'logout']),
+};
+
+const isRegisteredLogValue = (tool, type) => !!LOG_REGISTRY[tool]?.has(type);
+
+// INSERT ON CONFLICT على (source_tool, tool, type) — صف واحد لكل قيمة،
+// hits بيعدّ. الجدول مشترك على مستوى الستاك كله (ecommoda-constants §2)،
+// اتعمل مرة واحدة هناك — ممنوع CREATE TABLE هنا.
+const LOG_ALERT_SQL = `
+  INSERT INTO log_value_alerts
+    (source_tool, tool, type, first_seen, last_seen, hits,
+     worker_version, sample_order_name, sample_employee, sample_notes)
+  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  ON CONFLICT(source_tool, tool, type) DO UPDATE SET
+    last_seen         = excluded.last_seen,
+    hits              = log_value_alerts.hits + excluded.hits,
+    worker_version    = excluded.worker_version,
+    sample_order_name = excluded.sample_order_name,
+    sample_employee   = excluded.sample_employee,
+    sample_notes      = excluded.sample_notes,
+    status            = CASE WHEN log_value_alerts.status = 'ignored'
+                             THEN 'ignored' ELSE 'open' END
+`;
+
+// فشل التنبيه ممنوع يأثر على أي حاجة — try/catch صامت. بتجمّع التكرار جوّه
+// نفس الدفعة في صف واحد (hits) قبل ما تكتب.
+async function noteUnregisteredLogValues(db, entries) {
+  const byPair = new Map();
+  for (const e of entries) {
+    const key = `${e.tool}\u0000${e.type}`;
+    const acc = byPair.get(key);
+    if (acc) { acc.hits++; continue; }
+    byPair.set(key, { entry: e, hits: 1 });
+  }
+  const now = new Date().toISOString();
+  for (const { entry, hits } of byPair.values()) {
+    try {
+      await db.prepare(LOG_ALERT_SQL).bind(
+        TOOL_NAME, entry.tool ?? '(بدون tool)', entry.type ?? '(بدون type)',
+        now, now, hits, WORKER_VERSION ?? null,
+        entry.orderName ?? null, entry.employee ?? null,
+        entry.notes ? String(entry.notes).slice(0, 200) : null,
+      ).run();
+    } catch (e) { /* متعمّد: التنبيه فهرس، وفشله أهون من تعطيل الأداة */ }
+  }
+}
+
 async function writeLog(db, entry) {
+  // 🔴 مفيش رفض كتابة أبدًا — الصف بيتكتب عادي حتى لو القيمة مش مسجّلة.
+  const unregistered = !isRegisteredLogValue(entry.tool, entry.type);
+  const extra = unregistered
+    ? { ...(entry.extra || {}), _unregistered: true }
+    : entry.extra;
+
   await db.prepare(`
     INSERT INTO logs
       (timestamp, tool, type, employee, order_id, order_name,
@@ -1445,8 +1518,11 @@ async function writeLog(db, entry) {
     entry.valueBefore  ?? null,
     entry.valueAfter   ?? null,
     entry.notes        ?? null,
-    entry.extra ? JSON.stringify(entry.extra) : null
+    extra ? JSON.stringify(extra) : null
   ).run();
+
+  // بعد الكتابة، مش قبلها — والتنبيه في try/catch صامت جوّه الدالة نفسها.
+  if (unregistered) await noteUnregisteredLogValues(db, [entry]);
 }
 
 // ══════════════════════════════════════════════════════
